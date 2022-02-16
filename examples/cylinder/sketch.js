@@ -12,5 +12,4 @@ function draw() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  emitResolution(shader_box);
 }

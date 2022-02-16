@@ -77,16 +77,22 @@
     radius = 100,
     height = 200,
     detail = 32,
+    texture = false,
     } = {}) {
     this.beginShape(TRIANGLE_STRIP);
     for (let i = 0; i <= detail; i++) {
       let angle = TWO_PI / detail;
       let x = sin(i * angle);
       let z = cos(i * angle);
-      //let u = float(i) / detail;
-      // note the uv texture coordinates
-      this.vertex(x * radius, -height / 2, z * radius/*, u, 0*/);
-      this.vertex(x * radius, +height / 2, z * radius/*, u, 1*/);
+      let u = float(i) / detail;
+      if (texture) {
+        this.vertex(x * radius, -height / 2, z * radius, u, 0);
+        this.vertex(x * radius, +height / 2, z * radius, u, 1);
+      }
+      else {
+        this.vertex(x * radius, -height / 2, z * radius);
+        this.vertex(x * radius, +height / 2, z * radius);
+      }
     }
     this.endShape();
   }
