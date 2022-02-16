@@ -4,9 +4,20 @@ lib should only work in **p5 WEBGL** mode.
 
 The main tasks to be completed before the first public release are:
 
-## 1. API compatibility with nub-1 beta3
+## 1. API compatibility with ~~nub-1 beta3~~ nub treegl branch
 
-**treegl** API compatibility >= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97).
+**treegl** API compatibility ~~>= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97)~~ with [nub treegl](https://github.com/VisualComputing/nub/tree/treegl) branch.
+
+### Observations
+
+Respect to [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97) the nub **treegl** git branch implements all of the following:
+
+1. Java-17 and processing beta 5 (though beta 6 has been released some days ago) versions used.
+2. Scene and Graph were merged into the new [Scene](https://github.com/VisualComputing/nub/blob/treegl/src/nub/core/Scene.java) class.
+3. The projection matrix was decoupled from scene and hence its dimensions are no longer handled. Ortho, perspective and frustum should be explicitly called in user space (the defaults are usually good enough).
+4. The matrix handler functionality was also merged into the scene.
+5. Since WEBGL is always 3D, all 2D stuff was removed.
+6. Depending on whether or not the scene handles the eye matrix, the library now works in two modes dubbed **female** and **male**: In **female** mode the eye is handled either with the low-level [camera](https://processing.org/reference/camera_.html) command or with a third party lib, such as [peasycam](https://github.com/jdf/peasycam) ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/female) some examples); whereas in **male** mode the eye should explicitly be set with the `setEye` command for the lib to handle the camera ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/male) some examples). These modes target a possible in-depth, proper solution to the __eye node and p5.Camera syncing__ point below.
 
 ## 2. Scene
 
@@ -24,16 +35,20 @@ p5.RendererGL.prototype.scene_method = function(args) {
 }
 ```
 
-Following this pattern onscreen scenes would use the method as:
+### Proof-of-concept
+
+Following this pattern onscreen scenes would use a method such as [cylinder](https://github.com/VisualComputing/p5.treegl/blob/2f480b30d76feb2c5dcd673512cdb21d1ed701fd/p5.treegl.js#L72) as follows:
 
 ```js
 function setup() {
-  createCanvas(100, 100, WEBGL);
+  createCanvas(400, 400, WEBGL);
 }
 
 function draw() {
   background(200);
-  scene_method();
+  orbitControl();
+  fill(255, 0, 0);
+  cylinder({ radius: 50, detail : 10 });
 }
 ```
 
@@ -43,18 +58,21 @@ whereas offscreen scenes would use the method as:
 let pg;
 
 function setup() {
-  createCanvas(100, 100, WEBGL);
-  pg = createGraphics(100, 100, WEBGL);
+  createCanvas(400, 400, WEBGL);
+  pg = createGraphics(300, 300, WEBGL);
 }
 
 function draw() {
   background(200);
-  pg.scene_method();
-  image(pg, 50, 50);
+  orbitControl();
+  pg.background(255, 0, 0);
+  pg.fill(0, 255, 255);
+  pg.cylinder({ radius: 50, detail : 10 });
+  image(pg, -150, -150);
 }
 ```
 
-Refer to all visual computing [shader](https://visualcomputing.github.io/docs/shaders/) examples.
+Refer to [cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder) and [cylinder_off](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder_off) treegl examples, respectively.
 
 ## 3. Picking
 
