@@ -72,7 +72,7 @@ function draw() {
 }
 ```
 
-Refer to [cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder) and [cylinder_off](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder_off) treegl examples, respectively.
+Refer to the [cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder) and [cylinder_off](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder_off) treegl examples, respectively.
 
 ## 3. Picking
 
