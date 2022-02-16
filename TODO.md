@@ -107,10 +107,10 @@ Port main [nub basic and demo examples](https://github.com/VisualComputing/nub/t
 
 ## ~~8. IK~~
 
-~~1. IK filters:~~
-   ~~1. _Hinge_.~~
-   ~~2. _Cone_.~~
-   ~~3. `FILTER` node visual hint.~~
-~~2. IK Framework:~~
-   ~~1. **p5.tree** as a framework for IK algorithms.~~
-   ~~2. Proof-of-concept: **FABRIK**, **CCD**, **TIK**.~~
+1. ~~IK filters:~~
+   1. ~~_Hinge_.~~
+   2. ~~_Cone_.~~
+   3. ~~`FILTER` node visual hint.~~
+2. IK ~~Framework:~~
+   1. ~~**p5.tree** as a framework for IK algorithms.~~
+   2. ~~Proof-of-concept: **FABRIK**, **CCD**, **TIK**.~~
