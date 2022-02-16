@@ -69,6 +69,80 @@
     graphics.endHUD();
   }
 
+  p5.prototype.cylinder = function () {
+    this._renderer.cylinder(...arguments);
+  }
+
+  p5.RendererGL.prototype.cylinder = function({
+    radius = 100,
+    height = 200,
+    detail = 32,
+    } = {}) {
+    this.beginShape(TRIANGLE_STRIP);
+    for (let i = 0; i <= detail; i++) {
+      let angle = TWO_PI / detail;
+      let x = sin(i * angle);
+      let z = cos(i * angle);
+      //let u = float(i) / detail;
+      // note the uv texture coordinates
+      this.vertex(x * radius, -height / 2, z * radius/*, u, 0*/);
+      this.vertex(x * radius, +height / 2, z * radius/*, u, 1*/);
+    }
+    this.endShape();
+  }
+
+  p5.prototype.drawAxes = function () {
+    this._renderer.drawAxes();
+  }
+
+  // Adapted from here: https://github.com/VisualComputing/nub/blob/b76a9f0de7c4a56e4c095193f147311ab665299d/src/nub/core/Scene.java#L4970
+  // TODO needs fix. Currently broken though!
+  p5.RendererGL.prototype.drawAxes = function() {
+    this._rendererState = this.push();
+    let length = 100;
+    //this.colorMode(this.RGB, 255);
+    let charWidth = length / 40;
+    let charHeight = length / 30;
+    let charShift = 1.04 * length;
+    this._rendererState = this.push();
+    this.beginShape(LINES);
+    this.strokeWeight(2);
+    // The X
+    this.stroke(200, 0, 0);
+    this.vertex(charShift, charWidth, -charHeight);
+    this.vertex(charShift, -charWidth, charHeight);
+    this.vertex(charShift, -charWidth, -charHeight);
+    this.vertex(charShift, charWidth, charHeight);
+    // The Y
+    this.stroke(0, 200, 0);
+    this.vertex(charWidth, charShift, charHeight);
+    this.vertex(0, charShift, 0);
+    this.vertex(-charWidth, charShift, charHeight);
+    this.vertex(0, charShift, 0);
+    this.vertex(0, charShift, 0);
+    this.vertex(0, charShift, -charHeight);
+    // The Z
+    this.stroke(0, 100, 200);
+    this.vertex(-charWidth, -charHeight, charShift);
+    this.vertex(charWidth, -charHeight, charShift);
+    this.vertex(charWidth, -charHeight, charShift);
+    this.vertex(-charWidth, charHeight, charShift);
+    this.vertex(-charWidth, charHeight, charShift);
+    this.vertex(charWidth, charHeight, charShift);
+    this.endShape();
+    this.pop(this._rendererState);
+    // X Axis
+    this.stroke(200, 0, 0);
+    this.line(0, 0, 0, length, 0, 0);
+    // Y Axis
+    this.stroke(0, 200, 0);
+    this.line(0, 0, 0, 0, length, 0);
+    // Z Axis
+    this.stroke(0, 100, 200);
+    this.line(0, 0, 0, 0, 0, length);
+    this.pop(this._rendererState);
+  }
+
   p5.prototype.beginHUD = function () {
     this._renderer.beginHUD();
   }
