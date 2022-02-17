@@ -106,9 +106,9 @@ Port main [nub basic and demo examples](https://github.com/VisualComputing/nub/t
 2. **Node**: `createNode` `configHint`, and `addKeyFrame`.
 3. **p5.RendererGL**: `display`, `tracks`, `tag`, `updateTag`, `fit` and all the interactivity methods: `shift`, `spin`, `lookAround`, `cad`, `moveForward`, `zoom` and `turn`.
 
-### display algorithm
+### The display algorithm
 
-<img src="https://github.com/VisualComputing/p5.treegl/blob/main/display.png" width="600">
+<img src="https://github.com/VisualComputing/p5.treegl/blob/main/display.png" width="1000">
 
 ## ~~8. IK~~
 
