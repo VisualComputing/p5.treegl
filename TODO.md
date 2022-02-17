@@ -108,7 +108,7 @@ Port main [nub basic and demo examples](https://github.com/VisualComputing/nub/t
 
 ### The display algorithm
 
-<img src="https://github.com/VisualComputing/p5.treegl/blob/main/display.png" width="1000">
+<img src="https://github.com/VisualComputing/p5.treegl/blob/main/display.png" width="800">
 
 ## ~~8. IK~~
 
