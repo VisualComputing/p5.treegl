@@ -18,7 +18,7 @@ Respect to [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9
 4. The matrix handler functionality was also merged into the scene.
 5. To keep node-based interpolations more consistent, the scene interpolator was removed and hence all `fit*` methods were discarded.
 6. Since WEBGL is always 3D, all 2D stuff was removed.
-7. Depending on whether or not the scene handles the eye matrix, the library now works in two modes, dubbed **female** and **male**: In **female** mode the eye is handled either with the low-level [camera](https://processing.org/reference/camera_.html) command or with a third party lib, such as [peasycam](https://github.com/jdf/peasycam) ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/female) some examples); whereas in **male** mode, the eye should explicitly be set with the `setEye` command for the lib to handle the camera ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/male) some examples). These modes target a possible in-depth, proper solution to the __"eye node and p5.Camera syncing"__ issue pointed below.
+7. Depending on whether or not the scene handles the eye matrix, the library now works in two modes, dubbed **female** and **male**: In **female** mode, the eye is handled either with the low-level [camera](https://processing.org/reference/camera_.html) command or with a third party lib, such as [peasycam](https://github.com/jdf/peasycam) ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/female) some examples); whereas in **male** mode, the eye should explicitly be set with the `setEye` command for the lib to handle the camera ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/male) some examples). These modes target a possible in-depth, proper solution to the __"eye node and p5.Camera syncing"__ issue pointed below.
 
 ## 2. Scene
 
@@ -104,7 +104,10 @@ Port main [nub basic and demo examples](https://github.com/VisualComputing/nub/t
 
 1. **Quaternion**: `from` (maybe it should be renamed to `createRotation`).
 2. **Node**: `createNode` `configHint`, and `addKeyFrame`.
-3. **p5.RendererGL**: `createGraphics`, `display`, `tracks`, `tag`, `updateTag`, `fit` and all the interactivity methods: `shift`, `spin`, `lookAround`, `cad`, `moveForward`, `zoom` and `turn`.
+3. **p5.RendererGL**: `display`, `tracks`, `tag`, `updateTag`, `fit` and all the interactivity methods: `shift`, `spin`, `lookAround`, `cad`, `moveForward`, `zoom` and `turn`.
+
+
+![display](display.png)
 
 ## ~~8. IK~~
 
