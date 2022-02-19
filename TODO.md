@@ -4,20 +4,20 @@ lib should only work in **p5 WEBGL** mode.
 
 The main tasks to be completed before the first public release are:
 
-## 1. API compatibility with ~~nub-1 beta3~~ nub treegl branch
+## 1. API compatibility with ~~nub-1 beta3~~ ~~nub treegl branch~~ nub treegl.nobb branch
 
-**treegl** API compatibility ~~>= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97)~~ with [nub treegl](https://github.com/VisualComputing/nub/tree/treegl) branch.
+**treegl** API compatibility ~~>= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97)~~ with ~~[nub treegl](https://github.com/VisualComputing/nub/tree/treegl) branch [nub treegl](https://github.com/VisualComputing/nub/tree/treegl)~~ [nub treegl](https://github.com/VisualComputing/nub/tree/treegl.nobb) branch [nub treegl](https://github.com/VisualComputing/nub/tree/treegl.nobb) branch.
 
 ### Observations
 
-Respect to [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97) the nub **treegl** git branch implements all of the following:
+Respect to [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97) (which will eventually become **nub-v1**) the nub **treegl** git branch implements all of the following:
 
-1. Java-17 and processing beta 5 (though beta 6 has been released some days ago) versions used.
-2. Scene and Graph were merged into the new [Scene](https://github.com/VisualComputing/nub/blob/treegl/src/nub/core/Scene.java) class.
-3. The projection matrix was decoupled from the scene and hence its dimensions are no longer handled by the lib. [Ortho](https://processing.org/reference/ortho_.html), [perspective](https://processing.org/reference/perspective_.html) and/or [frustum](https://processing.org/reference/frustum_.html) should be explicitly called in user space (the defaults are usually good enough).
-4. The matrix handler functionality was also merged into the scene.
-5. To keep node-based interpolations more consistent, the scene interpolator was removed and hence all `fit*` methods were discarded.
-6. Since WEBGL is always 3D, all 2D stuff was removed.
+1. Scene and Graph were merged into the new [Scene](https://github.com/VisualComputing/nub/blob/treegl/src/nub/core/Scene.java) class.
+2. The projection matrix was decoupled from the scene and hence its dimensions are no longer handled by the lib. [Ortho](https://processing.org/reference/ortho_.html), [perspective](https://processing.org/reference/perspective_.html) and/or [frustum](https://processing.org/reference/frustum_.html) should be explicitly called in user space (the defaults are usually good enough).
+3. The matrix handler functionality was also merged into the scene.
+4. To keep node-based interpolations more consistent, the scene interpolator was removed and hence all `fit*` methods were discarded.
+5. Since WEBGL is always 3D, all 2D stuff was removed.
+6. Front-based picking but no back-picking (see [picking](#picking)), i.e., all `backbuffer` stuff was discarded.
 7. `setEye(node)` sets the eye from whatever `node` instance. ~~Depending on whether or not the scene handles the eye matrix, the library now works in two modes, dubbed **female** and **male**: In **female** mode, the eye is handled either with the low-level [camera](https://processing.org/reference/camera_.html) command or with a third party lib, such as [peasycam](https://github.com/jdf/peasycam) ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/female) some examples); whereas in **male** mode, the eye should explicitly be set with the `setEye` command for the lib to handle the camera ([here](https://github.com/VisualComputing/nub/tree/treegl/testing/src/male) some examples). These modes target a possible in-depth, proper solution to the __"eye node and p5.Camera syncing"__ issue pointed below.~~
 
 ## 2. Scene
@@ -77,7 +77,7 @@ Refer to the [cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/e
 
 ## 3. Picking
 
-1. Front buffer picking.
+1. Front buffer picking, i.e., picking with `screenLocation(node.worldPosition())` of the `Node.BULLSEYE` hint.
 2. Back buffer picking.
    1. First, implement picking as it's done in nub (using a back buffer).
    2. Optimize it with [per-pixel based picking](https://webglfundamentals.org/webgl/lessons/webgl-picking.html).
@@ -105,6 +105,7 @@ Port main [nub basic and demo examples](https://github.com/VisualComputing/nub/t
 1. **Quaternion**: `from` (maybe it should be renamed to `createRotation`).
 2. **Node**: `createNode` `configHint`, and `addKeyFrame`.
 3. **p5.RendererGL**: `display`, `tracks`, `tag`, `updateTag`, `fit` and all the interactivity methods: `shift`, `spin`, `lookAround`, `cad`, `moveForward`, `zoom` and `turn`.
+4. Most drawing methods, such as `cone`, `cylinder`, `hollowCylinder` and `torusSolenoid`.
 
 ### The display algorithm
 

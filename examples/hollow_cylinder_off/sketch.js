@@ -13,7 +13,7 @@ function setup() {
 
 function draw() {
   background('#316DCA');
-  //it seems orbit control doesn't work here
+  //it seems orbit control isn't implemented for a given pg
   orbitControl();
   pg.background(0);  
   /*
@@ -30,9 +30,10 @@ function draw() {
   pg.rotateX(frameCount * 0.01);
   pg.rotateY(frameCount * 0.01);
   //pass image as texture
-  pg.texture(img);
-  //pg.box(width / 2);
-  pg.cylinder({ radius: 50, detail : 32, texture: true });
+  //pg.texture(img);
+  pg.noFill();
+  pg.stroke(255, 0, 255);
+  pg.hollowCylinder({ radius: 50, detail : 32 });
   image(pg, -150, -150);
 }
 

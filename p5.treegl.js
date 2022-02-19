@@ -69,23 +69,23 @@
     graphics.endHUD();
   }
 
-  p5.prototype.cylinder = function () {
-    this._renderer.cylinder(...arguments);
+  p5.prototype.hollowCylinder = function () {
+    this._renderer.hollowCylinder(...arguments);
   }
 
-  p5.RendererGL.prototype.cylinder = function({
+  p5.RendererGL.prototype.hollowCylinder = function({
     radius = 100,
     height = 200,
-    detail = 32,
-    texture = false,
+    detail = 32
     } = {}) {
+    this._rendererState = this.push();
     this.beginShape(TRIANGLE_STRIP);
     for (let i = 0; i <= detail; i++) {
       let angle = TWO_PI / detail;
       let x = sin(i * angle);
       let z = cos(i * angle);
       let u = float(i) / detail;
-      if (texture) {
+      if (this._tex) {
         this.vertex(x * radius, -height / 2, z * radius, u, 0);
         this.vertex(x * radius, +height / 2, z * radius, u, 1);
       }
@@ -95,6 +95,7 @@
       }
     }
     this.endShape();
+    this.pop(this._rendererState);
   }
 
   p5.prototype.drawAxes = function () {

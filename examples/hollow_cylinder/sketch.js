@@ -11,16 +11,16 @@ function setup() {
 }
 
 function draw() {
-  orbitControl();
+  //orbitControl();
   background(200);
-  /*
   rotateZ(frameCount * 0.01);
   rotateX(frameCount * 0.01);
   rotateY(frameCount * 0.01);
-  */
-  fill(255, 0, 0);
-  texture(img);
-  cylinder({ radius: 50, detail : 32, texture: true });
+  //fill(255, 0, 0);
+  //texture(img);
+  noFill();
+  stroke(0, 255, 255);
+  hollowCylinder({ radius: 50, detail : 32 });
 }
 
 function windowResized() {
