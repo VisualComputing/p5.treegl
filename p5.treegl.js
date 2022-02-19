@@ -84,15 +84,11 @@
       let angle = TWO_PI / detail;
       let x = sin(i * angle);
       let z = cos(i * angle);
+      // not even nee to check (this._tex)
+      // to see to avoid missing tex p5 warnings
       let u = float(i) / detail;
-      if (this._tex) {
-        this.vertex(x * radius, -height / 2, z * radius, u, 0);
-        this.vertex(x * radius, +height / 2, z * radius, u, 1);
-      }
-      else {
-        this.vertex(x * radius, -height / 2, z * radius);
-        this.vertex(x * radius, +height / 2, z * radius);
-      }
+      this.vertex(x * radius, -height / 2, z * radius, u, 0);
+      this.vertex(x * radius, +height / 2, z * radius, u, 1);
     }
     this.endShape();
     this.pop(this._rendererState);
@@ -103,7 +99,7 @@
   }
 
   // Adapted from here: https://github.com/VisualComputing/nub/blob/b76a9f0de7c4a56e4c095193f147311ab665299d/src/nub/core/Scene.java#L4970
-  // TODO needs fix. Currently broken though!
+  // TODO needs fix. Currently broken!
   p5.RendererGL.prototype.drawAxes = function() {
     this._rendererState = this.push();
     let length = 100;
