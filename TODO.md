@@ -6,7 +6,7 @@ The main tasks to be completed before the first public release are:
 
 ## 1. API compatibility with ~~nub-1 beta3~~ ~~nub treegl branch~~ nub treegl.nobb branch
 
-**treegl** API compatibility ~~>= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97)~~ with ~~[nub treegl](https://github.com/VisualComputing/nub/tree/treegl) branch [nub treegl](https://github.com/VisualComputing/nub/tree/treegl)~~ [nub treegl.nobb](https://github.com/VisualComputing/nub/tree/treegl.nobb) branch.
+**treegl** API compatibility ~~>= [nub-1 beta3](https://github.com/VisualComputing/nub/releases/tag/0.9.97)~~ with ~~[nub treegl](https://github.com/VisualComputing/nub/tree/treegl) branch~~ [nub treegl.nobb](https://github.com/VisualComputing/nub/tree/treegl.nobb) branch.
 
 ### Observations
 
