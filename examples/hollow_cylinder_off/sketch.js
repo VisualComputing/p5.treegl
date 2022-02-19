@@ -40,16 +40,6 @@ function draw() {
   copy the behavior of the standard canvas.
   */
   pg.reset();
-  /*
-  pg.rotateZ(frameCount * 0.01);
-  pg.rotateX(frameCount * 0.01);
-  pg.rotateY(frameCount * 0.01);
-  //pass image as texture
-  //pg.texture(img);
-  pg.noFill();
-  pg.stroke(255, 0, 255);
-  pg.hollowCylinder({ radius: 50, detail : 32 });
-  */
   switch(mode.value()) {
     case 'Fill':
       pg.fill(255, 0, 0);
