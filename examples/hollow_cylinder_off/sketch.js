@@ -6,6 +6,8 @@ let pg;
 let hud;
 // select
 let mode;
+// slider
+let details;
 
 function preload() {
   img = loadImage('img.png');
@@ -18,8 +20,11 @@ function setup() {
   hud = createCheckbox('Heads Up Display', true);
   hud.style('color', 'cyan');
   hud.position(10, 10);
+  details = createSlider(3, 50, 20, 1);
+  details.position(10, 40);
+  details.style('width', '80px');
   mode = createSelect();
-  mode.position(10, 40);
+  mode.position(10, 70);
   mode.option('Fill');
   mode.option('Wiredframe');
   mode.option('Texture');
@@ -54,7 +59,7 @@ function draw() {
   pg.rotateZ(frameCount * 0.01);
   pg.rotateX(frameCount * 0.01);
   pg.rotateY(frameCount * 0.01);
-  pg.hollowCylinder({ radius: 50, detail : 32 });
+  pg.hollowCylinder({ radius: 50, detail : details.value() });
   if(hud.checked()) {
     // init p5.treegl.HUD
     beginHUD();

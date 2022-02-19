@@ -4,6 +4,8 @@ let img;
 let auto_rotate;
 // select
 let mode;
+// slider
+let details;
 
 function preload() {
   img = loadImage('img.jpg');
@@ -15,8 +17,11 @@ function setup() {
   auto_rotate = createCheckbox('auto rotate', true);
   auto_rotate.style('color', 'magenta');
   auto_rotate.position(10, 10);
+  details = createSlider(3, 50, 20, 1);
+  details.position(10, 40);
+  details.style('width', '80px');
   mode = createSelect();
-  mode.position(10, 40);
+  mode.position(10, 70);
   mode.option('Fill');
   mode.option('Wiredframe');
   mode.option('Texture');
@@ -45,7 +50,7 @@ function draw() {
     default:
       texture(img);
   }
-  hollowCylinder({ radius: 50, detail : 32 });
+  hollowCylinder({ radius: 50, detail : details.value() });
   pop();
 }
 
