@@ -38,7 +38,7 @@ p5.RendererGL.prototype.scene_method = function(args) {
 
 ### Proof-of-concept
 
-Following this pattern onscreen scenes would use a method such as [cylinder](https://github.com/VisualComputing/p5.treegl/blob/2f480b30d76feb2c5dcd673512cdb21d1ed701fd/p5.treegl.js#L72) as follows:
+Following this pattern onscreen scenes would use a method such as [hollowCylinder](https://github.com/VisualComputing/p5.treegl/blob/4178a5b857cc80aa99aaea2bb4832c1d8c2487a8/p5.treegl.js#L72) as follows:
 
 ```js
 function setup() {
@@ -49,7 +49,7 @@ function draw() {
   background(200);
   orbitControl();
   fill(255, 0, 0);
-  cylinder({ radius: 50, detail : 10 });
+  hollowCylinder({ radius: 50, detail : 10 });
 }
 ```
 
@@ -68,12 +68,12 @@ function draw() {
   orbitControl();
   pg.background(255, 0, 0);
   pg.fill(0, 255, 255);
-  pg.cylinder({ radius: 50, detail : 10 });
+  pg.hollowCylinder({ radius: 50, detail : 10 });
   image(pg, -150, -150);
 }
 ```
 
-Refer to the [cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder) and [cylinder_off](https://github.com/VisualComputing/p5.treegl/tree/main/examples/cylinder_off) treegl examples, respectively.
+Refer to the [hollow cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/hollow_cylinder) and [offscreen hollow cylinder](https://github.com/VisualComputing/p5.treegl/tree/main/examples/hollow_cylinder_off) treegl examples, respectively.
 
 ## 3. Picking
 
