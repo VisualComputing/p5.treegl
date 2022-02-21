@@ -64,6 +64,9 @@ function keyPressed() {
   if (key === 'c') {
     p5.RendererGL.pong();
   }
+  if (key === 'd') {
+    pong();
+  }
 }
 
 function windowResized() {
