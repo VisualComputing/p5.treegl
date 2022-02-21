@@ -54,21 +54,6 @@ function draw() {
   pop();
 }
 
-function keyPressed() {
-  if (key === 'a') {
-    p5.RendererGL.ping();
-  }
-  if (key === 'b') {
-    ping();
-  }
-  if (key === 'c') {
-    p5.RendererGL.pong();
-  }
-  if (key === 'd') {
-    pong();
-  }
-}
-
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
