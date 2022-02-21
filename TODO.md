@@ -77,10 +77,10 @@ Refer to the [hollow cylinder](https://github.com/VisualComputing/p5.treegl/tree
 
 ## 3. Picking
 
-1. Front buffer picking, i.e., picking with `screenLocation(node.worldPosition())` of the `Node.BULLSEYE` hint.
-2. Back buffer picking.
-   1. First, implement picking as it's done in nub (using a back buffer).
-   2. Optimize it with [per-pixel based picking](https://webglfundamentals.org/webgl/lessons/webgl-picking.html).
+1. Front buffer picking, i.e., picking with `screenLocation(node.worldPosition())` of the `Node.BULLSEYE` hint, whenever it's enabled.
+2. ~~Back buffer picking.~~
+   1. ~~First, implement picking as it's done in nub (using a back buffer).~~
+   2. ~~Optimize it with [per-pixel based picking](https://webglfundamentals.org/webgl/lessons/webgl-picking.html).~~
 
 ## 4. Eye node and p5.Camera syncing
 
