@@ -37,69 +37,15 @@
     return shader;
   }
 
-  p5.prototype.cover = function ({
-    graphics = this,
-    texture = false,
-    x = -graphics.width / 2,
-    y = -graphics.height / 2,
-    w = graphics.width,
-    h = graphics.height,
-    pattern0 = null,
-    pattern1 = pattern0,
-    pattern2 = pattern0,
-    pattern3 = pattern0 } = {}) {
-    if (!(graphics._renderer instanceof p5.RendererGL)) {
-      throw new Error(`WEBGL is required to use shaderbox.cover`);
-    }
-    graphics.beginHUD();
-    graphics.beginShape();
-    let color = this.color(255);
-    if (texture) {
-      graphics.textureMode = this.NORMAL;
-    }
-    graphics.fill(pattern0 ?? color);
-    graphics.vertex(x, y, 0, 0, 0);
-    graphics.fill(pattern1 ?? color);
-    graphics.vertex(x + w, y, 0, texture ? 1 : 0, 0);
-    graphics.fill(pattern2 ?? color);
-    graphics.vertex(x + w, y + h, 0, texture ? 1 : 0, texture ? 1 : 0);
-    graphics.fill(pattern3 ?? color);
-    graphics.vertex(x, y + h, 0, 0, texture ? 1 : 0);
-    graphics.endShape(this.CLOSE);
-    graphics.endHUD();
-  }
-
-  p5.TOTAL_CALLS = 1;
-
-  p5.prototype.ping = function () {
-    p5.TOTAL_CALLS++;
-    console.log(p5.TOTAL_CALLS);
-  }
-
-  p5.prototype.pong = function () {
-    p5.RendererGL.ping(...arguments);
-  }
-
-  p5.RendererGL.TOTALCALLS = 1;
-
-  p5.RendererGL.ping = function () {
-    p5.RendererGL.TOTALCALLS++;
-    console.log(p5.RendererGL.TOTALCALLS);
-  }
-
-  p5.RendererGL.pong = function () {
-    ping();
-  }
-
   p5.prototype.hollowCylinder = function () {
     this._renderer.hollowCylinder(...arguments);
   }
 
-  p5.RendererGL.prototype.hollowCylinder = function({
+  p5.RendererGL.prototype.hollowCylinder = function ({
     radius = 100,
     height = 200,
     detail = 32
-    } = {}) {
+  } = {}) {
     this._rendererState = this.push();
     this.beginShape(TRIANGLE_STRIP);
     for (let i = 0; i <= detail; i++) {
@@ -116,13 +62,13 @@
     this.pop(this._rendererState);
   }
 
-  p5.prototype.drawAxes = function () {
-    this._renderer.drawAxes();
+  p5.prototype.axes = function () {
+    this._renderer.axes();
   }
 
   // Adapted from here: https://github.com/VisualComputing/nub/blob/b76a9f0de7c4a56e4c095193f147311ab665299d/src/nub/core/Scene.java#L4970
   // TODO needs fix. Currently broken!
-  p5.RendererGL.prototype.drawAxes = function() {
+  p5.RendererGL.prototype.axes = function () {
     this._rendererState = this.push();
     let length = 100;
     //this.colorMode(this.RGB, 255);
@@ -176,7 +122,7 @@
     this._renderer.endHUD();
   }
 
-  p5.RendererGL.prototype.beginHUD = function() {
+  p5.RendererGL.prototype.beginHUD = function () {
     this._cacheModelView = this.uMVMatrix.copy();
     this._cacheProjection = this.uPMatrix.copy();
     this._rendererState = this.push();
@@ -188,7 +134,7 @@
     this._curCamera.ortho(-this.width / 2, this.width / 2, -this.height / 2, this.height / 2, -z, z);
   }
 
-  p5.RendererGL.prototype.endHUD = function() {
+  p5.RendererGL.prototype.endHUD = function () {
     let gl = this.drawingContext;
     gl.flush();
     gl.enable(gl.DEPTH_TEST);
