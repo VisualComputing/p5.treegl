@@ -54,6 +54,18 @@ function draw() {
   pop();
 }
 
+function keyPressed() {
+  if (key === 'a') {
+    p5.RendererGL.testStaticMethod();
+  }
+  if (key === 'b') {
+    method2();
+  }
+  if (key === 'c') {
+    p5.RendererGL.testStaticMethod2();
+  }
+}
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
