@@ -56,13 +56,13 @@ function draw() {
 
 function keyPressed() {
   if (key === 'a') {
-    p5.RendererGL.testStaticMethod();
+    p5.RendererGL.ping();
   }
   if (key === 'b') {
-    method2();
+    ping();
   }
   if (key === 'c') {
-    p5.RendererGL.testStaticMethod2();
+    p5.RendererGL.pong();
   }
 }
 

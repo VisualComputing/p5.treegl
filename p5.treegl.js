@@ -71,24 +71,24 @@
 
   p5.TOTAL_CALLS = 1;
 
-  p5.prototype.method2 = function () {
+  p5.prototype.ping = function () {
     p5.TOTAL_CALLS++;
     console.log(p5.TOTAL_CALLS);
   }
 
-  p5.prototype.testStaticMethod = function () {
-    p5.RendererGL.testStaticMethod(...arguments);
+  p5.prototype.pong = function () {
+    p5.RendererGL.ping(...arguments);
   }
 
   p5.RendererGL.TOTALCALLS = 1;
 
-  p5.RendererGL.testStaticMethod = function () {
+  p5.RendererGL.ping = function () {
     p5.RendererGL.TOTALCALLS++;
     console.log(p5.RendererGL.TOTALCALLS);
   }
 
-  p5.RendererGL.testStaticMethod2 = function () {
-    method2();
+  p5.RendererGL.pong = function () {
+    ping();
   }
 
   p5.prototype.hollowCylinder = function () {
