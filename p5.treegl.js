@@ -47,7 +47,7 @@
   p5.RendererGL.prototype.cachePVMatrix = function () {
     this.cacheVMatrix();
     this.cachePMatrix();
-    this.cPVMatrix = this.cPMatrix.copy();
+    this.cPVMatrix = this.cPMatrix;
     this.cPVMatrix.mult(this.cVMatrix);
     return this.cPVMatrix;
   }
@@ -111,7 +111,7 @@
 
   p5.RendererGL.prototype.screenLocation = function (
     {
-      vector = createVector(0, 0, 0),
+      vector = createVector(0, 0, 0.5),
       pvMatrix = this.cachePVMatrix()
     } = {}) {
     let out = [];
