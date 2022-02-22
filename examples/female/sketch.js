@@ -7,6 +7,8 @@ let mode;
 // slider
 let details;
 
+let pvMatrix;
+
 let easycam;
 
 function preload() {
@@ -44,8 +46,9 @@ function setup() {
 }
 
 function draw() {
+  pvMatrix = cachePVMatrix();
   background(200);
-  // /*
+  /*
   if (auto_rotate.checked()) {
     rotateZ(frameCount * 0.01);
     rotateX(frameCount * 0.01);
@@ -56,7 +59,7 @@ function draw() {
   }
   // */
   push();
-  switch(mode.value()) {
+  switch (mode.value()) {
     case 'Fill':
       fill(255, 0, 0);
       break;
@@ -67,15 +70,14 @@ function draw() {
     default:
       texture(img);
   }
-  hollowCylinder({ radius: 50, detail : details.value() });
+  hollowCylinder({ radius: 50, detail: details.value() });
   pop();
 }
 
 function keyPressed() {
-  _bind();
-  let vector = createVector(-0.1, 0.5, 0.8);
+  let vector = createVector(-0, 0, 0);
   //let result = ndcToScreenLocation(vector);
-  let result = screenLocation(vector);
+  let result = screenLocation({ vector: vector, pvMatrix: pvMatrix });
   console.log(result);
   /*
   _bind();
