@@ -12,6 +12,8 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
+  // 1. Matrix caches
+
   p5.prototype.cacheMVMatrix = function () {
     return this._renderer.cacheMVMatrix(...arguments);
   }
@@ -42,7 +44,6 @@
   p5.prototype.cachePVMatrix = function () {
     return this._renderer.cachePVMatrix(...arguments);
   }
-
   p5.RendererGL.prototype.cachePVMatrix = function () {
     this.cacheVMatrix();
     this.cachePMatrix();
@@ -60,6 +61,28 @@
     this.cPVInvMatrix = this.cPVMatrix.copy();
     this.cPVInvMatrix.invert();
     return this.cPVInvMatrix;
+  }
+
+  // 2. Space transformations
+
+  p5.prototype.beginHUD = function () {
+    this._renderer.beginHUD(...arguments);
+  }
+
+  p5.prototype.endHUD = function () {
+    this._renderer.endHUD(...arguments);
+  }
+
+  p5.RendererGL.prototype.beginHUD = function () {
+    this.cacheMVMatrix();
+    this.cachePMatrix();
+    this._rendererState = this.push();
+    let gl = this.drawingContext;
+    gl.flush();
+    gl.disable(gl.DEPTH_TEST);
+    let z = Number.MAX_VALUE;
+    this.resetMatrix();
+    this._curCamera.ortho(-this.width / 2, this.width / 2, -this.height / 2, this.height / 2, -z, z);
   }
 
   p5.prototype.ndcToScreenLocation = function () {
@@ -191,33 +214,7 @@
   }
   */
 
-  //p5.prototype.registerMethod('pre', p5.prototype._bind);
-  //p5.prototype.registerMethod('pre', p5.RendererGL.prototype._bind);
-
-  p5.prototype.readShader = function (fragFilename,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
-    } = {}) {
-    let shader = new p5.Shader();
-    shader._vertSrc = _vertexShader(color, texcoord);
-    this.loadStrings(
-      fragFilename,
-      result => {
-        shader._fragSrc = result.join('\n')
-      }
-    );
-    return shader;
-  }
-
-  p5.prototype.makeShader = function (fragSrc,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
-    } = {}) {
-    let shader = new p5.Shader();
-    shader._vertSrc = _vertexShader(color, texcoord);
-    shader._fragSrc = fragSrc;
-    return shader;
-  }
+  // 3. Drawing stuff
 
   p5.prototype.hollowCylinder = function () {
     this._renderer.hollowCylinder(...arguments);
@@ -296,25 +293,7 @@
     this.pop(this._rendererState);
   }
 
-  p5.prototype.beginHUD = function () {
-    this._renderer.beginHUD(...arguments);
-  }
-
-  p5.prototype.endHUD = function () {
-    this._renderer.endHUD(...arguments);
-  }
-
-  p5.RendererGL.prototype.beginHUD = function () {
-    this.cacheMVMatrix();
-    this.cachePMatrix();
-    this._rendererState = this.push();
-    let gl = this.drawingContext;
-    gl.flush();
-    gl.disable(gl.DEPTH_TEST);
-    let z = Number.MAX_VALUE;
-    this.resetMatrix();
-    this._curCamera.ortho(-this.width / 2, this.width / 2, -this.height / 2, this.height / 2, -z, z);
-  }
+  // 4. Shader utilities
 
   p5.RendererGL.prototype.endHUD = function () {
     let gl = this.drawingContext;
@@ -323,6 +302,31 @@
     this.pop(this._rendererState);
     this.uPMatrix.set(this.cPMatrix);
     this.uMVMatrix.set(this.cMVMatrix);
+  }
+
+  p5.prototype.readShader = function (fragFilename,
+    { color = 'vVertexColor',
+      texcoord = 'vTexCoord'
+    } = {}) {
+    let shader = new p5.Shader();
+    shader._vertSrc = _vertexShader(color, texcoord);
+    this.loadStrings(
+      fragFilename,
+      result => {
+        shader._fragSrc = result.join('\n')
+      }
+    );
+    return shader;
+  }
+
+  p5.prototype.makeShader = function (fragSrc,
+    { color = 'vVertexColor',
+      texcoord = 'vTexCoord'
+    } = {}) {
+    let shader = new p5.Shader();
+    shader._vertSrc = _vertexShader(color, texcoord);
+    shader._fragSrc = fragSrc;
+    return shader;
   }
 
   p5.prototype.emitPointerPosition = function () {
