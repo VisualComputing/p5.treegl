@@ -12,41 +12,54 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
-  p5.prototype._bind = function () {
-    this._renderer._bind(...arguments);
+  p5.prototype.cacheMVMatrix = function () {
+    return this._renderer.cacheMVMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype._bind = function () {
-    this._cVMatrix = this.uMVMatrix.copy();
-    this._cPMatrix = this.uPMatrix.copy();
-    this._cPVMatrix = this._cPMatrix.copy();
-    this._cPVMatrix.mult(this._cVMatrix);
-    this._cPVInvMatrix = null;
-    console.log(this._cPVMatrix);
+  p5.RendererGL.prototype.cacheMVMatrix = function () {
+    this.cMVMatrix = this.uMVMatrix.copy();
+    return this.cMVMatrix;
   }
 
-  p5.prototype.cVMatrix = function () {
-    return this._renderer._cVMatrix;
+  p5.prototype.cacheVMatrix = function () {
+    return this._renderer.cacheVMatrix(...arguments);
   }
 
-  p5.prototype.cPMatrix = function () {
-    return this._renderer._cPMatrix;
+  p5.RendererGL.prototype.cacheVMatrix = function () {
+    this.cVMatrix = this._curCamera.cameraMatrix.copy();
+    return this.cVMatrix;
   }
 
-  p5.prototype.cPVMatrix = function () {
-    return this._renderer._cPVMatrix;
+  p5.prototype.cachePMatrix = function () {
+    return this._renderer.cachePMatrix(...arguments);
   }
 
-  p5.prototype.cPVInvMatrix = function () {
-    return this._renderer.cPVInvMatrix(...arguments);
+  p5.RendererGL.prototype.cachePMatrix = function () {
+    this.cPMatrix = this.uPMatrix.copy();
+    return this.cPMatrix;
   }
 
-  p5.RendererGL.prototype.cPVInvMatrix = function () {
-    if (!this._cPVInvMatrix) {
-      this._cPVInvMatrix = this._cPVMatrix.copy();
-      this._cPVInvMatrix.invert();
-    }
-    return this._cPVInvMatrix;
+  p5.prototype.cachePVMatrix = function () {
+    return this._renderer.cachePVMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.cachePVMatrix = function () {
+    this.cacheVMatrix();
+    this.cachePMatrix();
+    this.cPVMatrix = this.cPMatrix.copy();
+    this.cPVMatrix.mult(this.cVMatrix);
+    return this.cPVMatrix;
+  }
+
+  p5.prototype.cachePVInvMatrix = function () {
+    return this._renderer.cachePVInvMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.cachePVInvMatrix = function () {
+    this.cachePVMatrix();
+    this.cPVInvMatrix = this.cPVMatrix.copy();
+    this.cPVInvMatrix.invert();
+    return this.cPVInvMatrix;
   }
 
   p5.prototype.ndcToScreenLocation = function () {
@@ -73,19 +86,18 @@
     return this._renderer.screenLocation(...arguments);
   }
 
-  p5.RendererGL.prototype.screenLocation = function (vector) {
-    let _in = [vector.x, vector.y, vector.z, 1];
+  p5.RendererGL.prototype.screenLocation = function (
+    {
+      vector = createVector(0, 0, 0),
+      pvMatrix = this.cachePVMatrix()
+    } = {}) {
     let out = [];
-    out[0] = this._cPVMatrix.mat4[0] * _in[0] + this._cPVMatrix.mat4[1] * _in[1] + this._cPVMatrix.mat4[2] * _in[2]
-      + this._cPVMatrix.mat4[3] * _in[3];
-    out[1] = this._cPVMatrix.mat4[4] * _in[0] + this._cPVMatrix.mat4[5] * _in[1] + this._cPVMatrix.mat4[6] * _in[2]
-      + this._cPVMatrix.mat4[7] * _in[3];
-    out[2] = this._cPVMatrix.mat4[8] * _in[0] + this._cPVMatrix.mat4[9] * _in[1] + this._cPVMatrix.mat4[10] * _in[2]
-      + this._cPVMatrix.mat4[11] * _in[3];
-    out[3] = this._cPVMatrix.mat4[12] * _in[0] + this._cPVMatrix.mat4[13] * _in[1] + this._cPVMatrix.mat4[14] * _in[2]
-      + this._cPVMatrix.mat4[15] * _in[3];
+    out[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[1] * vector.y + pvMatrix.mat4[2] * vector.z + pvMatrix.mat4[3];
+    out[1] = pvMatrix.mat4[4] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[6] * vector.z + pvMatrix.mat4[7];
+    out[2] = pvMatrix.mat4[8] * vector.x + pvMatrix.mat4[9] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[11];
+    out[3] = pvMatrix.mat4[12] * vector.x + pvMatrix.mat4[13] * vector.y + pvMatrix.mat4[14] * vector.z + pvMatrix.mat4[15];
     if (out[3] === 0) {
-      throw new Error('screenLocation broken. Make sure to call _bind first');
+      throw new Error('screenLocation broken. Make sure the provided pvMatrix is correct');
     }
     let viewport = [0, this.height, this.width, -this.height];
     // ndc, but y is inverted
@@ -101,6 +113,83 @@
     out[1] = out[1] * viewport[3] + viewport[1];
     return createVector(out[0], out[1], out[2]);
   }
+
+  /*
+  p5.prototype.location = function () {
+    return this._renderer.location(...arguments);
+  }
+
+  p5.RendererGL.prototype.location = function (vector) {
+    let viewport = [0, this.height, this.width, -this.height];
+    let _in = [vector.x, vector.y, vector.z, 1];
+    let out = [];
+    // Map x and y from window coordinates
+    vector.x = (vector.x - viewport[0]) / viewport[2];
+    vector.y = (vector.y - viewport[1]) / viewport[3];
+    // Map to range -1 to 1
+    vector.x = vector.x * 2 - 1;
+    vector.y = vector.y * 2 - 1;
+    vector.z = vector.z * 2 - 1;
+    projectionViewInverseMatrix.multiply(_in, out);
+    if (out[3] === 0) {
+      throw new Error('location broken. Make sure to call _bind first');
+    }
+    out[0] /= out[3];
+    out[1] /= out[3];
+    out[2] /= out[3];
+    return new Vector(out[0], out[1], out[2]);
+  }
+  */
+
+  /*
+  public Vector ndcToScreenDisplacement(Vector vector) {
+    return new Vector(width() * vector.x() / 2, height() * vector.y() / 2, vector.z() / 2);
+  }
+
+  public Vector screenToNDCDisplacement(Vector vector) {
+    return new Vector(2 * vector.x() / (float) width(), 2 * vector.y() / (float) height(), 2 * vector.z());
+  }
+
+  public Vector displacement(Vector vector) {
+    return this.displacement(vector, null);
+  }
+
+  public Vector displacement(Vector vector, Node node) {
+    float dx = vector.x();
+    float dy = _leftHanded ? vector.y() : -vector.y();
+    // Scale to fit the screen relative vector displacement
+    if (_type == Type.PERSPECTIVE) {
+      Vector position = node == null ? new Vector() : node.worldPosition();
+      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2.0f));
+      dx *= 2.0 * k / ((float) height());
+      dy *= 2.0 * k / ((float) height());
+    }
+    float dz = vector.z();
+    dz *= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2.0f) : Math.abs(right() - left()) / (float) width());
+    Vector eyeVector = new Vector(dx, dy, dz);
+    return node == null ? _eye.worldDisplacement(eyeVector) : node.displacement(eyeVector, _eye);
+  }
+
+  public Vector screenDisplacement(Vector vector) {
+    return screenDisplacement(vector, null);
+  }
+
+  public Vector screenDisplacement(Vector vector, Node node) {
+    Vector eyeVector = _eye.displacement(vector, node);
+    float dx = eyeVector.x();
+    float dy = _leftHanded ? eyeVector.y() : -eyeVector.y();
+    if (_type == Type.PERSPECTIVE) {
+      Vector position = node == null ? new Vector() : node.worldPosition();
+      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2.0f));
+      dx /= 2.0 * k / ((float) height() * _eye.worldMagnitude());
+      dy /= 2.0 * k / ((float) height() * _eye.worldMagnitude());
+    }
+    float dz = eyeVector.z();
+    // sign is inverted
+    dz /= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2.0f) : Math.abs(right() - left()) / (float) width());
+    return new Vector(dx, dy, dz);
+  }
+  */
 
   //p5.prototype.registerMethod('pre', p5.prototype._bind);
   //p5.prototype.registerMethod('pre', p5.RendererGL.prototype._bind);
@@ -208,16 +297,16 @@
   }
 
   p5.prototype.beginHUD = function () {
-    this._renderer.beginHUD();
+    this._renderer.beginHUD(...arguments);
   }
 
   p5.prototype.endHUD = function () {
-    this._renderer.endHUD();
+    this._renderer.endHUD(...arguments);
   }
 
   p5.RendererGL.prototype.beginHUD = function () {
-    this._cacheModelView = this.uMVMatrix.copy();
-    this._cacheProjection = this.uPMatrix.copy();
+    this.cacheMVMatrix();
+    this.cachePMatrix();
     this._rendererState = this.push();
     let gl = this.drawingContext;
     gl.flush();
@@ -232,22 +321,24 @@
     gl.flush();
     gl.enable(gl.DEPTH_TEST);
     this.pop(this._rendererState);
-    this.uPMatrix.set(this._cacheProjection);
-    this.uMVMatrix.set(this._cacheModelView);
+    this.uPMatrix.set(this.cPMatrix);
+    this.uMVMatrix.set(this.cMVMatrix);
   }
 
-  p5.prototype.emitMousePosition = function (shader, {
-    graphics = this,
-    mouseX = this.mouseX,
-    mouseY = this.mouseY,
-    uniform = 'u_mouse' } = {}) {
-    shader.setUniform(uniform, [mouseX * this.pixelDensity(), (graphics.height - mouseY) * this.pixelDensity()]);
+  p5.prototype.emitPointerPosition = function () {
+    this._renderer.emitPointerPosition(...arguments);
   }
 
-  p5.prototype.emitResolution = function (shader, {
-    graphics = this,
-    uniform = 'u_resolution' } = {}) {
-    shader.setUniform(uniform, [graphics.width * this.pixelDensity(), graphics.height * this.pixelDensity()]);
+  p5.RendererGL.prototype.emitPointerPosition = function (shader, pointerX, pointerY, uniform = 'u_mouse') {
+    shader.setUniform(uniform, [pointerX * pixelDensity(), (this.height - pointerY) * pixelDensity()]);
+  }
+
+  p5.prototype.emitResolution = function () {
+    this._renderer.emitResolution(...arguments);
+  }
+
+  p5.RendererGL.prototype.emitResolution = function (shader, uniform = 'u_resolution') {
+    shader.setUniform(uniform, [this.width * pixelDensity(), this.height * pixelDensity()]);
   }
 
   p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {

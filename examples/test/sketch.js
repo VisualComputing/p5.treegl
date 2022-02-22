@@ -106,7 +106,7 @@ function draw() {
   box(30, 50);
   if (enable_shader) {
     shader(mask_shader);
-    emitMousePosition(mask_shader);
+    emitPointerPosition(mask_shader);
     mask_shader.setUniform('texture', img);
     mask_shader.setUniform('radius', 50 * pixelDensity());
     emitResolution(mask_shader);
@@ -122,7 +122,7 @@ function draw() {
   // */
   /*
   if (enable_shader) {
-    emitMousePosition(mask_shader);
+    emitPointerPosition(mask_shader);
     cover({texture: true, pattern0: this.color(255, 125)});
   }
   else {
@@ -170,7 +170,7 @@ function keyPressed() {
   }
 }
 
-p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
+p5.prototype.emitPointerPosition = function (shader, uniform = 'u_mouse') {
   shader.setUniform(uniform, [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]);
 }
 

@@ -87,13 +87,13 @@ Ends [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that g
 |----------|------------------------------------------------------------------------------------------------------|
 | renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
 
-## emitMousePosition
+## emitPointerPosition
 
 Emits the current mouse position as a `vec2` uniform variable defined as: `[mouseX * pixelDensity(), (renderer.height - mouseY) * pixelDensity()]`.
 
 ### Syntax
 
-`emitMousePosition(shader, [{[renderer], [mouseX], [mouseY], [uniform]}])`
+`emitPointerPosition(shader, [{[renderer], [mouseX], [mouseY], [uniform]}])`
 
 ### Parameters
 
