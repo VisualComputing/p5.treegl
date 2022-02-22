@@ -12,6 +12,99 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
+  p5.prototype._bind = function () {
+    this._renderer._bind(...arguments);
+  }
+
+  p5.RendererGL.prototype._bind = function () {
+    this._cVMatrix = this.uMVMatrix.copy();
+    this._cPMatrix = this.uPMatrix.copy();
+    this._cPVMatrix = this._cPMatrix.copy();
+    this._cPVMatrix.mult(this._cVMatrix);
+    this._cPVInvMatrix = null;
+    console.log(this._cPVMatrix);
+  }
+
+  p5.prototype.cVMatrix = function () {
+    return this._renderer._cVMatrix;
+  }
+
+  p5.prototype.cPMatrix = function () {
+    return this._renderer._cPMatrix;
+  }
+
+  p5.prototype.cPVMatrix = function () {
+    return this._renderer._cPVMatrix;
+  }
+
+  p5.prototype.cPVInvMatrix = function () {
+    return this._renderer.cPVInvMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.cPVInvMatrix = function () {
+    if (!this._cPVInvMatrix) {
+      this._cPVInvMatrix = this._cPVMatrix.copy();
+      this._cPVInvMatrix.invert();
+    }
+    return this._cPVInvMatrix;
+  }
+
+  p5.prototype.ndcToScreenLocation = function () {
+    return this._renderer.ndcToScreenLocation(...arguments);
+  }
+
+  p5.RendererGL.prototype.ndcToScreenLocation = function (vector) {
+    return createVector(map(vector.x, -1, 1, 0, this.width),
+      map(vector.y, -1, 1, 0, this.height),
+      map(vector.z, -1, 1, 0, 1));
+  }
+
+  p5.prototype.screenToNDCLocation = function () {
+    return this._renderer.screenToNDCLocation(...arguments);
+  }
+
+  p5.RendererGL.prototype.screenToNDCLocation = function (vector) {
+    return createVector(map(vector.x, 0, this.width, -1, 1),
+      map(vector.y, 0, this.height, -1, 1),
+      map(vector.z, 0, 1, -1, 1));
+  }
+
+  p5.prototype.screenLocation = function () {
+    return this._renderer.screenLocation(...arguments);
+  }
+
+  p5.RendererGL.prototype.screenLocation = function (vector) {
+    let _in = [vector.x, vector.y, vector.z, 1];
+    let out = [];
+    out[0] = this._cPVMatrix.mat4[0] * _in[0] + this._cPVMatrix.mat4[1] * _in[1] + this._cPVMatrix.mat4[2] * _in[2]
+      + this._cPVMatrix.mat4[3] * _in[3];
+    out[1] = this._cPVMatrix.mat4[4] * _in[0] + this._cPVMatrix.mat4[5] * _in[1] + this._cPVMatrix.mat4[6] * _in[2]
+      + this._cPVMatrix.mat4[7] * _in[3];
+    out[2] = this._cPVMatrix.mat4[8] * _in[0] + this._cPVMatrix.mat4[9] * _in[1] + this._cPVMatrix.mat4[10] * _in[2]
+      + this._cPVMatrix.mat4[11] * _in[3];
+    out[3] = this._cPVMatrix.mat4[12] * _in[0] + this._cPVMatrix.mat4[13] * _in[1] + this._cPVMatrix.mat4[14] * _in[2]
+      + this._cPVMatrix.mat4[15] * _in[3];
+    if (out[3] === 0) {
+      throw new Error('screenLocation broken. Make sure to call _bind first');
+    }
+    let viewport = [0, this.height, this.width, -this.height];
+    // ndc, but y is inverted
+    out[0] /= out[3];
+    out[1] /= out[3];
+    out[2] /= out[3];
+    // Map x, y and z to range 0-1
+    out[0] = out[0] * 0.5 + 0.5;
+    out[1] = out[1] * 0.5 + 0.5;
+    out[2] = out[2] * 0.5 + 0.5;
+    // Map x,y to viewport
+    out[0] = out[0] * viewport[2] + viewport[0];
+    out[1] = out[1] * viewport[3] + viewport[1];
+    return createVector(out[0], out[1], out[2]);
+  }
+
+  //p5.prototype.registerMethod('pre', p5.prototype._bind);
+  //p5.prototype.registerMethod('pre', p5.RendererGL.prototype._bind);
+
   p5.prototype.readShader = function (fragFilename,
     { color = 'vVertexColor',
       texcoord = 'vTexCoord'
@@ -163,17 +256,17 @@
 
   function _vertexShader(color, texcoord) {
     return `precision highp float;
-            attribute vec3 aPosition;
-            attribute vec2 aTexCoord;
-            attribute vec4 aVertexColor;
-            uniform mat4 uProjectionMatrix;
-            uniform mat4 uModelViewMatrix;
-            varying vec4 ${color};
-            varying vec2 ${texcoord};
-            void main() {
-              ${color} = aVertexColor;
-              ${texcoord} = aTexCoord;
-              gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
-            }`;
+          attribute vec3 aPosition;
+          attribute vec2 aTexCoord;
+          attribute vec4 aVertexColor;
+          uniform mat4 uProjectionMatrix;
+          uniform mat4 uModelViewMatrix;
+          varying vec4 ${color};
+          varying vec2 ${texcoord};
+          void main() {
+            ${color} = aVertexColor;
+            ${texcoord} = aTexCoord;
+            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+          }`;
   }
 })();
