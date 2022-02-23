@@ -12,6 +12,48 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
+
+  // 0. Matrix multiplication!
+
+  p5.Matrix.prototype.times = function (matrix) {
+    let r00 = this.mat4[0] * matrix.mat4[0] + this.mat4[4] * matrix.mat4[1] + this.mat4[8] * matrix.mat4[2] + this.mat4[12] * matrix.mat4[3];
+    let r01 = this.mat4[0] * matrix.mat4[4] + this.mat4[4] * matrix.mat4[5] + this.mat4[8] * matrix.mat4[6] + this.mat4[12] * matrix.mat4[7];
+    let r02 = this.mat4[0] * matrix.mat4[8] + this.mat4[4] * matrix.mat4[9] + this.mat4[8] * matrix.mat4[10] + this.mat4[12] * matrix.mat4[11];
+    let r03 = this.mat4[0] * matrix.mat4[12] + this.mat4[4] * matrix.mat4[13] + this.mat4[8] * matrix.mat4[14] + this.mat4[12] * matrix.mat4[15];
+
+    let r10 = this.mat4[1] * matrix.mat4[0] + this.mat4[5] * matrix.mat4[1] + this.mat4[9] * matrix.mat4[2] + this.mat4[13] * matrix.mat4[3];
+    let r11 = this.mat4[1] * matrix.mat4[4] + this.mat4[5] * matrix.mat4[5] + this.mat4[9] * matrix.mat4[6] + this.mat4[13] * matrix.mat4[7];
+    let r12 = this.mat4[1] * matrix.mat4[8] + this.mat4[5] * matrix.mat4[9] + this.mat4[9] * matrix.mat4[10] + this.mat4[13] * matrix.mat4[11];
+    let r13 = this.mat4[1] * matrix.mat4[12] + this.mat4[5] * matrix.mat4[13] + this.mat4[9] * matrix.mat4[14] + this.mat4[13] * matrix.mat4[15];
+
+    let r20 = this.mat4[2] * matrix.mat4[0] + this.mat4[6] * matrix.mat4[1] + this.mat4[10] * matrix.mat4[2] + this.mat4[14] * matrix.mat4[3];
+    let r21 = this.mat4[2] * matrix.mat4[4] + this.mat4[6] * matrix.mat4[5] + this.mat4[10] * matrix.mat4[6] + this.mat4[14] * matrix.mat4[7];
+    let r22 = this.mat4[2] * matrix.mat4[8] + this.mat4[6] * matrix.mat4[9] + this.mat4[10] * matrix.mat4[10] + this.mat4[14] * matrix.mat4[11];
+    let r23 = this.mat4[2] * matrix.mat4[12] + this.mat4[6] * matrix.mat4[13] + this.mat4[10] * matrix.mat4[14] + this.mat4[14] * matrix.mat4[15];
+
+    let r30 = this.mat4[3] * matrix.mat4[0] + this.mat4[7] * matrix.mat4[1] + this.mat4[11] * matrix.mat4[2] + this.mat4[15] * matrix.mat4[3];
+    let r31 = this.mat4[3] * matrix.mat4[4] + this.mat4[7] * matrix.mat4[5] + this.mat4[11] * matrix.mat4[6] + this.mat4[15] * matrix.mat4[7];
+    let r32 = this.mat4[3] * matrix.mat4[8] + this.mat4[7] * matrix.mat4[9] + this.mat4[11] * matrix.mat4[10] + this.mat4[15] * matrix.mat4[11];
+    let r33 = this.mat4[3] * matrix.mat4[12] + this.mat4[7] * matrix.mat4[13] + this.mat4[11] * matrix.mat4[14] + this.mat4[15] * matrix.mat4[15];
+
+    this.mat4[0] = r00;
+    this.mat4[4] = r01;
+    this.mat4[8] = r02;
+    this.mat4[12] = r03;
+    this.mat4[1] = r10;
+    this.mat4[5] = r11;
+    this.mat4[9] = r12;
+    this.mat4[13] = r13;
+    this.mat4[2] = r20;
+    this.mat4[6] = r21;
+    this.mat4[10] = r22;
+    this.mat4[14] = r23;
+    this.mat4[3] = r30;
+    this.mat4[7] = r31;
+    this.mat4[11] = r32;
+    this.mat4[15] = r33;
+  }
+
   // 1. Matrix caches
 
   p5.prototype.cacheMVMatrix = function () {
@@ -47,8 +89,8 @@
   p5.RendererGL.prototype.cachePVMatrix = function () {
     this.cacheVMatrix();
     this.cachePMatrix();
-    this.cPVMatrix = this.cPMatrix;
-    this.cPVMatrix.mult(this.cVMatrix);
+    this.cPVMatrix = this.cPMatrix.copy();
+    this.cPVMatrix.times(this.cVMatrix.copy());
     return this.cPVMatrix;
   }
 
@@ -114,15 +156,27 @@
       vector = createVector(0, 0, 0.5),
       pvMatrix = this.cachePVMatrix()
     } = {}) {
-    let out = [];
-    out[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[1] * vector.y + pvMatrix.mat4[2] * vector.z + pvMatrix.mat4[3];
-    out[1] = pvMatrix.mat4[4] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[6] * vector.z + pvMatrix.mat4[7];
-    out[2] = pvMatrix.mat4[8] * vector.x + pvMatrix.mat4[9] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[11];
-    out[3] = pvMatrix.mat4[12] * vector.x + pvMatrix.mat4[13] * vector.y + pvMatrix.mat4[14] * vector.z + pvMatrix.mat4[15];
-    if (out[3] === 0) {
-      throw new Error('screenLocation broken. Make sure the provided pvMatrix is correct');
-    }
-    let viewport = [0, this.height, this.width, -this.height];
+    let _in = Array(4);
+    let out = Array(4);
+    _in[0] = vector.x;
+    _in[1] = vector.y;
+    _in[2] = vector.z;
+    _in[3] = 1;
+    out[0] = pvMatrix.mat4[0] * _in[0] + pvMatrix.mat4[4] * _in[1] + pvMatrix.mat4[8] * _in[2]
+      + pvMatrix.mat4[12] * _in[3];
+    out[1] = pvMatrix.mat4[1] * _in[0] + pvMatrix.mat4[5] * _in[1] + pvMatrix.mat4[9] * _in[2]
+      + pvMatrix.mat4[13] * _in[3];
+    out[2] = pvMatrix.mat4[2] * _in[0] + pvMatrix.mat4[6] * _in[1] + pvMatrix.mat4[10] * _in[2]
+      + pvMatrix.mat4[14] * _in[3];
+    out[3] = pvMatrix.mat4[3] * _in[0] + pvMatrix.mat4[7] * _in[1] + pvMatrix.mat4[11] * _in[2]
+      + pvMatrix.mat4[15] * _in[3];
+    if (out[3] == 0)
+      return null;
+    let viewport = Array(4);
+    viewport[0] = 0;
+    viewport[1] = height;
+    viewport[2] = width;
+    viewport[3] = -height;
     // ndc, but y is inverted
     out[0] /= out[3];
     out[1] /= out[3];
