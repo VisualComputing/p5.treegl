@@ -1,4 +1,5 @@
 let easycam;
+let state
 let p, v, pv;
 
 let log;
@@ -6,12 +7,13 @@ let world;
 let pnt, vec;
 
 let cacheInit;
+let persp;
 
 function setup() {
   createCanvas(600, 450, WEBGL);
   // /*
   // define initial state
-  let state = {
+  state = {
     distance: 764.411,
     center: [0, 0, 0],
     rotation: [0, 0, 0, 1],
@@ -24,12 +26,10 @@ function setup() {
   pnt = createVector(150, 150, 150);
   world = true;
 
-  //ortho(-width / 2, width / 2, -height / 2, height / 2);
-  //let eyeZ = (height / 2) / tan(PI / 6);
-  //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
-
   console.log(pixelDensity());
   //pixelDensity(1);
+  
+  persp = true;
 }
 
 function draw() {
@@ -77,6 +77,18 @@ function draw() {
 }
 
 function keyPressed() {
+  if (key === 'p') {
+    persp = !persp;
+    if (persp) {
+      //let eyeZ = (height / 2) / tan(PI / 6);
+      //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
+      perspective();
+    }
+    else {
+      ortho(-width / 2, width / 2, -height / 2, height / 2, 1, 5000);
+    }
+    //easycam.setState(state, 2000);
+  }
   if (key === 'c') {
     cacheInit = !cacheInit;
   }
