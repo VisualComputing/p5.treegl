@@ -18,50 +18,50 @@
     return this._renderer.cacheMVMatrix(...arguments);
   }
 
+  p5.RendererGL.prototype.cMVMatrix = null;
+
   p5.RendererGL.prototype.cacheMVMatrix = function () {
-    this.cMVMatrix = this.uMVMatrix.copy();
-    return this.cMVMatrix;
+    return this.cMVMatrix = arguments.length === 1 ? arguments[0].copy() : this.uMVMatrix.copy();
   }
 
   p5.prototype.cacheVMatrix = function () {
     return this._renderer.cacheVMatrix(...arguments);
   }
 
+  p5.RendererGL.prototype.cVMatrix = null;
+
   p5.RendererGL.prototype.cacheVMatrix = function () {
-    this.cVMatrix = this._curCamera.cameraMatrix.copy();
-    return this.cVMatrix;
+    return this.cVMatrix = arguments.length === 1 ? arguments[0].copy() : this._curCamera.cameraMatrix.copy();
   }
 
   p5.prototype.cachePMatrix = function () {
     return this._renderer.cachePMatrix(...arguments);
   }
 
+  p5.RendererGL.prototype.cPMatrix = null;
+
   p5.RendererGL.prototype.cachePMatrix = function () {
-    this.cPMatrix = this.uPMatrix.copy();
-    return this.cPMatrix;
+    return this.cPMatrix = arguments.length === 1 ? arguments[0].copy() : this.uPMatrix.copy();
   }
 
   p5.prototype.cachePVMatrix = function () {
     return this._renderer.cachePVMatrix(...arguments);
   }
+
+  p5.RendererGL.prototype.cPVMatrix = null;
+
   p5.RendererGL.prototype.cachePVMatrix = function () {
-    this.cacheVMatrix();
-    this.cachePMatrix();
-    this.cPVMatrix = this.cPMatrix.copy();
-    // Note the p5.Matrix.mult doesn't work
-    this.cPVMatrix.apply(this.cVMatrix);
-    return this.cPVMatrix;
+    return this.cPVMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePMatrix().copy().apply(this.cacheVMatrix());
   }
 
   p5.prototype.cachePVInvMatrix = function () {
     return this._renderer.cachePVInvMatrix(...arguments);
   }
 
+  p5.RendererGL.prototype.cPVInvMatrix = null;
+
   p5.RendererGL.prototype.cachePVInvMatrix = function () {
-    this.cachePVMatrix();
-    this.cPVInvMatrix = this.cPVMatrix.copy();
-    this.cPVInvMatrix.invert();
-    return this.cPVInvMatrix;
+    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePVMatrix().invert(this.cachePVMatrix());
   }
 
   // 2. Space transformations
@@ -151,6 +151,37 @@
     return createVector(target[0], target[1], target[2]);
   }
 
+  /*
+  p5.RendererGL.prototype.screenLocation = function (
+    {
+      vector = createVector(0, 0, 0.5),
+      pvMatrix = null
+    } = {}) {
+    let matrix = pvMatrix === null ? this.cPVMatrix === null ? cachePVMatrix() : this.cPVMatrix : pvMatrix;
+    let target = Array(4);
+    target[0] = matrix.mat4[0] * vector.x + matrix.mat4[4] * vector.y + matrix.mat4[8] * vector.z + matrix.mat4[12];
+    target[1] = matrix.mat4[1] * vector.x + matrix.mat4[5] * vector.y + matrix.mat4[9] * vector.z + matrix.mat4[13];
+    target[2] = matrix.mat4[2] * vector.x + matrix.mat4[6] * vector.y + matrix.mat4[10] * vector.z + matrix.mat4[14];
+    target[3] = matrix.mat4[3] * vector.x + matrix.mat4[7] * vector.y + matrix.mat4[11] * vector.z + matrix.mat4[15];
+    if (target[3] == 0) {
+      throw new Error('screenLocation broken. Check your cachePVMatrix!');
+    }
+    let viewport = [0, this.height, this.width, -this.height];
+    // ndc, but y is inverted
+    target[0] /= target[3];
+    target[1] /= target[3];
+    target[2] /= target[3];
+    // Map x, y and z to range 0-1
+    target[0] = target[0] * 0.5 + 0.5;
+    target[1] = target[1] * 0.5 + 0.5;
+    target[2] = target[2] * 0.5 + 0.5;
+    // Map x,y to viewport
+    target[0] = target[0] * viewport[2] + viewport[0];
+    target[1] = target[1] * viewport[3] + viewport[1];
+    return createVector(target[0], target[1], target[2]);
+  }
+  */
+
   // warning: cannot use the location fx name
 
   p5.prototype.locationT = function () {
@@ -188,7 +219,7 @@
     target[0] /= target[3];
     target[1] /= target[3];
     target[2] /= target[3];
-    return new Vector(target[0], target[1], target[2]);
+    return createVector(target[0], target[1], target[2]);
   }
 
   // 2.2. Vectors

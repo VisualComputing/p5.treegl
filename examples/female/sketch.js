@@ -1,6 +1,6 @@
 let easycam;
 let state
-let p, v, pv;
+let p, v, pv, pvInv;
 
 let log;
 let world;
@@ -28,13 +28,20 @@ function setup() {
 
   console.log(pixelDensity());
   //pixelDensity(1);
-  
+
   persp = true;
+  /*
+  //console.log(_renderer.cacheT ? 'cacheT' : 'Not Cache!');
+  console.log(_renderer.cacheT);
+  _renderer.cacheT = 5;
+  console.log(_renderer.cacheT);
+  */
 }
 
 function draw() {
   if (cacheInit) {
-    pv = cachePVMatrix();
+    cachePVInvMatrix();
+    //pv = cachePVMatrix();
   }
   background(120);
   push();
@@ -53,16 +60,24 @@ function draw() {
     point(pnt.x, pnt.y, pnt.z);
   }
   else {
+    /*
     if (log === frameCount) {
       console.log('P', this._renderer.cPMatrix);
       console.log('V', this._renderer.cVMatrix);
       console.log('PV', this._renderer.cPVMatrix);
     }
-    toScreen = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
+    */
+    toScreen = cacheInit ? screenLocation({ vector: pnt, pvMatrix: _renderer.cPVMatrix }) : screenLocation({ vector: pnt });
     beginHUD();
     stroke(cacheInit ? 'yellow' : 'white');
+    //stroke('white');
     point(toScreen.x, toScreen.y);
     endHUD();
+
+    fromScreen = cacheInit ? locationT({ vector: toScreen, pvInvMatrix: _renderer.cPVInvMatrix }) : locationT({ vector: toScreen });
+    if (log === frameCount) {
+      console.log('pnt', pnt, 'toScreen', toScreen, 'frameScreen', fromScreen);
+    }
   }
   pop();
 }
@@ -84,14 +99,14 @@ function keyPressed() {
     cacheInit = !cacheInit;
   }
   if (key === 'l') {
+    /*
     let p_ = cachePMatrix().copy();
     let v_ = cacheVMatrix().copy();
     let pv_ = p_.copy();
-    //pv_.mult(v_);
-    pv_.times(v_);
     console.log('p_', p_);
     console.log('v_', v_);
     console.log('pv_', pv_);
+    */
     log = frameCount + 1;
   }
   if (key === 'w') {
