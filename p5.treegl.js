@@ -18,8 +18,6 @@
     return this._renderer.cacheMVMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cMVMatrix = null;
-
   p5.RendererGL.prototype.cacheMVMatrix = function () {
     return this.cMVMatrix = arguments.length === 1 ? arguments[0].copy() : this.uMVMatrix.copy();
   }
@@ -27,8 +25,6 @@
   p5.prototype.cacheVMatrix = function () {
     return this._renderer.cacheVMatrix(...arguments);
   }
-
-  p5.RendererGL.prototype.cVMatrix = null;
 
   p5.RendererGL.prototype.cacheVMatrix = function () {
     return this.cVMatrix = arguments.length === 1 ? arguments[0].copy() : this._curCamera.cameraMatrix.copy();
@@ -38,8 +34,6 @@
     return this._renderer.cachePMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cPMatrix = null;
-
   p5.RendererGL.prototype.cachePMatrix = function () {
     return this.cPMatrix = arguments.length === 1 ? arguments[0].copy() : this.uPMatrix.copy();
   }
@@ -48,8 +42,6 @@
     return this._renderer.cachePVMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cPVMatrix = null;
-
   p5.RendererGL.prototype.cachePVMatrix = function () {
     return this.cPVMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePMatrix().copy().apply(this.cacheVMatrix());
   }
@@ -57,8 +49,6 @@
   p5.prototype.cachePVInvMatrix = function () {
     return this._renderer.cachePVInvMatrix(...arguments);
   }
-
-  p5.RendererGL.prototype.cPVInvMatrix = null;
 
   p5.RendererGL.prototype.cachePVInvMatrix = function () {
     return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePVMatrix().copy().invert(this.cachePVMatrix());
@@ -157,7 +147,7 @@
       vector = createVector(0, 0, 0.5),
       pvMatrix = null
     } = {}) {
-    let matrix = pvMatrix === null ? this.cPVMatrix === null ? cachePVMatrix() : this.cPVMatrix : pvMatrix;
+    let matrix = pvMatrix == null ? this.cPVMatrix == null ? cachePVMatrix() : this.cPVMatrix : pvMatrix;
     let target = Array(4);
     target[0] = matrix.mat4[0] * vector.x + matrix.mat4[4] * vector.y + matrix.mat4[8] * vector.z + matrix.mat4[12];
     target[1] = matrix.mat4[1] * vector.x + matrix.mat4[5] * vector.y + matrix.mat4[9] * vector.z + matrix.mat4[13];
