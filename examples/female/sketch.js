@@ -58,15 +58,6 @@ function draw() {
       console.log('V', this._renderer.cVMatrix);
       console.log('PV', this._renderer.cPVMatrix);
     }
-    if (cacheInit) {
-      toScreen = screenLocation({ vector: pnt, pvMatrix: pv });
-    }
-    else {
-      toScreen = screenLocation({ vector: pnt });
-    }
-    if (log === frameCount) {
-      console.log(toScreen);
-    }
     toScreen = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
     beginHUD();
     stroke(cacheInit ? 'yellow' : 'white');
