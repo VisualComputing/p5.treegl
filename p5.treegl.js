@@ -70,10 +70,6 @@
     this._renderer.beginHUD(...arguments);
   }
 
-  p5.prototype.endHUD = function () {
-    this._renderer.endHUD(...arguments);
-  }
-
   p5.RendererGL.prototype.beginHUD = function () {
     this.cacheMVMatrix();
     this.cachePMatrix();
@@ -81,9 +77,22 @@
     let gl = this.drawingContext;
     gl.flush();
     gl.disable(gl.DEPTH_TEST);
-    let z = Number.MAX_VALUE;
     this.resetMatrix();
-    this._curCamera.ortho(-this.width / 2, this.width / 2, -this.height / 2, this.height / 2, -z, z);
+    let z = Number.MAX_VALUE;
+    this._curCamera.ortho(0, this.width, -this.height, 0, -z, z);
+  }
+
+  p5.prototype.endHUD = function () {
+    this._renderer.endHUD(...arguments);
+  }
+
+  p5.RendererGL.prototype.endHUD = function () {
+    let gl = this.drawingContext;
+    gl.flush();
+    gl.enable(gl.DEPTH_TEST);
+    this.pop(this._rendererState);
+    this.uPMatrix.set(this.cPMatrix);
+    this.uMVMatrix.set(this.cMVMatrix);
   }
 
   p5.prototype.ndcToScreenLocation = function () {
@@ -307,15 +316,6 @@
   }
 
   // 4. Shader utilities
-
-  p5.RendererGL.prototype.endHUD = function () {
-    let gl = this.drawingContext;
-    gl.flush();
-    gl.enable(gl.DEPTH_TEST);
-    this.pop(this._rendererState);
-    this.uPMatrix.set(this.cPMatrix);
-    this.uMVMatrix.set(this.cMVMatrix);
-  }
 
   p5.prototype.readShader = function (fragFilename,
     { color = 'vVertexColor',

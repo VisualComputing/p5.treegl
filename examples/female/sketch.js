@@ -68,17 +68,10 @@ function draw() {
       console.log(vec);
     }
     vec = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
-    /*
     beginHUD();
-    stroke(cacheInit ? 'yellow' : 'blue');
-    point(vec.x - width / 2, vec.y - height / 2);
-    endHUD();
-    // */
-    easycam.beginHUD();
-    stroke(cacheInit ? 'magenta' : 'white');
+    stroke(cacheInit ? 'yellow' : 'white');
     point(vec.x, vec.y);
-    easycam.endHUD();
-    // */
+    endHUD();
   }
   pop();
 }
