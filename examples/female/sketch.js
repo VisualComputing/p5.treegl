@@ -38,6 +38,15 @@ function draw() {
   }
   background(120);
   push();
+  noFill();
+  strokeWeight(3);
+  box(300);
+  pop();
+  push();
+  fill(0, 0, 255);
+  box(150);
+  pop();
+  push();
   strokeWeight(10);
   if (world) {
     stroke(255, 0, 0);
@@ -66,18 +75,11 @@ function draw() {
     endHUD();
     // */
     easycam.beginHUD();
-    stroke(cacheInit ? 'magenta' : 'blue');
+    stroke(cacheInit ? 'magenta' : 'white');
     point(vec.x, vec.y);
     easycam.endHUD();
     // */
   }
-  pop();
-  noFill();
-  strokeWeight(3);
-  box(300);
-  push();
-  fill(0, 0, 255);
-  box(150);
   pop();
 }
 

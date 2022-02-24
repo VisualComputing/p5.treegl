@@ -12,48 +12,6 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
-
-  // 0. Matrix multiplication!
-
-  p5.Matrix.prototype.times = function (matrix) {
-    let r00 = this.mat4[0] * matrix.mat4[0] + this.mat4[4] * matrix.mat4[1] + this.mat4[8] * matrix.mat4[2] + this.mat4[12] * matrix.mat4[3];
-    let r01 = this.mat4[0] * matrix.mat4[4] + this.mat4[4] * matrix.mat4[5] + this.mat4[8] * matrix.mat4[6] + this.mat4[12] * matrix.mat4[7];
-    let r02 = this.mat4[0] * matrix.mat4[8] + this.mat4[4] * matrix.mat4[9] + this.mat4[8] * matrix.mat4[10] + this.mat4[12] * matrix.mat4[11];
-    let r03 = this.mat4[0] * matrix.mat4[12] + this.mat4[4] * matrix.mat4[13] + this.mat4[8] * matrix.mat4[14] + this.mat4[12] * matrix.mat4[15];
-
-    let r10 = this.mat4[1] * matrix.mat4[0] + this.mat4[5] * matrix.mat4[1] + this.mat4[9] * matrix.mat4[2] + this.mat4[13] * matrix.mat4[3];
-    let r11 = this.mat4[1] * matrix.mat4[4] + this.mat4[5] * matrix.mat4[5] + this.mat4[9] * matrix.mat4[6] + this.mat4[13] * matrix.mat4[7];
-    let r12 = this.mat4[1] * matrix.mat4[8] + this.mat4[5] * matrix.mat4[9] + this.mat4[9] * matrix.mat4[10] + this.mat4[13] * matrix.mat4[11];
-    let r13 = this.mat4[1] * matrix.mat4[12] + this.mat4[5] * matrix.mat4[13] + this.mat4[9] * matrix.mat4[14] + this.mat4[13] * matrix.mat4[15];
-
-    let r20 = this.mat4[2] * matrix.mat4[0] + this.mat4[6] * matrix.mat4[1] + this.mat4[10] * matrix.mat4[2] + this.mat4[14] * matrix.mat4[3];
-    let r21 = this.mat4[2] * matrix.mat4[4] + this.mat4[6] * matrix.mat4[5] + this.mat4[10] * matrix.mat4[6] + this.mat4[14] * matrix.mat4[7];
-    let r22 = this.mat4[2] * matrix.mat4[8] + this.mat4[6] * matrix.mat4[9] + this.mat4[10] * matrix.mat4[10] + this.mat4[14] * matrix.mat4[11];
-    let r23 = this.mat4[2] * matrix.mat4[12] + this.mat4[6] * matrix.mat4[13] + this.mat4[10] * matrix.mat4[14] + this.mat4[14] * matrix.mat4[15];
-
-    let r30 = this.mat4[3] * matrix.mat4[0] + this.mat4[7] * matrix.mat4[1] + this.mat4[11] * matrix.mat4[2] + this.mat4[15] * matrix.mat4[3];
-    let r31 = this.mat4[3] * matrix.mat4[4] + this.mat4[7] * matrix.mat4[5] + this.mat4[11] * matrix.mat4[6] + this.mat4[15] * matrix.mat4[7];
-    let r32 = this.mat4[3] * matrix.mat4[8] + this.mat4[7] * matrix.mat4[9] + this.mat4[11] * matrix.mat4[10] + this.mat4[15] * matrix.mat4[11];
-    let r33 = this.mat4[3] * matrix.mat4[12] + this.mat4[7] * matrix.mat4[13] + this.mat4[11] * matrix.mat4[14] + this.mat4[15] * matrix.mat4[15];
-
-    this.mat4[0] = r00;
-    this.mat4[4] = r01;
-    this.mat4[8] = r02;
-    this.mat4[12] = r03;
-    this.mat4[1] = r10;
-    this.mat4[5] = r11;
-    this.mat4[9] = r12;
-    this.mat4[13] = r13;
-    this.mat4[2] = r20;
-    this.mat4[6] = r21;
-    this.mat4[10] = r22;
-    this.mat4[14] = r23;
-    this.mat4[3] = r30;
-    this.mat4[7] = r31;
-    this.mat4[11] = r32;
-    this.mat4[15] = r33;
-  }
-
   // 1. Matrix caches
 
   p5.prototype.cacheMVMatrix = function () {
@@ -90,7 +48,8 @@
     this.cacheVMatrix();
     this.cachePMatrix();
     this.cPVMatrix = this.cPMatrix.copy();
-    this.cPVMatrix.times(this.cVMatrix.copy());
+    // Note the p5.Matrix doesn't work'
+    this.cPVMatrix.apply(this.cVMatrix);
     return this.cPVMatrix;
   }
 
