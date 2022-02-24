@@ -141,37 +141,6 @@
     return createVector(target[0], target[1], target[2]);
   }
 
-  /*
-  p5.RendererGL.prototype.screenLocation = function (
-    {
-      vector = createVector(0, 0, 0.5),
-      pvMatrix = null
-    } = {}) {
-    let matrix = pvMatrix == null ? this.cPVMatrix == null ? cachePVMatrix() : this.cPVMatrix : pvMatrix;
-    let target = Array(4);
-    target[0] = matrix.mat4[0] * vector.x + matrix.mat4[4] * vector.y + matrix.mat4[8] * vector.z + matrix.mat4[12];
-    target[1] = matrix.mat4[1] * vector.x + matrix.mat4[5] * vector.y + matrix.mat4[9] * vector.z + matrix.mat4[13];
-    target[2] = matrix.mat4[2] * vector.x + matrix.mat4[6] * vector.y + matrix.mat4[10] * vector.z + matrix.mat4[14];
-    target[3] = matrix.mat4[3] * vector.x + matrix.mat4[7] * vector.y + matrix.mat4[11] * vector.z + matrix.mat4[15];
-    if (target[3] == 0) {
-      throw new Error('screenLocation broken. Check your cachePVMatrix!');
-    }
-    let viewport = [0, this.height, this.width, -this.height];
-    // ndc, but y is inverted
-    target[0] /= target[3];
-    target[1] /= target[3];
-    target[2] /= target[3];
-    // Map x, y and z to range 0-1
-    target[0] = target[0] * 0.5 + 0.5;
-    target[1] = target[1] * 0.5 + 0.5;
-    target[2] = target[2] * 0.5 + 0.5;
-    // Map x,y to viewport
-    target[0] = target[0] * viewport[2] + viewport[0];
-    target[1] = target[1] * viewport[3] + viewport[1];
-    return createVector(target[0], target[1], target[2]);
-  }
-  */
-
   // warning: cannot use the location fx name
 
   p5.prototype.locationT = function () {
