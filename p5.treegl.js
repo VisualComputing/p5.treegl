@@ -61,7 +61,7 @@
   p5.RendererGL.prototype.cPVInvMatrix = null;
 
   p5.RendererGL.prototype.cachePVInvMatrix = function () {
-    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePVMatrix().invert(this.cachePVMatrix());
+    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePVMatrix().copy().invert(this.cachePVMatrix());
   }
 
   // 2. Space transformations
