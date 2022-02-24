@@ -95,6 +95,10 @@
     this.uMVMatrix.set(this.cMVMatrix);
   }
 
+  // 2.1 Points
+
+  // NDC stuff needs testing
+
   p5.prototype.ndcToScreenLocation = function () {
     return this._renderer.ndcToScreenLocation(...arguments);
   }
@@ -124,109 +128,110 @@
       vector = createVector(0, 0, 0.5),
       pvMatrix = this.cachePVMatrix()
     } = {}) {
-    let out = Array(4);
-    out[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
-    out[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
-    out[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
-    out[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
-    if (out[3] == 0) {
+    let target = Array(4);
+    target[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
+    target[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
+    target[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
+    target[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
+    if (target[3] == 0) {
       throw new Error('screenLocation broken. Check your cachePVMatrix!');
     }
     let viewport = [0, this.height, this.width, -this.height];
     // ndc, but y is inverted
-    out[0] /= out[3];
-    out[1] /= out[3];
-    out[2] /= out[3];
+    target[0] /= target[3];
+    target[1] /= target[3];
+    target[2] /= target[3];
     // Map x, y and z to range 0-1
-    out[0] = out[0] * 0.5 + 0.5;
-    out[1] = out[1] * 0.5 + 0.5;
-    out[2] = out[2] * 0.5 + 0.5;
+    target[0] = target[0] * 0.5 + 0.5;
+    target[1] = target[1] * 0.5 + 0.5;
+    target[2] = target[2] * 0.5 + 0.5;
     // Map x,y to viewport
-    out[0] = out[0] * viewport[2] + viewport[0];
-    out[1] = out[1] * viewport[3] + viewport[1];
-    return createVector(out[0], out[1], out[2]);
+    target[0] = target[0] * viewport[2] + viewport[0];
+    target[1] = target[1] * viewport[3] + viewport[1];
+    return createVector(target[0], target[1], target[2]);
   }
 
-  /*
-  p5.prototype.location = function () {
-    return this._renderer.location(...arguments);
+  // warning: cannot use the location fx name
+
+  p5.prototype.locationT = function () {
+    return this._renderer.locationT(...arguments);
   }
 
-  p5.RendererGL.prototype.location = function (
+  // neeeds testing
+  p5.RendererGL.prototype.locationT = function (
     {
       vector = createVector(this.width / 2, this.height / 2, 0.5),
       cachePVInvMatrix = this.cachePVInvMatrix()
     } = {}) {
-      let viewport = [0, this.height, this.width, -this.height];
-      let _in = Array(4);
-      let out = Array(4);
-      _in[0] = vector.x;
-      _in[1] = vector.y;
-      _in[2] = vector.z;
-      _in[3] = 1.0;
-      // Map x and y from window coordinates
-      _in[0] = (_in[0] - viewport[0]) / viewport[2];
-      _in[1] = (_in[1] - viewport[1]) / viewport[3];
-      // Map to range -1 to 1
-      _in[0] = _in[0] * 2 - 1;
-      _in[1] = _in[1] * 2 - 1;
-      _in[2] = _in[2] * 2 - 1;
-      cachePVInvMatrix.multiply(_in, out);
-      if (out[3] == 0)
-        return null;
-      out[0] /= out[3];
-      out[1] /= out[3];
-      out[2] /= out[3];
-      return new Vector(out[0], out[1], out[2]);
-  }
-
-  public Vector ndcToScreenDisplacement(Vector vector) {
-    return new Vector(width() * vector.x() / 2, height() * vector.y() / 2, vector.z() / 2);
-  }
-
-  public Vector screenToNDCDisplacement(Vector vector) {
-    return new Vector(2 * vector.x() / (float) width(), 2 * vector.y() / (float) height(), 2 * vector.z());
-  }
-
-  public Vector displacement(Vector vector) {
-    return this.displacement(vector, null);
-  }
-
-  public Vector displacement(Vector vector, Node node) {
-    float dx = vector.x();
-    float dy = _leftHanded ? vector.y() : -vector.y();
-    // Scale to fit the screen relative vector displacement
-    if (_type == Type.PERSPECTIVE) {
-      Vector position = node == null ? new Vector() : node.worldPosition();
-      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2.0f));
-      dx *= 2.0 * k / ((float) height());
-      dy *= 2.0 * k / ((float) height());
+    let viewport = [0, this.height, this.width, -this.height];
+    let source = Array(4);
+    let target = Array(4);
+    source[0] = vector.x;
+    source[1] = vector.y;
+    source[2] = vector.z;
+    source[3] = 1.0;
+    // Map x and y from window coordinates
+    source[0] = (source[0] - viewport[0]) / viewport[2];
+    source[1] = (source[1] - viewport[1]) / viewport[3];
+    // Map to range -1 to 1
+    source[0] = source[0] * 2 - 1;
+    source[1] = source[1] * 2 - 1;
+    source[2] = source[2] * 2 - 1;
+    // cachePVInvMatrix.multiply(source, target);
+    target[0] = cachePVInvMatrix.mat4[0] * source[0] + cachePVInvMatrix.mat4[4] * source[1] + cachePVInvMatrix.mat4[8] * source[2] + cachePVInvMatrix.mat4[12] * source[3];
+    target[1] = cachePVInvMatrix.mat4[1] * source[0] + cachePVInvMatrix.mat4[5] * source[1] + cachePVInvMatrix.mat4[9] * source[2] + cachePVInvMatrix.mat4[13] * source[3];
+    target[2] = cachePVInvMatrix.mat4[2] * source[0] + cachePVInvMatrix.mat4[6] * source[1] + cachePVInvMatrix.mat4[10] * source[2] + cachePVInvMatrix.mat4[14] * source[3];
+    target[3] = cachePVInvMatrix.mat4[3] * source[0] + cachePVInvMatrix.mat4[7] * source[1] + cachePVInvMatrix.mat4[11] * source[2] + cachePVInvMatrix.mat4[15] * source[3];
+    if (target[3] == 0) {
+      throw new Error('location broken. Check your cachePVInvMatrix!');
     }
-    float dz = vector.z();
-    dz *= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2.0f) : Math.abs(right() - left()) / (float) width());
-    Vector eyeVector = new Vector(dx, dy, dz);
-    return node == null ? _eye.worldDisplacement(eyeVector) : node.displacement(eyeVector, _eye);
+    target[0] /= target[3];
+    target[1] /= target[3];
+    target[2] /= target[3];
+    return new Vector(target[0], target[1], target[2]);
   }
 
-  public Vector screenDisplacement(Vector vector) {
-    return screenDisplacement(vector, null);
+  // 2.2. Vectors
+
+  // NDC stuff needs testing
+
+  p5.prototype.ndcToScreenDisplacement = function () {
+    return this._renderer.ndcToScreenDisplacement(...arguments);
   }
 
-  public Vector screenDisplacement(Vector vector, Node node) {
-    Vector eyeVector = _eye.displacement(vector, node);
-    float dx = eyeVector.x();
-    float dy = _leftHanded ? eyeVector.y() : -eyeVector.y();
-    if (_type == Type.PERSPECTIVE) {
-      Vector position = node == null ? new Vector() : node.worldPosition();
-      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2.0f));
-      dx /= 2.0 * k / ((float) height() * _eye.worldMagnitude());
-      dy /= 2.0 * k / ((float) height() * _eye.worldMagnitude());
-    }
-    float dz = eyeVector.z();
-    // sign is inverted
-    dz /= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2.0f) : Math.abs(right() - left()) / (float) width());
-    return new Vector(dx, dy, dz);
+  p5.RendererGL.prototype.ndcToScreenDisplacement = function (vector) {
+    return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
   }
+
+  p5.prototype.screenToNDCDisplacement = function () {
+    return this._renderer.screenToNDCDisplacement(...arguments);
+  }
+
+  p5.RendererGL.prototype.screenToNDCDisplacement = function (vector) {
+    return createVector(2 * vector.x / this.width, 2 * vector.y / this.height, 2 * vector.z);
+  }
+
+  /*
+  From nub
+  Note 1
+
+  Nub methods:
+  Vector displacement(Vector vector)
+  Vector screenDisplacement(Vector vector)
+  
+  (at the very least) require the following p5.Camera methods:
+  p5.Camera.prototype.displacement = function ( vector )
+  p5.Camera.prototype.Worldisplacement = function ( vector )
+  p5.Camera.prototype.location = function ( vector )
+
+  and, optionally:
+  p5.Camera.prototype.worldLocation = function ( vector )
+  
+  Note 2
+
+  The above camera methods need to hack the nub Node
+  counterparts, e.g., p5.Camera.prototype.location -> Node.location,
+  and to implement Quaternion rotations
   */
 
   // 3. Drawing stuff
