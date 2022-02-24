@@ -1,65 +1,47 @@
-// texture
-let img;
-// check box
-let auto_rotate;
-// select
-let mode;
-// slider
-let details;
 let easycam;
 let p, v, pv;
 
+let log;
 let world;
 let pnt, vec;
 
-function preload() {
-  img = loadImage('img.jpg');
-}
+let cacheInit;
 
 function setup() {
   createCanvas(600, 450, WEBGL);
-  textureMode(NORMAL);
-  auto_rotate = createCheckbox('auto rotate', false);
-  auto_rotate.style('color', 'magenta');
-  auto_rotate.position(10, 10);
-  details = createSlider(3, 50, 20, 1);
-  details.position(10, 40);
-  details.style('width', '80px');
-  mode = createSelect();
-  mode.position(10, 70);
-  mode.option('Fill');
-  mode.option('Wiredframe');
-  mode.option('Texture');
-  mode.value('Wiredframe');
+  // /*
   // define initial state
   let state = {
     distance: 764.411,
     center: [0, 0, 0],
-    rotation: [-0.285, -0.257, -0.619, 0.685],
+    rotation: [0, 0, 0, 1],
   };
   console.log(Dw.EasyCam.INFO);
   easycam = new Dw.EasyCam(this._renderer);
   easycam.state_reset = state;   // state to use on reset (double-click/tap)
   easycam.setState(state, 2000); // now animate to that state
-
-  pnt = createVector(120, 80, -200);
+  // */
+  pnt = createVector(150, 150, 150);
   world = true;
 
   //ortho(-width / 2, width / 2, -height / 2, height / 2);
-  let eyeZ = (height/2) / tan(PI/6);
-  perspective(PI/3, width/height, eyeZ/10, eyeZ*10);
+  //let eyeZ = (height / 2) / tan(PI / 6);
+  //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
+
+  console.log(pixelDensity());
+  //pixelDensity(1);
 }
 
-let log;
-
 function draw() {
-  //pv = cachePVMatrix();
+  if (cacheInit) {
+    pv = cachePVMatrix();
+  }
   background(120);
   push();
   strokeWeight(10);
   if (world) {
     stroke(255, 0, 0);
-    point(pnt.x - width / 2, pnt.y - height / 2, pnt.z);
+    point(pnt.x, pnt.y, pnt.z);
   }
   else {
     if (log === frameCount) {
@@ -67,88 +49,55 @@ function draw() {
       console.log('V', this._renderer.cVMatrix);
       console.log('PV', this._renderer.cPVMatrix);
     }
-    vec = screenLocation({ vector: pnt });// looks broken
+    if (cacheInit) {
+      vec = screenLocation({ vector: pnt });
+    }
+    else {
+      vec = screenLocation({ vector: pnt, pvMatrix: pv });
+    }
     if (log === frameCount) {
       console.log(vec);
     }
-    //vec = screenLocation({ vector: pnt, pvMatrix: pv });
+    vec = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
+    /*
+    beginHUD();
+    stroke(cacheInit ? 'yellow' : 'blue');
+    point(vec.x - width / 2, vec.y - height / 2);
+    endHUD();
+    // */
     easycam.beginHUD();
-    //beginHUD();
-    stroke(255, 255, 0);
+    stroke(cacheInit ? 'magenta' : 'blue');
     point(vec.x, vec.y);
-    //endHUD();
-    //point(0, 0);
     easycam.endHUD();
+    // */
   }
   pop();
-  /*
-  if (auto_rotate.checked()) {
-    rotateZ(frameCount * 0.01);
-    rotateX(frameCount * 0.01);
-    rotateY(frameCount * 0.01);
-  }
-  lights();
-  scale(10);
-  strokeWeight(1);
-  switch (mode.value()) {
-    case 'Fill':
-      fill(255, 0, 0);
-      break;
-    case 'Wiredframe':
-      noFill();
-      stroke(0, 255, 255);
-      break;
-    default:
-      texture(img);
-  }
-  box(30);
+  noFill();
+  strokeWeight(3);
+  box(300);
   push();
-  translate(0, 0, 20);
   fill(0, 0, 255);
-  box(5);
+  box(150);
   pop();
-  */
 }
 
 function keyPressed() {
-  if (key === 't') {
+  if (key === 'c') {
+    cacheInit = !cacheInit;
+  }
+  if (key === 'l') {
     let p_ = cachePMatrix().copy();
     let v_ = cacheVMatrix().copy();
     let pv_ = p_.copy();
     //pv_.mult(v_);
     pv_.times(v_);
-    console.log('p', p_);
-    console.log('v', v_);
-    console.log('pv', pv_);
-    /*
-    console.log('p', p_);
-    console.log('pv', pv_);
-    */
-  }
-  if (key === 'l') {
+    console.log('p_', p_);
+    console.log('v_', v_);
+    console.log('pv_', pv_);
     log = frameCount + 1;
   }
   if (key === 'w') {
     world = !world;
-  }
-  if (key === 'e') {
-    console.log(view);
-  }
-  /*
-  if (key === 'p') {
-    let vector = createVector(100, 500, 0.8);
-    //let result = ndcToScreenLocation(vector);
-    let result = screenLocation({ vector: vector });
-    //let result = screenLocation({ vector: vector, pvMatrix: pvMatrix });
-    console.log(result);
-  }
-  */
-  if (key === 'm') {
-    console.log(pv);
-    //console.log(view);
-  }
-  if (key === 'v') {
-    console.log(vec);
   }
   if (key === 'x') {
     noLoop();
