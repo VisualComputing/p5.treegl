@@ -116,13 +116,13 @@
   p5.RendererGL.prototype.screenLocation = function (
     {
       vector = createVector(0, 0, 0.5),
-      pvMatrix = this.cachePVMatrix()
+      cachePVMatrix = this.cachePVMatrix()
     } = {}) {
     let target = Array(4);
-    target[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
-    target[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
-    target[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
-    target[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
+    target[0] = cachePVMatrix.mat4[0] * vector.x + cachePVMatrix.mat4[4] * vector.y + cachePVMatrix.mat4[8] * vector.z + cachePVMatrix.mat4[12];
+    target[1] = cachePVMatrix.mat4[1] * vector.x + cachePVMatrix.mat4[5] * vector.y + cachePVMatrix.mat4[9] * vector.z + cachePVMatrix.mat4[13];
+    target[2] = cachePVMatrix.mat4[2] * vector.x + cachePVMatrix.mat4[6] * vector.y + cachePVMatrix.mat4[10] * vector.z + cachePVMatrix.mat4[14];
+    target[3] = cachePVMatrix.mat4[3] * vector.x + cachePVMatrix.mat4[7] * vector.y + cachePVMatrix.mat4[11] * vector.z + cachePVMatrix.mat4[15];
     if (target[3] == 0) {
       throw new Error('screenLocation broken. Check your cachePVMatrix!');
     }
