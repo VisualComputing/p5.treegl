@@ -4,7 +4,7 @@ let p, v, pv;
 
 let log;
 let world;
-let pnt, vec;
+let pnt, toScreen, fromScreen;
 
 let cacheInit;
 let persp;
@@ -59,18 +59,18 @@ function draw() {
       console.log('PV', this._renderer.cPVMatrix);
     }
     if (cacheInit) {
-      vec = screenLocation({ vector: pnt });
+      toScreen = screenLocation({ vector: pnt, pvMatrix: pv });
     }
     else {
-      vec = screenLocation({ vector: pnt, pvMatrix: pv });
+      toScreen = screenLocation({ vector: pnt });
     }
     if (log === frameCount) {
-      console.log(vec);
+      console.log(toScreen);
     }
-    vec = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
+    toScreen = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
     beginHUD();
     stroke(cacheInit ? 'yellow' : 'white');
-    point(vec.x, vec.y);
+    point(toScreen.x, toScreen.y);
     endHUD();
   }
   pop();
