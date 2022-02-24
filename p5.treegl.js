@@ -48,7 +48,7 @@
     this.cacheVMatrix();
     this.cachePMatrix();
     this.cPVMatrix = this.cPMatrix.copy();
-    // Note the p5.Matrix doesn't work'
+    // Note the p5.Matrix.mult doesn't work
     this.cPVMatrix.apply(this.cVMatrix);
     return this.cPVMatrix;
   }
@@ -129,13 +129,10 @@
     out[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
     out[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
     out[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
-    if (out[3] == 0)
-      return null;
-    let viewport = Array(4);
-    viewport[0] = 0;
-    viewport[1] = height;
-    viewport[2] = width;
-    viewport[3] = -height;
+    if (out[3] == 0) {
+      throw new Error('screenLocation broken. Check your cachePVMatrix!');
+    }
+    let viewport = [0, this.height, this.width, -this.height];
     // ndc, but y is inverted
     out[0] /= out[3];
     out[1] /= out[3];
@@ -155,29 +152,34 @@
     return this._renderer.location(...arguments);
   }
 
-  p5.RendererGL.prototype.location = function (vector) {
-    let viewport = [0, this.height, this.width, -this.height];
-    let _in = [vector.x, vector.y, vector.z, 1];
-    let out = [];
-    // Map x and y from window coordinates
-    vector.x = (vector.x - viewport[0]) / viewport[2];
-    vector.y = (vector.y - viewport[1]) / viewport[3];
-    // Map to range -1 to 1
-    vector.x = vector.x * 2 - 1;
-    vector.y = vector.y * 2 - 1;
-    vector.z = vector.z * 2 - 1;
-    projectionViewInverseMatrix.multiply(_in, out);
-    if (out[3] === 0) {
-      throw new Error('location broken. Make sure to call _bind first');
-    }
-    out[0] /= out[3];
-    out[1] /= out[3];
-    out[2] /= out[3];
-    return new Vector(out[0], out[1], out[2]);
+  p5.RendererGL.prototype.location = function (
+    {
+      vector = createVector(this.width / 2, this.height / 2, 0.5),
+      cachePVInvMatrix = this.cachePVInvMatrix()
+    } = {}) {
+      let viewport = [0, this.height, this.width, -this.height];
+      let _in = Array(4);
+      let out = Array(4);
+      _in[0] = vector.x;
+      _in[1] = vector.y;
+      _in[2] = vector.z;
+      _in[3] = 1.0;
+      // Map x and y from window coordinates
+      _in[0] = (_in[0] - viewport[0]) / viewport[2];
+      _in[1] = (_in[1] - viewport[1]) / viewport[3];
+      // Map to range -1 to 1
+      _in[0] = _in[0] * 2 - 1;
+      _in[1] = _in[1] * 2 - 1;
+      _in[2] = _in[2] * 2 - 1;
+      cachePVInvMatrix.multiply(_in, out);
+      if (out[3] == 0)
+        return null;
+      out[0] /= out[3];
+      out[1] /= out[3];
+      out[2] /= out[3];
+      return new Vector(out[0], out[1], out[2]);
   }
-  */
 
-  /*
   public Vector ndcToScreenDisplacement(Vector vector) {
     return new Vector(width() * vector.x() / 2, height() * vector.y() / 2, vector.z() / 2);
   }
