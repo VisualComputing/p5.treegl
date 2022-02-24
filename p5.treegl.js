@@ -124,20 +124,11 @@
       vector = createVector(0, 0, 0.5),
       pvMatrix = this.cachePVMatrix()
     } = {}) {
-    let _in = Array(4);
     let out = Array(4);
-    _in[0] = vector.x;
-    _in[1] = vector.y;
-    _in[2] = vector.z;
-    _in[3] = 1;
-    out[0] = pvMatrix.mat4[0] * _in[0] + pvMatrix.mat4[4] * _in[1] + pvMatrix.mat4[8] * _in[2]
-      + pvMatrix.mat4[12] * _in[3];
-    out[1] = pvMatrix.mat4[1] * _in[0] + pvMatrix.mat4[5] * _in[1] + pvMatrix.mat4[9] * _in[2]
-      + pvMatrix.mat4[13] * _in[3];
-    out[2] = pvMatrix.mat4[2] * _in[0] + pvMatrix.mat4[6] * _in[1] + pvMatrix.mat4[10] * _in[2]
-      + pvMatrix.mat4[14] * _in[3];
-    out[3] = pvMatrix.mat4[3] * _in[0] + pvMatrix.mat4[7] * _in[1] + pvMatrix.mat4[11] * _in[2]
-      + pvMatrix.mat4[15] * _in[3];
+    out[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
+    out[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
+    out[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
+    out[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
     if (out[3] == 0)
       return null;
     let viewport = Array(4);
