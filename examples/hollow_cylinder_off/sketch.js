@@ -45,7 +45,7 @@ function draw() {
   copy the behavior of the standard canvas.
   */
   pg.reset();
-  switch(mode.value()) {
+  switch (mode.value()) {
     case 'Fill':
       pg.fill(255, 0, 0);
       break;
@@ -59,8 +59,8 @@ function draw() {
   pg.rotateZ(frameCount * 0.01);
   pg.rotateX(frameCount * 0.01);
   pg.rotateY(frameCount * 0.01);
-  pg.hollowCylinder({ radius: 50, detail : details.value() });
-  if(hud.checked()) {
+  pg.hollowCylinder({ radius: 50, detail: details.value() });
+  if (hud.checked()) {
     // init p5.treegl.HUD
     beginHUD();
   }
@@ -69,10 +69,13 @@ function draw() {
     rotateX(frameCount * 0.01);
     rotateY(frameCount * 0.01);
   }
-  image(pg, -150, -150);
-  if(hud.checked()) {
+  if (hud.checked()) {
+    image(pg, 50, 50);
     // end p5.treegl.HUD
     endHUD();
+  }
+  else {
+    image(pg, -150, -150);
   }
   pg.pop();
 }
