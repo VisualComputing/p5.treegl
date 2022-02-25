@@ -34,7 +34,7 @@ function setup() {
 function draw() {
   if (cacheInit) {
     pv = pvMatrix();
-    pvInv = pvInvMatrix( {pvMatrix: pv} );
+    pvInv = pvInvMatrix({ pvMatrix: pv });
   }
   background(120);
   push();
@@ -53,21 +53,13 @@ function draw() {
     point(pnt.x, pnt.y, pnt.z);
   }
   else {
-    /*
-    if (log === frameCount) {
-      console.log('P', this._renderer.cPMatrix);
-      console.log('V', this._renderer.cVMatrix);
-      console.log('PV', this._renderer.cPVMatrix);
-    }
-    */
-    toScreen = cacheInit ? screenLocation({ vector: pnt, pvMatrix: pv }) : screenLocation({ vector: pnt });
+    toScreen = cacheInit ? treeLocation(pnt, { from: 'WORLD', to: 'SCREEN', pvMatrix: pv }) : treeLocation(pnt, { from: 'WORLD', to: 'SCREEN' });
     beginHUD();
     stroke(cacheInit ? 'yellow' : 'white');
     //stroke('white');
     point(toScreen.x, toScreen.y);
     endHUD();
-
-    fromScreen = cacheInit ? treeLocation({ vector: toScreen, pvInvMatrix: pvInv }) : treeLocation({ vector: toScreen });
+    fromScreen = cacheInit ? treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD', pvInvMatrix: pvInv }) : treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD' });
     if (log === frameCount) {
       console.log('pnt', pnt, 'toScreen', toScreen, 'frameScreen', fromScreen);
     }

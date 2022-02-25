@@ -101,31 +101,58 @@
 
   // NDC stuff needs testing
 
-  p5.prototype.ndcToScreenLocation = function () {
-    return this._renderer.ndcToScreenLocation(...arguments);
+  p5.prototype.treeLocation = function () {
+    return this._renderer.treeLocation(...arguments);
   }
 
-  p5.RendererGL.prototype.ndcToScreenLocation = function (vector) {
+  p5.RendererGL.prototype.treeLocation = function (vector, {
+    from = 'SCREEN',
+    to = 'WORLD',
+    pMatrix = this.pMatrix(),
+    vMatrix = this.vMatrix(),
+    pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }),
+    pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
+  } = {}) {
+    if ((from == 'WORLD') && (to == 'SCREEN')) {
+      return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
+    }
+    if ((from == 'SCREEN') && (to == 'WORLD')) {
+      return this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
+    }
+    if (from == 'SCREEN' && to == "NDC") {
+      return this._screenToNDCLocation(vector);
+    }
+    if (from == 'NDC' && to == 'SCREEN') {
+      return this._ndcToScreenLocation(vector);
+    }
+    if (from == 'WORLD' && to == "NDC") {
+      return this._screenToNDCLocation(this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix }));
+    }
+    if (from == 'NDC' && to == 'WORLD') {
+      return this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
+    }
+    /*
+    if (from == 'EYE' to === ....) {
+    }
+
+    if (from == ... to === 'EYE') {
+    }
+    */
+  }
+
+  p5.RendererGL.prototype._ndcToScreenLocation = function (vector) {
     return createVector(map(vector.x, -1, 1, 0, this.width),
       map(vector.y, -1, 1, 0, this.height),
       map(vector.z, -1, 1, 0, 1));
   }
 
-  p5.prototype.screenToNDCLocation = function () {
-    return this._renderer.screenToNDCLocation(...arguments);
-  }
-
-  p5.RendererGL.prototype.screenToNDCLocation = function (vector) {
+  p5.RendererGL.prototype._screenToNDCLocation = function (vector) {
     return createVector(map(vector.x, 0, this.width, -1, 1),
       map(vector.y, 0, this.height, -1, 1),
       map(vector.z, 0, 1, -1, 1));
   }
 
-  p5.prototype.screenLocation = function () {
-    return this._renderer.screenLocation(...arguments);
-  }
-
-  p5.RendererGL.prototype.screenLocation = function (
+  p5.RendererGL.prototype._screenLocation = function (
     {
       vector = createVector(0, 0, 0.5),
       pMatrix = this.pMatrix(),
@@ -155,17 +182,7 @@
     return createVector(target[0], target[1], target[2]);
   }
 
-  // warning: cannot use the location fx name nub naming
-  // scheme (already taken by the window), see:
-  // https://www.w3schools.com/js/js_window_location.asp
-  // Prefixing with tree to brake ambiguities looks nice,
-  // and here it can even be regarded as correct.
-
-  p5.prototype.treeLocation = function () {
-    return this._renderer.location(...arguments);
-  }
-
-  p5.RendererGL.prototype.location = function (
+  p5.RendererGL.prototype._location = function (
     {
       vector = createVector(this.width / 2, this.height / 2, 0.5),
       pMatrix = this.pMatrix(),
@@ -205,19 +222,46 @@
 
   // NDC stuff needs testing
 
-  p5.prototype.ndcToScreenDisplacement = function () {
-    return this._renderer.ndcToScreenDisplacement(...arguments);
+  p5.prototype.treeDisplacement = function () {
+    return this._renderer.treeDisplacement(...arguments);
   }
 
-  p5.RendererGL.prototype.ndcToScreenDisplacement = function (vector) {
+  p5.RendererGL.prototype.treeDisplacement = function (vector, {
+    from = 'SCREEN',
+    to = 'WORLD'
+  } = {}) {
+    if ((from == 'WORLD') && (to == 'SCREEN')) {
+      
+    }
+    if ((from == 'SCREEN') && (to == 'WORLD')) {
+      
+    }
+    if (from == 'SCREEN' && to == "NDC") {
+      return this._screenToNDCDisplacement(vector);
+    }
+    if (from == 'NDC' && to == 'SCREEN') {
+      return this._ndcToScreenDisplacement(vector);
+    }
+    if (from == 'WORLD' && to == "NDC") {
+      
+    }
+    if (from == 'NDC' && to == 'WORLD') {
+      
+    }
+    /*
+    if (from == 'EYE' to === ....) {
+    }
+
+    if (from == ... to === 'EYE') {
+    }
+    */
+  }
+
+  p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
     return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
   }
 
-  p5.prototype.screenToNDCDisplacement = function () {
-    return this._renderer.screenToNDCDisplacement(...arguments);
-  }
-
-  p5.RendererGL.prototype.screenToNDCDisplacement = function (vector) {
+  p5.RendererGL.prototype._screenToNDCDisplacement = function (vector) {
     return createVector(2 * vector.x / this.width, 2 * vector.y / this.height, 2 * vector.z);
   }
 
