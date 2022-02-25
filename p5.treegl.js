@@ -22,7 +22,7 @@
   }
 
   p5.RendererGL.prototype.mvMatrix = function () {
-    return this.cMVMatrix = arguments.length === 1 ? arguments[0].copy() : this.uMVMatrix.copy();
+    return this.uMVMatrix.copy();
   }
 
   p5.prototype.vMatrix = function () {
@@ -30,7 +30,7 @@
   }
 
   p5.RendererGL.prototype.vMatrix = function () {
-    return this.cVMatrix = arguments.length === 1 ? arguments[0].copy() : this._curCamera.cameraMatrix.copy();
+    return this._curCamera.cameraMatrix.copy();
   }
 
   p5.prototype.pMatrix = function () {
@@ -38,23 +38,32 @@
   }
 
   p5.RendererGL.prototype.pMatrix = function () {
-    return this.cPMatrix = arguments.length === 1 ? arguments[0].copy() : this.uPMatrix.copy();
+    return this.uPMatrix.copy();
   }
 
   p5.prototype.pvMatrix = function () {
     return this._renderer.pvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.pvMatrix = function () {
-    return this.cPVMatrix = arguments.length === 1 ? arguments[0].copy() : this.pMatrix().copy().apply(this.vMatrix());
+  p5.RendererGL.prototype.pvMatrix = function (
+    {
+      pMatrix = this.pMatrix(),
+      vMatrix = this.vMatrix()
+    } = {}) {
+    return pMatrix.copy().apply(vMatrix);
   }
 
   p5.prototype.pvInvMatrix = function () {
     return this._renderer.pvInvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.pvInvMatrix = function () {
-    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.pvMatrix().copy().invert(this.pvMatrix());
+  p5.RendererGL.prototype.pvInvMatrix = function (
+    {
+      pMatrix = this.pMatrix(),
+      vMatrix = this.vMatrix(),
+      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
+    } = {}) {
+    return pvMatrix.copy().invert(pvMatrix);
   }
 
   // 2. Space transformations
@@ -64,8 +73,8 @@
   }
 
   p5.RendererGL.prototype.beginHUD = function () {
-    this.mvMatrix();
-    this.pMatrix();
+    this.mv = this.mvMatrix();
+    this.p = this.pMatrix();
     this._rendererState = this.push();
     let gl = this.drawingContext;
     gl.flush();
@@ -84,8 +93,8 @@
     gl.flush();
     gl.enable(gl.DEPTH_TEST);
     this.pop(this._rendererState);
-    this.uPMatrix.set(this.cPMatrix);
-    this.uMVMatrix.set(this.cMVMatrix);
+    this.uPMatrix.set(this.p);
+    this.uMVMatrix.set(this.mv);
   }
 
   // 2.1 Points
@@ -119,7 +128,9 @@
   p5.RendererGL.prototype.screenLocation = function (
     {
       vector = createVector(0, 0, 0.5),
-      pvMatrix = this.pvMatrix()
+      pMatrix = this.pMatrix(),
+      vMatrix = this.vMatrix(),
+      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     } = {}) {
     let target = Array(4);
     target[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
@@ -157,7 +168,10 @@
   p5.RendererGL.prototype.location = function (
     {
       vector = createVector(this.width / 2, this.height / 2, 0.5),
-      pvInvMatrix = this.pvInvMatrix()
+      pMatrix = this.pMatrix(),
+      vMatrix = this.vMatrix(),
+      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }),
+      pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
     } = {}) {
     let viewport = [0, this.height, this.width, -this.height];
     let source = Array(4);
