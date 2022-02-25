@@ -12,6 +12,9 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
+  // test pre-existance of new properties with something like:
+  console.log('p5.location', p5.prototype.hasOwnProperty('location'));
+
   // 1. Matrix caches
 
   p5.prototype.cacheMVMatrix = function () {
@@ -141,14 +144,17 @@
     return createVector(target[0], target[1], target[2]);
   }
 
-  // warning: cannot use the location fx name
+  // warning: cannot use the location fx name nub naming
+  // scheme (already taken by the window), see:
+  // https://www.w3schools.com/js/js_window_location.asp
+  // Prefixing with tree to brake ambiguities looks nice,
+  // and here it can even be regarded as correct.
 
-  p5.prototype.locationT = function () {
-    return this._renderer.locationT(...arguments);
+  p5.prototype.treeLocation = function () {
+    return this._renderer.location(...arguments);
   }
 
-  // neeeds testing
-  p5.RendererGL.prototype.locationT = function (
+  p5.RendererGL.prototype.location = function (
     {
       vector = createVector(this.width / 2, this.height / 2, 0.5),
       cachePVInvMatrix = this.cachePVInvMatrix()
@@ -211,7 +217,7 @@
   
   (at the very least) require the following p5.Camera methods:
   p5.Camera.prototype.displacement = function ( vector )
-  p5.Camera.prototype.Worldisplacement = function ( vector )
+  p5.Camera.prototype.WorlDisplacement = function ( vector )
   p5.Camera.prototype.location = function ( vector )
 
   and, optionally:

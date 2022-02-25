@@ -11,8 +11,7 @@ let persp;
 
 function setup() {
   createCanvas(600, 450, WEBGL);
-  // /*
-  // define initial state
+  // easy stuff
   state = {
     distance: 764.411,
     center: [0, 0, 0],
@@ -22,7 +21,7 @@ function setup() {
   easycam = new Dw.EasyCam(this._renderer);
   easycam.state_reset = state;   // state to use on reset (double-click/tap)
   easycam.setState(state, 2000); // now animate to that state
-  // */
+  // world point to be projected onto screen
   pnt = createVector(150, 150, 150);
   world = true;
 
@@ -30,12 +29,6 @@ function setup() {
   //pixelDensity(1);
 
   persp = true;
-  /*
-  //console.log(_renderer.cacheT ? 'cacheT' : 'Not Cache!');
-  console.log(_renderer.cacheT);
-  _renderer.cacheT = 5;
-  console.log(_renderer.cacheT);
-  */
 }
 
 function draw() {
@@ -74,7 +67,7 @@ function draw() {
     point(toScreen.x, toScreen.y);
     endHUD();
 
-    fromScreen = cacheInit ? locationT({ vector: toScreen, pvInvMatrix: _renderer.cPVInvMatrix }) : locationT({ vector: toScreen });
+    fromScreen = cacheInit ? treeLocation({ vector: toScreen, pvInvMatrix: _renderer.cPVInvMatrix }) : treeLocation({ vector: toScreen });
     if (log === frameCount) {
       console.log('pnt', pnt, 'toScreen', toScreen, 'frameScreen', fromScreen);
     }
@@ -99,14 +92,6 @@ function keyPressed() {
     cacheInit = !cacheInit;
   }
   if (key === 'l') {
-    /*
-    let p_ = cachePMatrix().copy();
-    let v_ = cacheVMatrix().copy();
-    let pv_ = p_.copy();
-    console.log('p_', p_);
-    console.log('v_', v_);
-    console.log('pv_', pv_);
-    */
     log = frameCount + 1;
   }
   if (key === 'w') {
