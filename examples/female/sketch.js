@@ -33,7 +33,7 @@ function setup() {
 
 function draw() {
   if (cacheInit) {
-    cachePVInvMatrix();
+    pvInvMatrix();
     //pv = cachePVMatrix();
   }
   background(120);

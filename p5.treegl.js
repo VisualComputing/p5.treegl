@@ -17,44 +17,44 @@
 
   // 1. Matrix caches
 
-  p5.prototype.cacheMVMatrix = function () {
-    return this._renderer.cacheMVMatrix(...arguments);
+  p5.prototype.mvMatrix = function () {
+    return this._renderer.mvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cacheMVMatrix = function () {
+  p5.RendererGL.prototype.mvMatrix = function () {
     return this.cMVMatrix = arguments.length === 1 ? arguments[0].copy() : this.uMVMatrix.copy();
   }
 
-  p5.prototype.cacheVMatrix = function () {
-    return this._renderer.cacheVMatrix(...arguments);
+  p5.prototype.vMatrix = function () {
+    return this._renderer.vMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cacheVMatrix = function () {
+  p5.RendererGL.prototype.vMatrix = function () {
     return this.cVMatrix = arguments.length === 1 ? arguments[0].copy() : this._curCamera.cameraMatrix.copy();
   }
 
-  p5.prototype.cachePMatrix = function () {
-    return this._renderer.cachePMatrix(...arguments);
+  p5.prototype.pMatrix = function () {
+    return this._renderer.pMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cachePMatrix = function () {
+  p5.RendererGL.prototype.pMatrix = function () {
     return this.cPMatrix = arguments.length === 1 ? arguments[0].copy() : this.uPMatrix.copy();
   }
 
-  p5.prototype.cachePVMatrix = function () {
-    return this._renderer.cachePVMatrix(...arguments);
+  p5.prototype.pvMatrix = function () {
+    return this._renderer.pvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cachePVMatrix = function () {
-    return this.cPVMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePMatrix().copy().apply(this.cacheVMatrix());
+  p5.RendererGL.prototype.pvMatrix = function () {
+    return this.cPVMatrix = arguments.length === 1 ? arguments[0].copy() : this.pMatrix().copy().apply(this.vMatrix());
   }
 
-  p5.prototype.cachePVInvMatrix = function () {
-    return this._renderer.cachePVInvMatrix(...arguments);
+  p5.prototype.pvInvMatrix = function () {
+    return this._renderer.pvInvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.cachePVInvMatrix = function () {
-    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.cachePVMatrix().copy().invert(this.cachePVMatrix());
+  p5.RendererGL.prototype.pvInvMatrix = function () {
+    return this.cPVInvMatrix = arguments.length === 1 ? arguments[0].copy() : this.pvMatrix().copy().invert(this.pvMatrix());
   }
 
   // 2. Space transformations
@@ -64,8 +64,8 @@
   }
 
   p5.RendererGL.prototype.beginHUD = function () {
-    this.cacheMVMatrix();
-    this.cachePMatrix();
+    this.mvMatrix();
+    this.pMatrix();
     this._rendererState = this.push();
     let gl = this.drawingContext;
     gl.flush();
@@ -119,15 +119,15 @@
   p5.RendererGL.prototype.screenLocation = function (
     {
       vector = createVector(0, 0, 0.5),
-      cachePVMatrix = this.cachePVMatrix()
+      pvMatrix = this.pvMatrix()
     } = {}) {
     let target = Array(4);
-    target[0] = cachePVMatrix.mat4[0] * vector.x + cachePVMatrix.mat4[4] * vector.y + cachePVMatrix.mat4[8] * vector.z + cachePVMatrix.mat4[12];
-    target[1] = cachePVMatrix.mat4[1] * vector.x + cachePVMatrix.mat4[5] * vector.y + cachePVMatrix.mat4[9] * vector.z + cachePVMatrix.mat4[13];
-    target[2] = cachePVMatrix.mat4[2] * vector.x + cachePVMatrix.mat4[6] * vector.y + cachePVMatrix.mat4[10] * vector.z + cachePVMatrix.mat4[14];
-    target[3] = cachePVMatrix.mat4[3] * vector.x + cachePVMatrix.mat4[7] * vector.y + cachePVMatrix.mat4[11] * vector.z + cachePVMatrix.mat4[15];
+    target[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
+    target[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
+    target[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
+    target[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
     if (target[3] == 0) {
-      throw new Error('screenLocation broken. Check your cachePVMatrix!');
+      throw new Error('screenLocation broken. Check your pvMatrix!');
     }
     let viewport = [0, this.height, this.width, -this.height];
     // ndc, but y is inverted
@@ -157,7 +157,7 @@
   p5.RendererGL.prototype.location = function (
     {
       vector = createVector(this.width / 2, this.height / 2, 0.5),
-      cachePVInvMatrix = this.cachePVInvMatrix()
+      pvInvMatrix = this.pvInvMatrix()
     } = {}) {
     let viewport = [0, this.height, this.width, -this.height];
     let source = Array(4);
@@ -173,13 +173,13 @@
     source[0] = source[0] * 2 - 1;
     source[1] = source[1] * 2 - 1;
     source[2] = source[2] * 2 - 1;
-    // cachePVInvMatrix.multiply(source, target);
-    target[0] = cachePVInvMatrix.mat4[0] * source[0] + cachePVInvMatrix.mat4[4] * source[1] + cachePVInvMatrix.mat4[8] * source[2] + cachePVInvMatrix.mat4[12] * source[3];
-    target[1] = cachePVInvMatrix.mat4[1] * source[0] + cachePVInvMatrix.mat4[5] * source[1] + cachePVInvMatrix.mat4[9] * source[2] + cachePVInvMatrix.mat4[13] * source[3];
-    target[2] = cachePVInvMatrix.mat4[2] * source[0] + cachePVInvMatrix.mat4[6] * source[1] + cachePVInvMatrix.mat4[10] * source[2] + cachePVInvMatrix.mat4[14] * source[3];
-    target[3] = cachePVInvMatrix.mat4[3] * source[0] + cachePVInvMatrix.mat4[7] * source[1] + cachePVInvMatrix.mat4[11] * source[2] + cachePVInvMatrix.mat4[15] * source[3];
+    // pvInvMatrix.multiply(source, target);
+    target[0] = pvInvMatrix.mat4[0] * source[0] + pvInvMatrix.mat4[4] * source[1] + pvInvMatrix.mat4[8] * source[2] + pvInvMatrix.mat4[12] * source[3];
+    target[1] = pvInvMatrix.mat4[1] * source[0] + pvInvMatrix.mat4[5] * source[1] + pvInvMatrix.mat4[9] * source[2] + pvInvMatrix.mat4[13] * source[3];
+    target[2] = pvInvMatrix.mat4[2] * source[0] + pvInvMatrix.mat4[6] * source[1] + pvInvMatrix.mat4[10] * source[2] + pvInvMatrix.mat4[14] * source[3];
+    target[3] = pvInvMatrix.mat4[3] * source[0] + pvInvMatrix.mat4[7] * source[1] + pvInvMatrix.mat4[11] * source[2] + pvInvMatrix.mat4[15] * source[3];
     if (target[3] == 0) {
-      throw new Error('location broken. Check your cachePVInvMatrix!');
+      throw new Error('location broken. Check your pvInvMatrix!');
     }
     target[0] /= target[3];
     target[1] /= target[3];
