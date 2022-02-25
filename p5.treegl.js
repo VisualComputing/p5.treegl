@@ -105,6 +105,16 @@
     return this._renderer.treeLocation(...arguments);
   }
 
+  /**
+   * Converts locations (i.e., points) from one space into another.
+   * @param  {p5.Vector} vector      location to be converted.
+   * @param  {Object} from           source space.
+   * @param  {Object} to             target space.
+   * @param  {p5.Matrix} pMatrix     projection matrix.
+   * @param  {p5.Matrix} vMatrix     view matrix.
+   * @param  {p5.Matrix} pvMatrix    projection times view matrix.
+   * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
+   */
   p5.RendererGL.prototype.treeLocation = function (vector, {
     from = 'SCREEN',
     to = 'WORLD',
@@ -231,10 +241,10 @@
     to = 'WORLD'
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
-      
+
     }
     if ((from == 'SCREEN') && (to == 'WORLD')) {
-      
+
     }
     if (from == 'SCREEN' && to == "NDC") {
       return this._screenToNDCDisplacement(vector);
@@ -243,10 +253,10 @@
       return this._ndcToScreenDisplacement(vector);
     }
     if (from == 'WORLD' && to == "NDC") {
-      
+
     }
     if (from == 'NDC' && to == 'WORLD') {
-      
+
     }
     /*
     if (from == 'EYE' to === ....) {
@@ -294,6 +304,12 @@
     this._renderer.hollowCylinder(...arguments);
   }
 
+  /**
+   * Renders a hollow cylinder.
+   * @param  {Number} radius   radius of the base.
+   * @param  {Number} height   height of the cylinder.
+   * @param  {Number} detail   number of primitives aproximating the ylinder
+   */
   p5.RendererGL.prototype.hollowCylinder = function ({
     radius = 100,
     height = 200,
