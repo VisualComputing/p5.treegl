@@ -89,7 +89,7 @@
   /**
    * Returns the top clipped plane as it's set either with @function ortho
    * or  @function perspective. Inverted values are returned if the projection
-   * matrix was set with @function ortho.
+   * matrix was set with @function frustum.
    */
   p5.RendererGL.prototype._top = function () {
     return this.uPMatrix.mat4[15] == 1 ? -(1 - this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
@@ -99,7 +99,7 @@
   /**
    * Returns the bottom clipped plane as it's set either with @function ortho
    * or  @function perspective. Inverted values are returned if the projection
-   * matrix was set with @function ortho.
+   * matrix was set with @function frustum.
    */
   p5.RendererGL.prototype._bottom = function () {
     return this.uPMatrix.mat4[15] == 1 ? (1 + this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
