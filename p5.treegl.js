@@ -15,7 +15,7 @@
   // test pre-existance of new properties with something like:
   console.log('p5.location', p5.prototype.hasOwnProperty('location'));
 
-  // 1. Matrix caches
+  // 1. Matrix stuff
 
   p5.prototype.mvMatrix = function () {
     return this._renderer.mvMatrix(...arguments);
@@ -64,6 +64,60 @@
       pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     } = {}) {
     return pvMatrix.copy().invert(pvMatrix);
+  }
+
+  p5.RendererGL.prototype._near = function () {
+    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (this.uPMatrix.mat4[10] - 1) :
+      (1 + this.uPMatrix.mat4[14]) / this.uPMatrix.mat4[10];
+  }
+
+  p5.RendererGL.prototype._far = function () {
+    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (this.uPMatrix.mat4[10] + 1) :
+      - (1 - this.uPMatrix.mat4[14]) / this.uPMatrix.mat4[10];
+  }
+
+  p5.RendererGL.prototype._left = function () {
+    return this.uPMatrix.mat4[15] == 1 ? -(1 + this.uPMatrix.mat4[12]) / this.uPMatrix.mat4[0] :
+      this._near() * (this.uPMatrix.mat4[8] - 1) / this.uPMatrix.mat4[0];
+  }
+
+  p5.RendererGL.prototype._right = function () {
+    return this.uPMatrix.mat4[15] == 1 ? (1 - this.uPMatrix.mat4[12]) / this.uPMatrix.mat4[0] :
+      this._near() * (this.uPMatrix.mat4[8] + 1) / this.uPMatrix.mat4[0];
+  }
+
+  /**
+   * Returns the top clipped plane as it's set either with @function ortho
+   * or  @function perspective. Inverted values are returned if the projection
+   * matrix was set with @function ortho.
+   */
+  p5.RendererGL.prototype._top = function () {
+    return this.uPMatrix.mat4[15] == 1 ? -(1 - this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
+      this._near() * (this.uPMatrix.mat4[9] - 1) / this.uPMatrix.mat4[5];
+  }
+
+  /**
+   * Returns the bottom clipped plane as it's set either with @function ortho
+   * or  @function perspective. Inverted values are returned if the projection
+   * matrix was set with @function ortho.
+   */
+  p5.RendererGL.prototype._bottom = function () {
+    return this.uPMatrix.mat4[15] == 1 ? (1 + this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
+      this._near() * (this.uPMatrix.mat4[9] + 1) / this.uPMatrix.mat4[5];
+  }
+
+  p5.RendererGL.prototype._fov = function () {
+    if (this.uPMatrix.mat4[15] != 0) {
+      throw new Error('fov only works for a perspective projection');
+    }
+    return Math.abs(2 * Math.atan(1 / this.uPMatrix.mat4[5]));
+  }
+
+  p5.RendererGL.prototype._hfov = function () {
+    if (this.uPMatrix.mat4[15] != 0) {
+      throw new Error('hfov only works for a perspective projection');
+    }
+    return Math.abs(2 * Math.atan(1 / this.uPMatrix.mat4[0]));
   }
 
   // 2. Space transformations
@@ -321,7 +375,7 @@
       let angle = TWO_PI / detail;
       let x = sin(i * angle);
       let z = cos(i * angle);
-      // not even nee to check (this._tex)
+      // not even need to check (this._tex)
       // to see to avoid missing tex p5 warnings
       let u = float(i) / detail;
       this.vertex(x * radius, -height / 2, z * radius, u, 0);
