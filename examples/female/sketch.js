@@ -1,5 +1,5 @@
 let easycam;
-let state
+let state;
 let p, v, pv, pvInv;
 
 let log;
@@ -29,6 +29,24 @@ function setup() {
   //pixelDensity(1);
 
   persp = true;
+
+  //frustum([left], [right], [bottom], [top], [near], [far]);
+  //frustum(-150.1, 200.2, -90.3,      70.4, 1.5, 5000.6);
+
+  //let eyeZ = (height / 2) / tan(PI / 6);
+  //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
+  perspective(PI / 3, width / height, 2.1, 50.2);
+
+//ortho([left], [right], [bottom], [top], [near], [far])
+  //ortho(-150.1, 200.2, -90.3,      70.4, 1.5, 4500.6);
+  console.log('near', this._renderer._near());
+  console.log('far', this._renderer._far());
+  console.log('left', this._renderer._left());
+  console.log('right', this._renderer._right());
+  console.log('bottom', this._renderer._bottom());
+  console.log('top', this._renderer._top());
+  console.log('fov', this._renderer._fov());
+  console.log('hfov', this._renderer._hfov());
 }
 
 function draw() {

@@ -72,8 +72,8 @@
   }
 
   p5.RendererGL.prototype._far = function () {
-    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (this.uPMatrix.mat4[10] + 1) :
-      - (1 - this.uPMatrix.mat4[14]) / this.uPMatrix.mat4[10];
+    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (1 + this.uPMatrix.mat4[10]) :
+      (this.uPMatrix.mat4[14] - 1) / this.uPMatrix.mat4[10];
   }
 
   p5.RendererGL.prototype._left = function () {
@@ -83,27 +83,21 @@
 
   p5.RendererGL.prototype._right = function () {
     return this.uPMatrix.mat4[15] == 1 ? (1 - this.uPMatrix.mat4[12]) / this.uPMatrix.mat4[0] :
-      this._near() * (this.uPMatrix.mat4[8] + 1) / this.uPMatrix.mat4[0];
+      this._near() * (1 + this.uPMatrix.mat4[8]) / this.uPMatrix.mat4[0];
   }
 
-  /**
-   * Returns the top clipped plane as it's set either with @function ortho
-   * or  @function perspective. Inverted values are returned if the projection
-   * matrix was set with @function frustum.
-   */
   p5.RendererGL.prototype._top = function () {
-    return this.uPMatrix.mat4[15] == 1 ? -(1 - this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
+    // note that inverted values are returned if the projection
+    // matrix was set with @function frustum.
+    return this.uPMatrix.mat4[15] == 1 ? (this.uPMatrix.mat4[13] - 1) / this.uPMatrix.mat4[5] :
       this._near() * (this.uPMatrix.mat4[9] - 1) / this.uPMatrix.mat4[5];
   }
 
-  /**
-   * Returns the bottom clipped plane as it's set either with @function ortho
-   * or  @function perspective. Inverted values are returned if the projection
-   * matrix was set with @function frustum.
-   */
   p5.RendererGL.prototype._bottom = function () {
+    // note that inverted values are returned if the projection
+    // matrix was set with @function frustum.
     return this.uPMatrix.mat4[15] == 1 ? (1 + this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
-      this._near() * (this.uPMatrix.mat4[9] + 1) / this.uPMatrix.mat4[5];
+      this._near() * (1 + this.uPMatrix.mat4[9]) / this.uPMatrix.mat4[5];
   }
 
   p5.RendererGL.prototype._fov = function () {
