@@ -17,6 +17,14 @@
 
   // 1. Matrix stuff
 
+  p5.prototype.pMatrix = function () {
+    return this._renderer.pMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.pMatrix = function () {
+    return this.uPMatrix.copy();
+  }
+
   p5.prototype.mvMatrix = function () {
     return this._renderer.mvMatrix(...arguments);
   }
@@ -33,12 +41,14 @@
     return this._curCamera.cameraMatrix.copy();
   }
 
-  p5.prototype.pMatrix = function () {
-    return this._renderer.pMatrix(...arguments);
+  p5.prototype.vInvMatrix = function () {
+    return this._renderer.vInvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.pMatrix = function () {
-    return this.uPMatrix.copy();
+  p5.RendererGL.prototype.vInvMatrix = function ({
+    vMatrix = this.vMatrix()
+  } = {}) {
+    return vMatrix.copy().invert(vMatrix);
   }
 
   p5.prototype.pvMatrix = function () {
