@@ -33,6 +33,16 @@
     return this.uMVMatrix.copy();
   }
 
+  p5.prototype.dMatrix = function () {
+    return this._renderer.dMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.dMatrix = function ({
+    mvMatrix = this.mvMatrix()
+  } = {}) {
+    return this.uNMatrix.copy().inverseTranspose(mvMatrix);
+  }
+
   p5.prototype.vMatrix = function () {
     return this._renderer.vMatrix(...arguments);
   }
