@@ -35,7 +35,8 @@ function setup() {
 
   //let eyeZ = (height / 2) / tan(PI / 6);
   //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
-  perspective(PI / 3, width / height, 2.1, 50.2);
+  //perspective(PI / 3, width / height, 2.1, 50.2);
+  perspective();
 
 //ortho([left], [right], [bottom], [top], [near], [far])
   //ortho(-150.1, 200.2, -90.3,      70.4, 1.5, 4500.6);
@@ -61,8 +62,17 @@ function draw() {
   box(300);
   pop();
   push();
+  translate(50, 100, 0);
   fill(0, 0, 255);
   box(150);
+  if (log === frameCount) {
+    let m = mMatrix();
+    let v = vMatrix();
+    let mv = v.copy().apply(m);
+    let cmv = mvMatrix();
+    console.log(mv);
+    console.log(cmv);
+  }
   pop();
   push();
   strokeWeight(10);
@@ -78,9 +88,11 @@ function draw() {
     point(toScreen.x, toScreen.y);
     endHUD();
     fromScreen = cacheInit ? treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD', pvInvMatrix: pvInv }) : treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD' });
+    /*
     if (log === frameCount) {
-      console.log('pnt', pnt, 'toScreen', toScreen, 'frameScreen', fromScreen);
+      console.log('pnt', pnt, 'toScreen', toScreen, 'fromScreen', fromScreen);
     }
+    */
   }
   pop();
 }
