@@ -13,9 +13,18 @@
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
   // test pre-existance of new properties with something like:
-  console.log('p5.location', p5.prototype.hasOwnProperty('location'));
+  console.log('p5.Matrix.mult3', p5.Matrix.prototype.hasOwnProperty('mult3'));
 
   // 1. Matrix stuff
+
+  p5.Matrix.prototype.mult3 = function (vector) {
+    if (this.mat3 === undefined) {
+      throw new Error('mult3 only works with mat3');
+    }
+    return createVector(this.mat3[0] * vector.x + this.mat3[3] * vector.y + this.mat3[6] * vector.z,
+      this.mat3[1] * vector.x + this.mat3[4] * vector.y + this.mat3[7] * vector.z,
+      this.mat3[2] * vector.x + this.mat3[5] * vector.y + this.mat3[8] * vector.z);
+  };
 
   p5.prototype.pMatrix = function () {
     return this._renderer.pMatrix(...arguments);
@@ -319,7 +328,9 @@
 
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
     from = 'SCREEN',
-    to = 'WORLD'
+    to = 'WORLD',
+    mvMatrix = this.mvMatrix(),
+    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
 
@@ -338,6 +349,14 @@
     }
     if (from == 'NDC' && to == 'WORLD') {
 
+    }
+    if (from == 'EYE' && to == 'WORLD') {
+      return new p5.Matrix('mat3', mvMatrix.mat4[0], mvMatrix.mat4[4], mvMatrix.mat4[8],
+        mvMatrix.mat4[1], mvMatrix.mat4[5], mvMatrix.mat4[9],
+        mvMatrix.mat4[2], mvMatrix.mat4[6], mvMatrix.mat4[10]).mult3(vector);
+    }
+    if (from == 'WORLD' && to == 'EYE') {
+      return dMatrix.mult3(vector);
     }
     /*
     if (from == 'EYE' to === ....) {
