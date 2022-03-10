@@ -62,7 +62,7 @@
   p5.RendererGL.prototype.dMatrix = function ({
     mvMatrix = this.mvMatrix()
   } = {}) {
-    return this.uNMatrix.copy().inverseTranspose(mvMatrix);
+    return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
 
   p5.prototype.vMatrix = function () {
@@ -351,9 +351,20 @@
 
     }
     if (from == 'EYE' && to == 'WORLD') {
+      console.log('EYE -> WORLD');
+      let t = new p5.Matrix();
+      t.transpose(mvMatrix);
+      console.log(t);
+      let m = new p5.Matrix('mat3', [t.mat4[0], t.mat4[1], t.mat4[2],
+      t.mat4[4], t.mat4[5], t.mat4[6],
+      t.mat4[8], t.mat4[9], t.mat4[10]]);
+      return m.mult3(vector);
+      //return new p5.Matrix('mat3').transpose(mvMatrix);
+      /*
       return new p5.Matrix('mat3', mvMatrix.mat4[0], mvMatrix.mat4[4], mvMatrix.mat4[8],
         mvMatrix.mat4[1], mvMatrix.mat4[5], mvMatrix.mat4[9],
         mvMatrix.mat4[2], mvMatrix.mat4[6], mvMatrix.mat4[10]).mult3(vector);
+        */
     }
     if (from == 'WORLD' && to == 'EYE') {
       return dMatrix.mult3(vector);

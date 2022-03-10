@@ -13,9 +13,9 @@ function setup() {
   createCanvas(600, 450, WEBGL);
   // easy stuff
   state = {
-    distance: 764.411,
-    center: [0, 0, 0],
-    rotation: [0, 0, 0, 1],
+    distance: 730.7707043259237,
+    center: [-171.71754067715335, -13.306287366010695, -5.383726155867617],
+    rotation: [-0.10543233539799196, 0.016249581962348766, 0.30986156074636084, 0.9447781680957708],
   };
   console.log(Dw.EasyCam.INFO);
   easycam = new Dw.EasyCam(this._renderer);
@@ -36,7 +36,9 @@ function setup() {
   //let eyeZ = (height / 2) / tan(PI / 6);
   //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
   //perspective(PI / 3, width / height, 2.1, 50.2);
-  perspective();
+  //perspective();
+  let eyeZ = (height / 2) / tan(PI / 6);
+  perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
 
 //ortho([left], [right], [bottom], [top], [near], [far])
   //ortho(-150.1, 200.2, -90.3,      70.4, 1.5, 4500.6);
@@ -62,9 +64,10 @@ function draw() {
   box(300);
   pop();
   push();
-  translate(50, 100, 0);
+  //translate(50, 100, 0);
   fill(0, 0, 255);
   box(150);
+  /*
   if (log === frameCount) {
     let m = mMatrix();
     let v = vMatrix();
@@ -73,6 +76,7 @@ function draw() {
     console.log(mv);
     console.log(cmv);
   }
+  */
   pop();
   push();
   strokeWeight(10);
@@ -101,9 +105,9 @@ function keyPressed() {
   if (key === 'p') {
     persp = !persp;
     if (persp) {
-      //let eyeZ = (height / 2) / tan(PI / 6);
-      //perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
-      perspective();
+      let eyeZ = (height / 2) / tan(PI / 6);
+      perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
+      //perspective();
     }
     else {
       ortho(-width / 2, width / 2, -height / 2, height / 2, 1, 5000);
@@ -124,6 +128,22 @@ function keyPressed() {
   }
   if (key === 'y') {
     loop();
+  }
+  if (key === 'v') {
+    v = vMatrix();
+    console.log(v);
+  }
+  if (key === 's') {
+    let s = easycam.state.copy();
+    console.log(s);
+  }
+  if (key === 'd') {
+    let v = createVector(15, -25, 70);
+    let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
+    console.log(r);
+    let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
+    //let r_ = treeDisplacement(createVector(-10, 25, -5), {from: 'EYE', to: 'WORLD'});
+    console.log(r_);
   }
 }
 
