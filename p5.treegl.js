@@ -377,17 +377,19 @@
     //let eyeVector = _eye.displacement(vector, node);
     let dx = eyeVector.x;
     let dy = eyeVector.y;
-    //_type = _projection.m33() == 0 ? Type.PERSPECTIVE : Type.ORTHOGRAPHIC;
-    if (pMatrix.mat _type == Type.PERSPECTIVE) {
+    let perspective = pMatrix.mat4[15] == 0;
+    if (perspective) {
       let position = createVector();
-      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2));
-      dx /= 2 * k / ((float) height() * _eye.worldMagnitude());
-      dy /= 2 * k / ((float) height() * _eye.worldMagnitude());
+      // TODO: location world to eye pend! since it requires rotation:
+      // either from Quaternion or perhaps using p5.Matrix.rotate and then mult3.
+      let k = Math.abs(_eye.location(position)._vector[2] * Math.tan(this._fov(pMatrix) / 2));
+      dx /= 2 * k / this.height;
+      dy /= 2 * k / this.height;
     }
     let dz = eyeVector.z;
     // sign is inverted
-    dz /= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2) : Math.abs(right() - left()) / (float) width());
-    return new Vector(dx, dy, dz);
+    dz /= (this._near(pMatrix) - this._far(pMatrix)) / (perspective ? Math.tan(this._fov(pMatrix) / 2) : Math.abs(this._right(pMatrix) - this._left(pMatrix)) / this.width);
+    return createVector(dx, dy, dz);
   }
 
   p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, {
@@ -396,7 +398,7 @@
   } = {}) {
 
   }
-  */
+  // */
 
   p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
     return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
