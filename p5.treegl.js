@@ -108,52 +108,52 @@
     return pvMatrix.copy().invert(pvMatrix);
   }
 
-  p5.RendererGL.prototype._near = function () {
-    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (this.uPMatrix.mat4[10] - 1) :
-      (1 + this.uPMatrix.mat4[14]) / this.uPMatrix.mat4[10];
+  p5.RendererGL.prototype._near = function (pMatrix = this.pMatrix()) {
+    return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (pMatrix.mat4[10] - 1) :
+      (1 + pMatrix.mat4[14]) / pMatrix.mat4[10];
   }
 
-  p5.RendererGL.prototype._far = function () {
-    return this.uPMatrix.mat4[15] == 0 ? this.uPMatrix.mat4[14] / (1 + this.uPMatrix.mat4[10]) :
-      (this.uPMatrix.mat4[14] - 1) / this.uPMatrix.mat4[10];
+  p5.RendererGL.prototype._far = function (pMatrix = this.pMatrix()) {
+    return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (1 + pMatrix.mat4[10]) :
+      (pMatrix.mat4[14] - 1) / pMatrix.mat4[10];
   }
 
-  p5.RendererGL.prototype._left = function () {
-    return this.uPMatrix.mat4[15] == 1 ? -(1 + this.uPMatrix.mat4[12]) / this.uPMatrix.mat4[0] :
-      this._near() * (this.uPMatrix.mat4[8] - 1) / this.uPMatrix.mat4[0];
+  p5.RendererGL.prototype._left = function (pMatrix = this.pMatrix()) {
+    return pMatrix.mat4[15] == 1 ? -(1 + pMatrix.mat4[12]) / pMatrix.mat4[0] :
+      this._near() * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
   }
 
-  p5.RendererGL.prototype._right = function () {
-    return this.uPMatrix.mat4[15] == 1 ? (1 - this.uPMatrix.mat4[12]) / this.uPMatrix.mat4[0] :
-      this._near() * (1 + this.uPMatrix.mat4[8]) / this.uPMatrix.mat4[0];
+  p5.RendererGL.prototype._right = function (pMatrix = this.pMatrix()) {
+    return pMatrix.mat4[15] == 1 ? (1 - pMatrix.mat4[12]) / pMatrix.mat4[0] :
+      this._near() * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
   }
 
-  p5.RendererGL.prototype._top = function () {
+  p5.RendererGL.prototype._top = function (pMatrix = this.pMatrix()) {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
-    return this.uPMatrix.mat4[15] == 1 ? (this.uPMatrix.mat4[13] - 1) / this.uPMatrix.mat4[5] :
-      this._near() * (this.uPMatrix.mat4[9] - 1) / this.uPMatrix.mat4[5];
+    return pMatrix.mat4[15] == 1 ? (pMatrix.mat4[13] - 1) / pMatrix.mat4[5] :
+      this._near() * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
   }
 
-  p5.RendererGL.prototype._bottom = function () {
+  p5.RendererGL.prototype._bottom = function (pMatrix = this.pMatrix()) {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
-    return this.uPMatrix.mat4[15] == 1 ? (1 + this.uPMatrix.mat4[13]) / this.uPMatrix.mat4[5] :
-      this._near() * (1 + this.uPMatrix.mat4[9]) / this.uPMatrix.mat4[5];
+    return pMatrix.mat4[15] == 1 ? (1 + pMatrix.mat4[13]) / pMatrix.mat4[5] :
+      this._near() * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
   }
 
-  p5.RendererGL.prototype._fov = function () {
-    if (this.uPMatrix.mat4[15] != 0) {
+  p5.RendererGL.prototype._fov = function (pMatrix = this.pMatrix()) {
+    if (pMatrix.mat4[15] != 0) {
       throw new Error('fov only works for a perspective projection');
     }
-    return Math.abs(2 * Math.atan(1 / this.uPMatrix.mat4[5]));
+    return Math.abs(2 * Math.atan(1 / pMatrix.mat4[5]));
   }
 
-  p5.RendererGL.prototype._hfov = function () {
-    if (this.uPMatrix.mat4[15] != 0) {
+  p5.RendererGL.prototype._hfov = function (pMatrix = this.pMatrix()) {
+    if (pMatrix.mat4[15] != 0) {
       throw new Error('hfov only works for a perspective projection');
     }
-    return Math.abs(2 * Math.atan(1 / this.uPMatrix.mat4[0]));
+    return Math.abs(2 * Math.atan(1 / pMatrix.mat4[0]));
   }
 
   // 2. Space transformations
@@ -333,10 +333,10 @@
     dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
-
+      //return this._worldToScreenDisplacement(vector);
     }
     if ((from == 'SCREEN') && (to == 'WORLD')) {
-
+      //return this._screenToWorldDisplacement(vector);
     }
     if (from == 'SCREEN' && to == "NDC") {
       return this._screenToNDCDisplacement(vector);
@@ -352,8 +352,8 @@
     }
     if (from == 'EYE' && to == 'WORLD') {
       return new p5.Matrix('mat3', [mvMatrix.mat4[0], mvMatrix.mat4[4], mvMatrix.mat4[8],
-        mvMatrix.mat4[1], mvMatrix.mat4[5], mvMatrix.mat4[9],
-        mvMatrix.mat4[2], mvMatrix.mat4[6], mvMatrix.mat4[10]]).mult3(vector);
+      mvMatrix.mat4[1], mvMatrix.mat4[5], mvMatrix.mat4[9],
+      mvMatrix.mat4[2], mvMatrix.mat4[6], mvMatrix.mat4[10]]).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
       return dMatrix.mult3(vector);
@@ -366,6 +366,37 @@
     }
     */
   }
+
+  /*
+  p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, {
+    pMatrix = this.pMatrix(),
+    mvMatrix = this.mvMatrix(),
+    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
+  } = {}) {
+    let eyeVector = this.treeDisplacement(vector, { from: 'WORLD', to: 'EYE', mvMatrix: mvMatrix, dMatrix: dMatrix });
+    //let eyeVector = _eye.displacement(vector, node);
+    let dx = eyeVector.x;
+    let dy = eyeVector.y;
+    //_type = _projection.m33() == 0 ? Type.PERSPECTIVE : Type.ORTHOGRAPHIC;
+    if (pMatrix.mat _type == Type.PERSPECTIVE) {
+      let position = createVector();
+      float k = Math.abs(_eye.location(position)._vector[2] * (float) Math.tan(fov() / 2));
+      dx /= 2 * k / ((float) height() * _eye.worldMagnitude());
+      dy /= 2 * k / ((float) height() * _eye.worldMagnitude());
+    }
+    let dz = eyeVector.z;
+    // sign is inverted
+    dz /= (near() - far()) / (_type == Type.PERSPECTIVE ? (float) Math.tan(fov() / 2) : Math.abs(right() - left()) / (float) width());
+    return new Vector(dx, dy, dz);
+  }
+
+  p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, {
+    mvMatrix = this.mvMatrix(),
+    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
+  } = {}) {
+
+  }
+  */
 
   p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
     return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
