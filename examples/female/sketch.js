@@ -144,6 +144,7 @@ function keyPressed() {
     let i = iMatrix();
     let v = createVector(15, -25, 70);
     let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
+    console.log(dMatrix(iMatrix(), eMatrix()).mult3(v));
     console.log(r);
     console.log(treeDisplacement(v, {from: i, to: 'EYE', mMatrix: i}));
     let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
