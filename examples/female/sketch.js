@@ -77,6 +77,7 @@ function draw() {
     console.log(cmv);
     let _mv = mvMatrix({mMatrix: m, vMatrix: v});
     console.log(_mv);
+    console.log(tMatrix(_mv));
   }
   //*/
   pop();

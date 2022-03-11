@@ -13,7 +13,7 @@
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
   // test pre-existance of new properties with something like:
-  console.log('p5.Matrix.mult3', p5.Matrix.prototype.hasOwnProperty('mult3'));
+  console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult4'));
 
   // 1. Matrix stuff
 
@@ -24,6 +24,15 @@
     return createVector(this.mat3[0] * vector.x + this.mat3[3] * vector.y + this.mat3[6] * vector.z,
       this.mat3[1] * vector.x + this.mat3[4] * vector.y + this.mat3[7] * vector.z,
       this.mat3[2] * vector.x + this.mat3[5] * vector.y + this.mat3[8] * vector.z);
+  };
+
+  p5.Matrix.prototype.mult4 = function (vector) {
+    if (this.mat4 === undefined) {
+      throw new Error('mult4 only works with mat4');
+    }
+    return createVector(this.mat4[0] * vector.x + this.mat4[4] * vector.y + this.mat4[8] * vector.z + this.mat4[12],
+    this.mat4[1] * vector.x + this.mat4[5] * vector.y + this.mat4[9] * vector.z + this.mat4[13],
+    this.mat4[2] * vector.x + this.mat4[6] * vector.y + this.mat4[10] * vector.z + this.mat4[14]);
   };
 
   p5.prototype.iMatrix = function () {
@@ -51,7 +60,31 @@
       vMatrix = null,
       mMatrix = null
     } = {}) {
-    return mMatrix ? (vMatrix ?? this.vMatrix()).copy().apply(mMatrix) : this.uMVMatrix.copy();
+    return mMatrix ? this.axbMatrix(vMatrix ?? this.vMatrix(), mMatrix) : this.uMVMatrix.copy();
+  }
+
+  p5.prototype.tMatrix = function () {
+    return this._renderer.tMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.tMatrix = function (matrix) {
+    return matrix.copy().transpose(matrix);
+  }
+
+  p5.prototype.invMatrix = function () {
+    return this._renderer.invMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.invMatrix = function (matrix) {
+    return matrix.copy().invert(matrix);
+  }
+
+  p5.prototype.axbMatrix = function () {
+    return this._renderer.axbMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.axbMatrix = function (a, b) {
+    return a.copy().apply(b);
   }
 
   p5.prototype.mMatrix = function () {
@@ -61,10 +94,10 @@
   p5.RendererGL.prototype.mMatrix = function (
     {
       vMatrix = this.vMatrix(),
-      vInvMatrix = this.vInvMatrix(vMatrix),
+      vInvMatrix = this.invMatrix(vMatrix),
       mvMatrix = this.mvMatrix()
     } = {}) {
-    return vInvMatrix.copy().apply(mvMatrix);
+    return this.axbMatrix(vInvMatrix, mvMatrix);
   }
 
   p5.prototype.dMatrix = function () {
@@ -87,16 +120,6 @@
     return this._curCamera.cameraMatrix.copy();
   }
 
-  p5.prototype.vInvMatrix = function () {
-    return this._renderer.vInvMatrix(...arguments);
-  }
-
-  p5.RendererGL.prototype.vInvMatrix = function ({
-    vMatrix = this.vMatrix()
-  } = {}) {
-    return vMatrix.copy().invert(vMatrix);
-  }
-
   p5.prototype.pvMatrix = function () {
     return this._renderer.pvMatrix(...arguments);
   }
@@ -106,7 +129,7 @@
       pMatrix = this.pMatrix(),
       vMatrix = this.vMatrix()
     } = {}) {
-    return pMatrix.copy().apply(vMatrix);
+    return this.axbMatrix(pMatrix, vMatrix);
   }
 
   p5.prototype.pvInvMatrix = function () {
@@ -119,7 +142,7 @@
       vMatrix = this.vMatrix(),
       pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     } = {}) {
-    return pvMatrix.copy().invert(pvMatrix);
+    return this.invMatrix(pvMatrix);
   }
 
   p5.RendererGL.prototype._near = function (pMatrix = this.pMatrix()) {
@@ -200,6 +223,10 @@
     this.uPMatrix.set(this.p);
     this.uMVMatrix.set(this.mv);
   }
+
+  // TODO goal
+  // hypothesis: use mult4 for locations (points) and mult3 for displacements (vectors)
+  // Note: 
 
   // 2.1 Points
 
