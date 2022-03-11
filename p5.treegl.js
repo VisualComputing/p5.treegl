@@ -26,6 +26,14 @@
       this.mat3[2] * vector.x + this.mat3[5] * vector.y + this.mat3[8] * vector.z);
   };
 
+  p5.prototype.iMatrix = function () {
+    return this._renderer.iMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.iMatrix = function () {
+    return new p5.Matrix();
+  }
+
   p5.prototype.pMatrix = function () {
     return this._renderer.pMatrix(...arguments);
   }
@@ -38,8 +46,12 @@
     return this._renderer.mvMatrix(...arguments);
   }
 
-  p5.RendererGL.prototype.mvMatrix = function () {
-    return this.uMVMatrix.copy();
+  p5.RendererGL.prototype.mvMatrix = function (
+    {
+      vMatrix = null,
+      mMatrix = null
+    } = {}) {
+    return mMatrix ? (vMatrix ?? this.vMatrix()).copy().apply(mMatrix) : this.uMVMatrix.copy();
   }
 
   p5.prototype.mMatrix = function () {
@@ -60,7 +72,9 @@
   }
 
   p5.RendererGL.prototype.dMatrix = function ({
-    mvMatrix = this.mvMatrix()
+    vMatrix = null,
+    mMatrix = null,
+    mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
   } = {}) {
     return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
@@ -205,6 +219,7 @@
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
+  // TODO: pretty challenging, use local transform matrix, as treeDisplacement does
   p5.RendererGL.prototype.treeLocation = function (vector, {
     from = 'SCREEN',
     to = 'WORLD',
@@ -327,11 +342,16 @@
   }
 
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
-    from = 'SCREEN',
+    from = 'EYE',
     to = 'WORLD',
-    mvMatrix = this.mvMatrix(),
-    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
+    vMatrix = null
   } = {}) {
+    if (from === 'WORLD') {
+      from = this.iMatrix();
+    }
+    if (to === 'WORLD') {
+      to = this.iMatrix();
+    }
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       //return this._worldToScreenDisplacement(vector);
     }
@@ -350,21 +370,21 @@
     if (from == 'NDC' && to == 'WORLD') {
 
     }
-    if (from == 'EYE' && to == 'WORLD') {
+    // TODO 1. test when to and from are different than iMatrix (world)
+    if (from == 'EYE' && to instanceof p5.Matrix) {
+      let mvMatrix = this.mvMatrix({ vMatrix: vMatrix, mMatrix: to });
       return new p5.Matrix('mat3', [mvMatrix.mat4[0], mvMatrix.mat4[4], mvMatrix.mat4[8],
       mvMatrix.mat4[1], mvMatrix.mat4[5], mvMatrix.mat4[9],
       mvMatrix.mat4[2], mvMatrix.mat4[6], mvMatrix.mat4[10]]).mult3(vector);
     }
-    if (from == 'WORLD' && to == 'EYE') {
-      return dMatrix.mult3(vector);
+    if (from instanceof p5.Matrix && to == 'EYE') {
+      return this.dMatrix({ vMatrix: vMatrix, mMatrix: from }).mult3(vector);
     }
-    /*
-    if (from == 'EYE' to === ....) {
+    // TODO 2. key case (which is independent of case 1)
+    // perhaps in terms of two siple cases: when to / from -> iMatrix
+    if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
+      // return
     }
-
-    if (from == ... to === 'EYE') {
-    }
-    */
   }
 
   /*

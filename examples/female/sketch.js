@@ -64,10 +64,10 @@ function draw() {
   box(300);
   pop();
   push();
-  //translate(50, 100, 0);
+  translate(50, 100, 0);
   fill(0, 0, 255);
   box(150);
-  /*
+  // /*
   if (log === frameCount) {
     let m = mMatrix();
     let v = vMatrix();
@@ -75,8 +75,10 @@ function draw() {
     let cmv = mvMatrix();
     console.log(mv);
     console.log(cmv);
+    let _mv = mvMatrix({mMatrix: m, vMatrix: v});
+    console.log(_mv);
   }
-  */
+  //*/
   pop();
   push();
   strokeWeight(10);
@@ -138,12 +140,14 @@ function keyPressed() {
     console.log(s);
   }
   if (key === 'd') {
+    let i = iMatrix();
     let v = createVector(15, -25, 70);
     let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
     console.log(r);
+    console.log(treeDisplacement(v, {from: i, to: 'EYE', mMatrix: i}));
     let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
-    //let r_ = treeDisplacement(createVector(-10, 25, -5), {from: 'EYE', to: 'WORLD'});
     console.log(r_);
+    console.log(treeDisplacement(r, {from: 'EYE', to: i, mMatrix: i}));
   }
 }
 
