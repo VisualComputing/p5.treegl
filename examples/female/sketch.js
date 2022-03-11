@@ -150,6 +150,7 @@ function keyPressed() {
     let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
     console.log(r_);
     console.log(treeDisplacement(r, {from: 'EYE', to: i, mMatrix: i}));
+    console.log(dMatrix(eMatrix(), iMatrix()).mult3(r));
   }
 }
 
