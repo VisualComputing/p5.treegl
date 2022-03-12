@@ -176,6 +176,13 @@ function keyPressed() {
     console.log('+', treeDisplacement(r, { from: e, to: i }));
     console.log(dMatrix({ from: e, to: i }).mult3(r));
   }
+  if (key === 'u') {
+    let v = createVector(35, -55, 0.7);
+    let d = treeDisplacement(v, { from: 'SCREEN', to: 'WORLD' });
+    console.log(d);
+    let w = treeDisplacement(d, { from: 'WORLD', to: 'SCREEN' });
+    console.log(w);
+  }
 }
 
 /*

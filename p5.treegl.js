@@ -228,10 +228,6 @@
     this.uMVMatrix.set(this.mv);
   }
 
-  // TODO goal
-  // hypothesis: use mult4 for locations (points) and mult3 for displacements (vectors)
-  // Note: 
-
   // 2.1 Points
 
   // NDC stuff needs testing
@@ -243,14 +239,17 @@
   /**
    * Converts locations (i.e., points) from one space into another.
    * @param  {p5.Vector} vector      location to be converted.
-   * @param  {Object} from           source space.
-   * @param  {Object} to             target space.
+   * @param  {p5.Matrix|String} from source space: either a global
+   *                                 transform matrix or 'WORLD', 'EYE',
+   *                                 'SCREEN' or 'NDC'.
+   * @param  {p5.Matrix|String} to   target space: either a global
+   *                                 transform matrix or 'WORLD', 'EYE',
+   *                                 'SCREEN' or 'NDC'.
    * @param  {p5.Matrix} pMatrix     projection matrix.
    * @param  {p5.Matrix} vMatrix     view matrix.
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
-  // TODO: pretty challenging, use local transform matrix, as treeDisplacement does
   // TODO accept nulls!
   p5.RendererGL.prototype.treeLocation = function (vector, {
     from = 'SCREEN',
@@ -288,6 +287,8 @@
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return invMatrix(to).mult4(from.mult4(vector));
     }
+    // no case
+    return vector;
   }
 
   p5.RendererGL.prototype._ndcToScreenLocation = function (vector) {
@@ -368,6 +369,20 @@
     return this._renderer.treeDisplacement(...arguments);
   }
 
+  /**
+   * Converts displacements (i.e., vectors) from one space into another.
+   * @param  {p5.Vector} vector      location to be converted.
+   * @param  {p5.Matrix|String} from source space: either a global
+   *                                 transform matrix or 'WORLD', 'EYE',
+   *                                 'SCREEN' or 'NDC'.
+   * @param  {p5.Matrix|String} to   target space: either a global
+   *                                 transform matrix or 'WORLD', 'EYE',
+   *                                 'SCREEN' or 'NDC'.
+   * @param  {p5.Matrix} pMatrix     projection matrix.
+   * @param  {p5.Matrix} vMatrix     view matrix.
+   * @param  {p5.Matrix} pvMatrix    projection times view matrix.
+   * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
+   */
   // TODO replace default param with nulls
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
     from = 'EYE',
@@ -376,10 +391,10 @@
     eMatrix = this.eMatrix()
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
-      //return this._worldToScreenDisplacement(vector);
+      return this._worldToScreenDisplacement(vector);
     }
     if ((from == 'SCREEN') && (to == 'WORLD')) {
-      //return this._screenToWorldDisplacement(vector);
+      return this._screenToWorldDisplacement(vector);
     }
     if (from == 'SCREEN' && to == "NDC") {
       return this._screenToNDCDisplacement(vector);
@@ -388,10 +403,10 @@
       return this._ndcToScreenDisplacement(vector);
     }
     if (from == 'WORLD' && to == "NDC") {
-
+      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(vector));
     }
     if (from == 'NDC' && to == 'WORLD') {
-
+      return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector));
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return dMatrix({ from: from, to: to }).mult3(vector);
@@ -412,24 +427,20 @@
     if (from instanceof p5.Matrix && to == 'EYE') {
       return dMatrix({ from: from, to: eMatrix }).mult3(vector);
     }
+    // no case
+    return vector;
   }
 
-  /*
   p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, {
-    pMatrix = this.pMatrix(),
-    mvMatrix = this.mvMatrix(),
-    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
+    pMatrix = this.pMatrix()
   } = {}) {
-    let eyeVector = this.treeDisplacement(vector, { from: 'WORLD', to: 'EYE', mvMatrix: mvMatrix, dMatrix: dMatrix });
-    //let eyeVector = _eye.displacement(vector, node);
+    let eyeVector = this.treeDisplacement(vector, { from: 'WORLD', to: 'EYE' });
     let dx = eyeVector.x;
     let dy = eyeVector.y;
     let perspective = pMatrix.mat4[15] == 0;
     if (perspective) {
       let position = createVector();
-      // TODO: location world to eye pend! since it requires rotation:
-      // either from Quaternion or perhaps using p5.Matrix.rotate and then mult3.
-      let k = Math.abs(_eye.location(position)._vector[2] * Math.tan(this._fov(pMatrix) / 2));
+      let k = Math.abs(this.treeLocation(position, { from: 'WORLD', to: 'EYE' }).z * Math.tan(this._fov(pMatrix) / 2));
       dx /= 2 * k / this.height;
       dy /= 2 * k / this.height;
     }
@@ -439,13 +450,25 @@
     return createVector(dx, dy, dz);
   }
 
+  // TODO buggy
   p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, {
-    mvMatrix = this.mvMatrix(),
-    dMatrix = this.dMatrix({ mvMatrix: mvMatrix })
+    pMatrix = this.pMatrix()
   } = {}) {
-
+    let dx = vector.x;
+    let dy = vector.y;
+    // Scale to fit the screen relative vector displacement
+    let perspective = pMatrix.mat4[15] == 0;
+    if (perspective) {
+      let position = createVector();
+      let k = Math.abs(this.treeLocation(position, { from: 'WORLD', to: 'EYE' }).z * Math.tan(this._fov(pMatrix) / 2));
+      dx *= 2 * k / this.height;
+      dy *= 2 * k / this.height;
+    }
+    let dz = vector.z;
+    dz *= (this._near(pMatrix) - this._far(pMatrix)) / (perspective ? Math.tan(this._fov(pMatrix) / 2) : Math.abs(this._right(pMatrix) - this._left(pMatrix)) / this.width);
+    let eyeVector = createVector(dx, dy, dz);
+    return this.treeDisplacement(eyeVector, { from: 'EYE', to: 'WORLD' });
   }
-  // */
 
   p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
     return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
@@ -454,29 +477,6 @@
   p5.RendererGL.prototype._screenToNDCDisplacement = function (vector) {
     return createVector(2 * vector.x / this.width, 2 * vector.y / this.height, 2 * vector.z);
   }
-
-  /*
-  From nub
-  Note 1
-
-  Nub methods:
-  Vector displacement(Vector vector)
-  Vector screenDisplacement(Vector vector)
-  
-  (at the very least) require the following p5.Camera methods:
-  p5.Camera.prototype.displacement = function ( vector )
-  p5.Camera.prototype.WorlDisplacement = function ( vector )
-  p5.Camera.prototype.location = function ( vector )
-
-  and, optionally:
-  p5.Camera.prototype.worldLocation = function ( vector )
-  
-  Note 2
-
-  The above camera methods need to hack the nub Node
-  counterparts, e.g., p5.Camera.prototype.location -> Node.location,
-  and to implement Quaternion rotations
-  */
 
   // 3. Drawing stuff
 
