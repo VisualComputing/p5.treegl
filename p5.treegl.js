@@ -388,12 +388,6 @@
     to = 'WORLD',
     vMatrix = this.vMatrix()
   } = {}) {
-    if (from === 'WORLD') {
-      from = iMatrix();
-    }
-    if (to === 'WORLD') {
-      to = iMatrix();
-    }
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       //return this._worldToScreenDisplacement(vector);
     }
@@ -416,11 +410,19 @@
       return dMatrix(from, to).mult3(vector);
     }
     // TODO 1. test when to and from are different than iMatrix (world)
+    if (from == 'EYE' && to == 'WORLD') {
+      return new p5.Matrix('mat3', [vMatrix.mat4[0], vMatrix.mat4[4], vMatrix.mat4[8],
+                                    vMatrix.mat4[1], vMatrix.mat4[5], vMatrix.mat4[9],
+                                    vMatrix.mat4[2], vMatrix.mat4[6], vMatrix.mat4[10]]).mult3(vector);
+    }
     if (from == 'EYE' && to instanceof p5.Matrix) {
       let matrix = axbMatrix(vMatrix, to);
       return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
       matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
       matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
+    }
+    if (from == 'WORLD' && to == 'EYE') {
+      return _dMatrix(vMatrix).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
       return _dMatrix(axbMatrix(vMatrix, from)).mult3(vector);
