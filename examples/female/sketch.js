@@ -78,6 +78,11 @@ function draw() {
     let _mv = mvMatrix({mMatrix: m, vMatrix: v});
     console.log(_mv);
     console.log(tMatrix(_mv));
+    let vec4 = [10, - 5, 15, 1];
+    let pvec = createVector(...vec4);
+    console.log(pvec);
+    console.log('mult4', _mv.mult4(pvec));
+    console.log('_mult4', _mv._mult4(vec4));
   }
   //*/
   pop();
@@ -142,15 +147,18 @@ function keyPressed() {
   }
   if (key === 'd') {
     let i = iMatrix();
+    let e = eMatrix();
     let v = createVector(15, -25, 70);
     let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
-    console.log(dMatrix(iMatrix(), eMatrix()).mult3(v));
+    console.log('*', treeDisplacement(v, {from: i, to: e}));
+    console.log(dMatrix(i, e).mult3(v));
     console.log(r);
-    console.log(treeDisplacement(v, {from: i, to: 'EYE', mMatrix: i}));
+    console.log(treeDisplacement(v, {from: i, to: 'EYE'}));
     let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
     console.log(r_);
-    console.log(treeDisplacement(r, {from: 'EYE', to: i, mMatrix: i}));
-    console.log(dMatrix(eMatrix(), iMatrix()).mult3(r));
+    console.log(treeDisplacement(r, {from: 'EYE', to: i}));
+    console.log('+', treeDisplacement(r, {from: e, to: i}));
+    console.log(dMatrix(e, i).mult3(r));
   }
 }
 

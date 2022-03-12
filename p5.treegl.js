@@ -27,12 +27,18 @@
   };
 
   p5.Matrix.prototype.mult4 = function (vector) {
+    return createVector(...this._mult4([vector.x, vector.y, vector.z, 1]));
+  };
+
+  p5.Matrix.prototype._mult4 = function (vec4) {
     if (this.mat4 === undefined) {
-      throw new Error('mult4 only works with mat4');
+      throw new Error('_mult4 only works with mat4');
     }
-    return createVector(this.mat4[0] * vector.x + this.mat4[4] * vector.y + this.mat4[8] * vector.z + this.mat4[12],
-      this.mat4[1] * vector.x + this.mat4[5] * vector.y + this.mat4[9] * vector.z + this.mat4[13],
-      this.mat4[2] * vector.x + this.mat4[6] * vector.y + this.mat4[10] * vector.z + this.mat4[14]);
+    //const vectorComponents = [...arguments];
+    return [this.mat4[0] * vec4[0] + this.mat4[4] * vec4[1] + this.mat4[8] * vec4[2] + this.mat4[12] * vec4[3],
+    this.mat4[1] * vec4[0] + this.mat4[5] * vec4[1] + this.mat4[9] * vec4[2] + this.mat4[13] * vec4[3],
+    this.mat4[2] * vec4[0] + this.mat4[6] * vec4[1] + this.mat4[10] * vec4[2] + this.mat4[14] * vec4[3],
+    this.mat4[3] * vec4[0] + this.mat4[7] * vec4[1] + this.mat4[11] * vec4[2] + this.mat4[15] * vec4[3]];
   };
 
   p5.prototype.toMat3 = function (matrix) {
@@ -318,11 +324,7 @@
       vMatrix = this.vMatrix(),
       pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     } = {}) {
-    let target = Array(4);
-    target[0] = pvMatrix.mat4[0] * vector.x + pvMatrix.mat4[4] * vector.y + pvMatrix.mat4[8] * vector.z + pvMatrix.mat4[12];
-    target[1] = pvMatrix.mat4[1] * vector.x + pvMatrix.mat4[5] * vector.y + pvMatrix.mat4[9] * vector.z + pvMatrix.mat4[13];
-    target[2] = pvMatrix.mat4[2] * vector.x + pvMatrix.mat4[6] * vector.y + pvMatrix.mat4[10] * vector.z + pvMatrix.mat4[14];
-    target[3] = pvMatrix.mat4[3] * vector.x + pvMatrix.mat4[7] * vector.y + pvMatrix.mat4[11] * vector.z + pvMatrix.mat4[15];
+    let target = pvMatrix._mult4([vector.x, vector.y, vector.z, 1]);
     if (target[3] == 0) {
       throw new Error('screenLocation broken. Check your pvMatrix!');
     }
@@ -351,7 +353,6 @@
     } = {}) {
     let viewport = [0, this.height, this.width, -this.height];
     let source = Array(4);
-    let target = Array(4);
     source[0] = vector.x;
     source[1] = vector.y;
     source[2] = vector.z;
@@ -364,10 +365,7 @@
     source[1] = source[1] * 2 - 1;
     source[2] = source[2] * 2 - 1;
     // pvInvMatrix.multiply(source, target);
-    target[0] = pvInvMatrix.mat4[0] * source[0] + pvInvMatrix.mat4[4] * source[1] + pvInvMatrix.mat4[8] * source[2] + pvInvMatrix.mat4[12] * source[3];
-    target[1] = pvInvMatrix.mat4[1] * source[0] + pvInvMatrix.mat4[5] * source[1] + pvInvMatrix.mat4[9] * source[2] + pvInvMatrix.mat4[13] * source[3];
-    target[2] = pvInvMatrix.mat4[2] * source[0] + pvInvMatrix.mat4[6] * source[1] + pvInvMatrix.mat4[10] * source[2] + pvInvMatrix.mat4[14] * source[3];
-    target[3] = pvInvMatrix.mat4[3] * source[0] + pvInvMatrix.mat4[7] * source[1] + pvInvMatrix.mat4[11] * source[2] + pvInvMatrix.mat4[15] * source[3];
+    target = pvInvMatrix._mult4(source);
     if (target[3] == 0) {
       throw new Error('location broken. Check your pvInvMatrix!');
     }
@@ -414,6 +412,9 @@
     if (from == 'NDC' && to == 'WORLD') {
 
     }
+    if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
+      return dMatrix(from, to).mult3(vector);
+    }
     // TODO 1. test when to and from are different than iMatrix (world)
     if (from == 'EYE' && to instanceof p5.Matrix) {
       let matrix = axbMatrix(vMatrix, to);
@@ -423,11 +424,6 @@
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
       return _dMatrix(axbMatrix(vMatrix, from)).mult3(vector);
-    }
-    // TODO 2. key case (which is independent of case 1)
-    // perhaps in terms of two siple cases: when to / from -> iMatrix
-    if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return dMatrix(from, to).mult3(vector);
     }
   }
 
