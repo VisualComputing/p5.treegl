@@ -41,23 +41,6 @@
     this.mat4[3] * vec4[0] + this.mat4[7] * vec4[1] + this.mat4[11] * vec4[2] + this.mat4[15] * vec4[3]];
   };
 
-  p5.prototype.toMat3 = function (matrix) {
-    if (matrix.mat4 === undefined) {
-      throw new Error('toMat3 only works with mat4');
-    }
-    let result = new p5.Matrix('mat3');
-    result.mat3[0] = matrix.mat4[0];
-    result.mat3[1] = matrix.mat4[1];
-    result.mat3[2] = matrix.mat4[2];
-    result.mat3[3] = matrix.mat4[4];
-    result.mat3[4] = matrix.mat4[5];
-    result.mat3[5] = matrix.mat4[6];
-    result.mat3[6] = matrix.mat4[8];
-    result.mat3[7] = matrix.mat4[9];
-    result.mat3[8] = matrix.mat4[10];
-    return result;
-  };
-
   p5.prototype.tMatrix = function (matrix) {
     return matrix.copy().transpose(matrix);
   }
@@ -74,16 +57,15 @@
     return new p5.Matrix();
   }
 
-  p5.prototype.dMatrix = function (from, to) {
-    return _dMatrix(axbMatrix(invMatrix(to), from));
-  }
-
-  p5.prototype._dMatrix = function (toxfrom) {
-    return new p5.Matrix('mat3').inverseTranspose(toxfrom);
-  }
-
-  p5.prototype.pMatrix = function () {
-    return this._renderer.pMatrix(...arguments);
+  p5.prototype.dMatrix = function (
+    {
+      from = iMatrix(),
+      to = eMatrix(),
+      matrix = axbMatrix(invMatrix(from), to)
+    } = {}) {
+    return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
+                                  matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
+                                  matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]);
   }
 
   p5.RendererGL.prototype.pMatrix = function () {
@@ -108,11 +90,10 @@
 
   p5.RendererGL.prototype.mMatrix = function (
     {
-      vMatrix = this.vMatrix(),
-      vInvMatrix = invMatrix(vMatrix),
+      eMatrix = thie.eMatrix(),
       mvMatrix = this.mvMatrix()
     } = {}) {
-    return axbMatrix(vInvMatrix, mvMatrix);
+    return axbMatrix(eMatrix, mvMatrix);
   }
 
   p5.prototype.nMatrix = function () {
@@ -124,7 +105,7 @@
     mMatrix = null,
     mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
   } = {}) {
-    return _dMatrix(mvMatrix);
+    return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
 
   p5.prototype.vMatrix = function () {
@@ -386,7 +367,8 @@
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
     from = 'EYE',
     to = 'WORLD',
-    vMatrix = this.vMatrix()
+    vMatrix = this.vMatrix(),
+    eMatrix = this.eMatrix()
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       //return this._worldToScreenDisplacement(vector);
@@ -407,7 +389,7 @@
 
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return dMatrix(from, to).mult3(vector);
+      return dMatrix({ from: from, to: to }).mult3(vector);
     }
     // all cases below kept for efficiency but they all may
     // be simply  expressed in terms of the previous case, by:
@@ -415,20 +397,20 @@
     // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {
       return new p5.Matrix('mat3', [vMatrix.mat4[0], vMatrix.mat4[4], vMatrix.mat4[8],
-                                    vMatrix.mat4[1], vMatrix.mat4[5], vMatrix.mat4[9],
-                                    vMatrix.mat4[2], vMatrix.mat4[6], vMatrix.mat4[10]]).mult3(vector);
+      vMatrix.mat4[1], vMatrix.mat4[5], vMatrix.mat4[9],
+      vMatrix.mat4[2], vMatrix.mat4[6], vMatrix.mat4[10]]).mult3(vector);
     }
     if (from == 'EYE' && to instanceof p5.Matrix) {
       let matrix = axbMatrix(vMatrix, to);
       return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
-                                    matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
-                                    matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
+      matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
+      matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
-      return _dMatrix(vMatrix).mult3(vector);
+      return dMatrix({ matrix: eMatrix }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
-      return _dMatrix(axbMatrix(vMatrix, from)).mult3(vector);
+      return dMatrix({ from: from, to: eMatrix }).mult3(vector);
     }
   }
 

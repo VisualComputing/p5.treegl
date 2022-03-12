@@ -40,7 +40,7 @@ function setup() {
   let eyeZ = (height / 2) / tan(PI / 6);
   perspective(PI / 3, width / height, eyeZ / 10, eyeZ * 10);
 
-//ortho([left], [right], [bottom], [top], [near], [far])
+  //ortho([left], [right], [bottom], [top], [near], [far])
   //ortho(-150.1, 200.2, -90.3,      70.4, 1.5, 4500.6);
   console.log('near', this._renderer._near());
   console.log('far', this._renderer._far());
@@ -75,7 +75,7 @@ function draw() {
     let cmv = mvMatrix();
     console.log(mv);
     console.log(cmv);
-    let _mv = mvMatrix({mMatrix: m, vMatrix: v});
+    let _mv = mvMatrix({ mMatrix: m, vMatrix: v });
     console.log(_mv);
     console.log(tMatrix(_mv));
     let vec4 = [10, - 5, 15, 1];
@@ -149,16 +149,17 @@ function keyPressed() {
     let i = iMatrix();
     let e = eMatrix();
     let v = createVector(15, -25, 70);
-    let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
-    console.log('*', treeDisplacement(v, {from: i, to: e}));
+    let r = treeDisplacement(v, { from: 'WORLD', to: 'EYE' });
+    console.log('*', treeDisplacement(v, { from: i, to: e }));
     console.log(dMatrix(i, e).mult3(v));
     console.log('/', r);
-    console.log(treeDisplacement(v, {from: i, to: 'EYE'}));
-    let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
+    console.log('@', nMatrix().mult3(v));
+    console.log(treeDisplacement(v, { from: i, to: 'EYE' }));
+    let r_ = treeDisplacement(r, { from: 'EYE', to: 'WORLD' });
     console.log(r_);
-    console.log(treeDisplacement(r, {from: 'EYE', to: i}));
-    console.log('+', treeDisplacement(r, {from: e, to: i}));
-    console.log(dMatrix(e, i).mult3(r));
+    console.log(treeDisplacement(r, { from: 'EYE', to: i }));
+    console.log('+', treeDisplacement(r, { from: e, to: i }));
+    console.log(dMatrix({ from: e, to: i }).mult3(r));
   }
 }
 
