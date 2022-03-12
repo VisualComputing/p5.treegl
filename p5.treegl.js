@@ -251,11 +251,13 @@
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
   // TODO: pretty challenging, use local transform matrix, as treeDisplacement does
+  // TODO accept nulls!
   p5.RendererGL.prototype.treeLocation = function (vector, {
     from = 'SCREEN',
     to = 'WORLD',
     pMatrix = this.pMatrix(),
     vMatrix = this.vMatrix(),
+    eMatrix = this.eMatrix(),
     pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }),
     pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
   } = {}) {
@@ -277,13 +279,15 @@
     if (from == 'NDC' && to == 'WORLD') {
       return this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
     }
-    /*
-    if (from == 'EYE' to === ....) {
+    if (from == 'WORLD' && (to instanceof p5.Matrix || to == 'EYE')) {
+      return (to == 'EYE' ? vMatrix : invMatrix(to)).mult4(vector);
     }
-
-    if (from == ... to === 'EYE') {
+    if ((from instanceof p5.Matrix || from == 'EYE') && to == 'WORLD') {
+      return (to == 'EYE' ? eMatrix : from).mult4(vector);
     }
-    */
+    if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
+      return invMatrix(to).mult4(from.mult4(vector));
+    }
   }
 
   p5.RendererGL.prototype._ndcToScreenLocation = function (vector) {
@@ -364,6 +368,7 @@
     return this._renderer.treeDisplacement(...arguments);
   }
 
+  // TODO replace default param with nulls
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
     from = 'EYE',
     to = 'WORLD',

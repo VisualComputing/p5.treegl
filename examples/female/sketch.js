@@ -9,6 +9,8 @@ let pnt, toScreen, fromScreen;
 let cacheInit;
 let persp;
 
+let n3, n4;
+
 function setup() {
   createCanvas(600, 450, WEBGL);
   // easy stuff
@@ -50,6 +52,19 @@ function setup() {
   console.log('top', this._renderer._top());
   console.log('fov', this._renderer._fov());
   console.log('hfov', this._renderer._hfov());
+
+  n3 = new p5.Matrix([0.756289, -0.5062419, -0.41442266, 0.0,
+    -0.054126263, 0.58285666, -0.81077033, 0.0,
+    0.65199494, 0.6356078, 0.4134071, 0.0,
+    5.372316, -7.620868, -6.542904, 1.0]);
+  n4 = new p5.Matrix([0.94123274, 0.18576221, -0.28208724, 0.0,
+    0.019796228, 0.80339795, 0.59511316, 0.0,
+    0.33717784, -0.56572425, 0.75250715, 0.0,
+    14.867519, -4.308632, -11.14892, 1.0]);
+  let vec = createVector(-5, 10, 15);
+  console.log(vec, " n4 -> n3 loc: " + treeLocation(vec, { from: n4, to: n3 }));
+  console.log(vec, " n4 -> n3 dis: " + treeDisplacement(vec, { from: n4, to: n3 }));
+  //console.log(n3);
 }
 
 function draw() {
