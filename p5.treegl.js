@@ -64,8 +64,8 @@
       matrix = axbMatrix(invMatrix(from), to)
     } = {}) {
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
-                                  matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
-                                  matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]);
+    matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
+    matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]);
   }
 
   p5.RendererGL.prototype.pMatrix = function () {
@@ -396,15 +396,10 @@
     // 'EYE' -> eMatrix()
     // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {
-      return new p5.Matrix('mat3', [vMatrix.mat4[0], vMatrix.mat4[4], vMatrix.mat4[8],
-      vMatrix.mat4[1], vMatrix.mat4[5], vMatrix.mat4[9],
-      vMatrix.mat4[2], vMatrix.mat4[6], vMatrix.mat4[10]]).mult3(vector);
+      return dMatrix({ matrix: vMatrix }).mult3(vector);
     }
     if (from == 'EYE' && to instanceof p5.Matrix) {
-      let matrix = axbMatrix(vMatrix, to);
-      return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
-      matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
-      matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
+      return dMatrix({ matrix: axbMatrix(vMatrix, to) }).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
       return dMatrix({ matrix: eMatrix }).mult3(vector);
