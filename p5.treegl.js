@@ -409,7 +409,10 @@
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return dMatrix(from, to).mult3(vector);
     }
-    // TODO 1. test when to and from are different than iMatrix (world)
+    // all cases below kept for efficiency but they all may
+    // be simply  expressed in terms of the previous case, by:
+    // 'EYE' -> eMatrix()
+    // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {
       return new p5.Matrix('mat3', [vMatrix.mat4[0], vMatrix.mat4[4], vMatrix.mat4[8],
                                     vMatrix.mat4[1], vMatrix.mat4[5], vMatrix.mat4[9],
@@ -418,8 +421,8 @@
     if (from == 'EYE' && to instanceof p5.Matrix) {
       let matrix = axbMatrix(vMatrix, to);
       return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
-      matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
-      matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
+                                    matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
+                                    matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
       return _dMatrix(vMatrix).mult3(vector);

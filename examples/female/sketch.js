@@ -152,7 +152,7 @@ function keyPressed() {
     let r = treeDisplacement(v, {from: 'WORLD', to: 'EYE'});
     console.log('*', treeDisplacement(v, {from: i, to: e}));
     console.log(dMatrix(i, e).mult3(v));
-    console.log(r);
+    console.log('/', r);
     console.log(treeDisplacement(v, {from: i, to: 'EYE'}));
     let r_ = treeDisplacement(r, {from: 'EYE', to: 'WORLD'});
     console.log(r_);
