@@ -56,6 +56,14 @@
     return new p5.Matrix();
   }
 
+  p5.prototype.lMatrix = function (
+    {
+      from = iMatrix(),
+      to = eMatrix()
+    } = {}) {
+      return axbMatrix(invMatrix(to), from);
+  }
+
   p5.prototype.dMatrix = function (
     {
       from = iMatrix(),
@@ -288,7 +296,7 @@
       return (from == 'EYE' ? eMatrix : from).mult4(vector);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return invMatrix(to).mult4(from.mult4(vector));
+      return lMatrix({ from: from, to: to}).mult4(vector);
     }
     // no case
     return vector;
