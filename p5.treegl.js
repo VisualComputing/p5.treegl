@@ -285,7 +285,7 @@
       return (to == 'EYE' ? vMatrix : invMatrix(to)).mult4(vector);
     }
     if ((from instanceof p5.Matrix || from == 'EYE') && to == 'WORLD') {
-      return (to == 'EYE' ? eMatrix : from).mult4(vector);
+      return (from == 'EYE' ? eMatrix : from).mult4(vector);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return invMatrix(to).mult4(from.mult4(vector));

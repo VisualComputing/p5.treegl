@@ -166,6 +166,22 @@ function keyPressed() {
     let i = iMatrix();
     let e = eMatrix();
     let v = createVector(15, -25, 70);
+    let r = treeLocation(v, { from: 'WORLD', to: 'EYE' });
+    console.log('*', treeLocation(v, { from: i, to: e }));
+    console.log(dMatrix(i, e).mult3(v));
+    console.log('/', r);
+    console.log('@', nMatrix().mult3(v));
+    console.log(treeLocation(v, { from: i, to: 'EYE' }));
+    let r_ = treeLocation(r, { from: 'EYE', to: 'WORLD' });
+    console.log(r_);
+    console.log(treeLocation(r, { from: 'EYE', to: i }));
+    console.log('+', treeLocation(r, { from: e, to: i }));
+    //console.log(dMatrix({ from: e, to: i }).mult3(r));
+  }
+  if (key === 'e') {
+    let i = iMatrix();
+    let e = eMatrix();
+    let v = createVector(15, -25, 70);
     let r = treeDisplacement(v, { from: 'WORLD', to: 'EYE' });
     console.log('*', treeDisplacement(v, { from: i, to: e }));
     console.log(dMatrix(i, e).mult3(v));
