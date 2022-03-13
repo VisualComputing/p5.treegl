@@ -34,7 +34,6 @@
     if (this.mat4 === undefined) {
       throw new Error('_mult4 only works with mat4');
     }
-    //const vectorComponents = [...arguments];
     return [this.mat4[0] * vec4[0] + this.mat4[4] * vec4[1] + this.mat4[8] * vec4[2] + this.mat4[12] * vec4[3],
     this.mat4[1] * vec4[0] + this.mat4[5] * vec4[1] + this.mat4[9] * vec4[2] + this.mat4[13] * vec4[3],
     this.mat4[2] * vec4[0] + this.mat4[6] * vec4[1] + this.mat4[10] * vec4[2] + this.mat4[14] * vec4[3],
@@ -68,6 +67,10 @@
     matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]);
   }
 
+  p5.prototype.pMatrix = function () {
+    return this._renderer.pMatrix(...arguments);
+  }
+
   p5.RendererGL.prototype.pMatrix = function () {
     return this.uPMatrix.copy();
   }
@@ -90,7 +93,7 @@
 
   p5.RendererGL.prototype.mMatrix = function (
     {
-      eMatrix = thie.eMatrix(),
+      eMatrix = this.eMatrix(),
       mvMatrix = this.mvMatrix()
     } = {}) {
     return axbMatrix(eMatrix, mvMatrix);
@@ -412,7 +415,7 @@
       return dMatrix({ from: from, to: to }).mult3(vector);
     }
     // all cases below kept for efficiency but they all may
-    // be simply  expressed in terms of the previous case, by:
+    // be simply expressed in terms of the previous case, by:
     // 'EYE' -> eMatrix()
     // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {

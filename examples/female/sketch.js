@@ -93,11 +93,13 @@ function draw() {
     let _mv = mvMatrix({ mMatrix: m, vMatrix: v });
     console.log(_mv);
     console.log(tMatrix(_mv));
+    /*
     let vec4 = [10, - 5, 15, 1];
     let pvec = createVector(...vec4);
     console.log(pvec);
     console.log('mult4', _mv.mult4(pvec));
     console.log('_mult4', _mv._mult4(vec4));
+    */
   }
   //*/
   pop();
