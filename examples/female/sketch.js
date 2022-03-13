@@ -85,6 +85,7 @@ function draw() {
   // /*
   if (log === frameCount) {
     let m = mMatrix();
+    let e = eMatrix();
     let v = vMatrix();
     let mv = v.copy().apply(m);
     let cmv = mvMatrix();
@@ -92,7 +93,9 @@ function draw() {
     console.log(cmv);
     let _mv = mvMatrix({ mMatrix: m, vMatrix: v });
     console.log(_mv);
-    console.log(tMatrix(_mv));
+    console.log(nMatrix({ mMatrix: m }));
+    console.log(dMatrix({ from: m, to: e }));
+    //console.log(tMatrix(_mv));
     /*
     let vec4 = [10, - 5, 15, 1];
     let pvec = createVector(...vec4);
