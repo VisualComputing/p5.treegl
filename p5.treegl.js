@@ -341,11 +341,7 @@
       pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
     } = {}) {
     let viewport = [0, this.height, this.width, -this.height];
-    let source = Array(4);
-    source[0] = vector.x;
-    source[1] = vector.y;
-    source[2] = vector.z;
-    source[3] = 1.0;
+    let source = [vector.x, vector.y, vector.z, 1];
     // Map x and y from window coordinates
     source[0] = (source[0] - viewport[0]) / viewport[2];
     source[1] = (source[1] - viewport[1]) / viewport[3];
