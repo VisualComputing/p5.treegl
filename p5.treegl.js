@@ -61,7 +61,7 @@
       from = iMatrix(),
       to = eMatrix()
     } = {}) {
-      return axbMatrix(invMatrix(to), from);
+    return axbMatrix(invMatrix(to), from);
   }
 
   p5.prototype.dMatrix = function (
@@ -70,6 +70,7 @@
       to = eMatrix(),
       matrix = axbMatrix(invMatrix(from), to)
     } = {}) {
+    // Note that this transposes mat4 into mat3
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
     matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
     matrix.mat4[2], matrix.mat4[6], matrix.mat4[10]]);
@@ -296,7 +297,7 @@
       return (from == 'EYE' ? eMatrix : from).mult4(vector);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return lMatrix({ from: from, to: to}).mult4(vector);
+      return lMatrix({ from: from, to: to }).mult4(vector);
     }
     // no case
     return vector;
