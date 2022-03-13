@@ -168,7 +168,7 @@ function keyPressed() {
     let v = createVector(15, -25, 70);
     let r = treeLocation(v, { from: 'WORLD', to: 'EYE' });
     console.log('*', treeLocation(v, { from: i, to: e }));
-    //console.log(lMatrix(i, e).mult3(v));
+    console.log('?', lMatrix({ from: i, to: e }).mult4(v));
     console.log('/', r);
     console.log('@', nMatrix().mult3(v));
     console.log(treeLocation(v, { from: i, to: 'EYE' }));
@@ -176,24 +176,23 @@ function keyPressed() {
     console.log(r_);
     console.log(treeLocation(r, { from: 'EYE', to: i }));
     console.log('+', treeLocation(r, { from: e, to: i }));
-    console.log(lMatrix({ from: e, to: i }).mult3(r));
+    console.log(lMatrix({ from: e, to: i }).mult4(r));
   }
   if (key === 'e') {
     let i = iMatrix();
     let e = eMatrix();
     let v = createVector(15, -25, 70);
     let r = treeDisplacement(v, { from: 'WORLD', to: 'EYE' });
-    //console.log('*', treeDisplacement(v, { from: i, to: e }));
-    ////console.log(dMatrix(i, e).mult3(v));
-    //console.log('/', r);
-    //console.log('@', nMatrix().mult3(v));
-    //console.log(treeDisplacement(v, { from: i, to: 'EYE' }));
+    console.log('*', treeDisplacement(v, { from: i, to: e }));
+    console.log('?', dMatrix({ from: i, to: e }).mult3(v));
+    console.log('/', r);
+    console.log('@', nMatrix().mult3(v));
+    console.log(treeDisplacement(v, { from: i, to: 'EYE' }));
     let r_ = treeDisplacement(r, { from: 'EYE', to: 'WORLD' });
-    //console.log(r_);
+    console.log(r_);
     console.log(treeDisplacement(r, { from: 'EYE', to: i }));
     console.log('+', treeDisplacement(r, { from: e, to: i }));
     console.log(dMatrix({ from: e, to: i }).mult3(r));
-    console.log(DMatrix({ from: e, to: i }).mult3(r));
   }
   if (key === 'u') {
     let v = createVector(35, -55, 0.7);
