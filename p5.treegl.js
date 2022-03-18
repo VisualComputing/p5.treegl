@@ -56,20 +56,23 @@
     return new p5.Matrix();
   }
 
+  // defaults: from: iMatrix, to: eMatrix
   p5.prototype.lMatrix = function (
     {
-      from = iMatrix(),
-      to = eMatrix()
+      from,
+      to
     } = {}) {
-    return axbMatrix(invMatrix(to), from);
+    return axbMatrix(invMatrix(to ?? eMatrix()), from ?? iMatrix());
   }
 
+  // defaults: from: iMatrix, to: eMatrix
   p5.prototype.dMatrix = function (
     {
-      from = iMatrix(),
-      to = eMatrix(),
-      matrix = axbMatrix(invMatrix(from), to)
+      from,
+      to,
+      matrix
     } = {}) {
+    matrix ??= axbMatrix(invMatrix(from ?? iMatrix()), to ?? eMatrix());
     // Note that this transposes mat4 into mat3
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
     matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
@@ -88,10 +91,12 @@
     return this._renderer.mvMatrix(...arguments);
   }
 
+  // defaults when mMatrix is defined: vMatrix: this.vMatrix, mMatrix:
+  // otherwise it returns a copy of the current mvMatrix
   p5.RendererGL.prototype.mvMatrix = function (
     {
-      vMatrix = null,
-      mMatrix = null
+      vMatrix,
+      mMatrix
     } = {}) {
     return mMatrix ? axbMatrix(vMatrix ?? this.vMatrix(), mMatrix) : this.uMVMatrix.copy();
   }
@@ -100,12 +105,13 @@
     return this._renderer.mMatrix(...arguments);
   }
 
+  // defaults: eMatrix: this.eMatrix, mvMatrix: this.mvMatrix
   p5.RendererGL.prototype.mMatrix = function (
     {
-      eMatrix = this.eMatrix(),
-      mvMatrix = this.mvMatrix()
+      eMatrix,
+      mvMatrix
     } = {}) {
-    return axbMatrix(eMatrix, mvMatrix);
+    return axbMatrix(eMatrix ?? this.eMatrix(), mvMatrix ?? this.mvMatrix());
   }
 
   p5.prototype.nMatrix = function () {
@@ -113,11 +119,11 @@
   }
 
   p5.RendererGL.prototype.nMatrix = function ({
-    vMatrix = null,
-    mMatrix = null,
-    mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
+    vMatrix,
+    mMatrix,
+    mvMatrix
   } = {}) {
-    return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
+    return new p5.Matrix('mat3').inverseTranspose(mvMatrix ?? this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix }));
   }
 
   p5.prototype.vMatrix = function () {
@@ -140,12 +146,13 @@
     return this._renderer.pvMatrix(...arguments);
   }
 
+  // defaults: pMatrix: this.pMatrix, vMatrix: this.vMatrix
   p5.RendererGL.prototype.pvMatrix = function (
     {
-      pMatrix = this.pMatrix(),
-      vMatrix = this.vMatrix()
+      pMatrix,
+      vMatrix
     } = {}) {
-    return axbMatrix(pMatrix, vMatrix);
+    return axbMatrix(pMatrix ?? this.pMatrix(), vMatrix ?? this.vMatrix());
   }
 
   p5.prototype.pvInvMatrix = function () {
@@ -154,55 +161,64 @@
 
   p5.RendererGL.prototype.pvInvMatrix = function (
     {
-      pMatrix = this.pMatrix(),
-      vMatrix = this.vMatrix(),
-      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
+      pMatrix,
+      vMatrix,
+      pvMatrix
     } = {}) {
+    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     return invMatrix(pvMatrix);
   }
 
-  p5.RendererGL.prototype._near = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._near = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (pMatrix.mat4[10] - 1) :
       (1 + pMatrix.mat4[14]) / pMatrix.mat4[10];
   }
 
-  p5.RendererGL.prototype._far = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._far = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (1 + pMatrix.mat4[10]) :
       (pMatrix.mat4[14] - 1) / pMatrix.mat4[10];
   }
 
-  p5.RendererGL.prototype._left = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._left = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 1 ? -(1 + pMatrix.mat4[12]) / pMatrix.mat4[0] :
       this._near() * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
   }
 
-  p5.RendererGL.prototype._right = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._right = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 1 ? (1 - pMatrix.mat4[12]) / pMatrix.mat4[0] :
       this._near() * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
   }
 
-  p5.RendererGL.prototype._top = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._top = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return pMatrix.mat4[15] == 1 ? (pMatrix.mat4[13] - 1) / pMatrix.mat4[5] :
       this._near() * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
   }
 
-  p5.RendererGL.prototype._bottom = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._bottom = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return pMatrix.mat4[15] == 1 ? (1 + pMatrix.mat4[13]) / pMatrix.mat4[5] :
       this._near() * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
   }
 
-  p5.RendererGL.prototype._fov = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._fov = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     if (pMatrix.mat4[15] != 0) {
       throw new Error('fov only works for a perspective projection');
     }
     return Math.abs(2 * Math.atan(1 / pMatrix.mat4[5]));
   }
 
-  p5.RendererGL.prototype._hfov = function (pMatrix = this.pMatrix()) {
+  p5.RendererGL.prototype._hfov = function (pMatrix) {
+    pMatrix ??= this.pMatrix();
     if (pMatrix.mat4[15] != 0) {
       throw new Error('hfov only works for a perspective projection');
     }
@@ -266,11 +282,11 @@
   p5.RendererGL.prototype.treeLocation = function (vector, {
     from = 'SCREEN',
     to = 'WORLD',
-    pMatrix = this.pMatrix(),
-    vMatrix = this.vMatrix(),
-    eMatrix = this.eMatrix(),
-    pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }),
-    pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
+    pMatrix,
+    vMatrix,
+    eMatrix,
+    pvMatrix,
+    pvInvMatrix
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
@@ -291,10 +307,10 @@
       return this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
     }
     if (from == 'WORLD' && (to instanceof p5.Matrix || to == 'EYE')) {
-      return (to == 'EYE' ? vMatrix : invMatrix(to)).mult4(vector);
+      return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(vector);
     }
     if ((from instanceof p5.Matrix || from == 'EYE') && to == 'WORLD') {
-      return (from == 'EYE' ? eMatrix : from).mult4(vector);
+      return (from == 'EYE' ? (eMatrix ?? this.eMatrix()) : from).mult4(vector);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return lMatrix({ from: from, to: to }).mult4(vector);
@@ -317,11 +333,13 @@
 
   p5.RendererGL.prototype._screenLocation = function (
     {
-      vector = createVector(0, 0, 0.5),
-      pMatrix = this.pMatrix(),
-      vMatrix = this.vMatrix(),
-      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
+      vector,
+      pMatrix,
+      vMatrix,
+      pvMatrix
     } = {}) {
+    vector ??= createVector(0, 0, 0.5);
+    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix ?? this.pMatrix(), vMatrix: vMatrix ?? this.vMatrix() });
     let target = pvMatrix._mult4([vector.x, vector.y, vector.z, 1]);
     if (target[3] == 0) {
       throw new Error('screenLocation broken. Check your pvMatrix!');
@@ -343,12 +361,14 @@
 
   p5.RendererGL.prototype._location = function (
     {
-      vector = createVector(this.width / 2, this.height / 2, 0.5),
-      pMatrix = this.pMatrix(),
-      vMatrix = this.vMatrix(),
-      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }),
-      pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
+      vector,
+      pMatrix,
+      vMatrix,
+      pvMatrix,
+      pvInvMatrix
     } = {}) {
+    vector ??= createVector(this.width / 2, this.height / 2, 0.5);
+    pvInvMatrix ??= this.pvInvMatrix({ pMatrix: pMatrix ?? this.pMatrix(), vMatrix: vMatrix ?? this.vMatrix(), pvMatrix: pvMatrix ?? this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }) });
     let viewport = [0, this.height, this.width, -this.height];
     let source = [vector.x, vector.y, vector.z, 1];
     // Map x and y from window coordinates
@@ -395,14 +415,15 @@
   p5.RendererGL.prototype.treeDisplacement = function (vector, {
     from = 'EYE',
     to = 'WORLD',
-    vMatrix = this.vMatrix(),
-    eMatrix = this.eMatrix()
+    vMatrix,
+    eMatrix,
+    pMatrix
   } = {}) {
     if ((from == 'WORLD') && (to == 'SCREEN')) {
-      return this._worldToScreenDisplacement(vector);
+      return this._worldToScreenDisplacement(vector, pMatrix);
     }
     if ((from == 'SCREEN') && (to == 'WORLD')) {
-      return this._screenToWorldDisplacement(vector);
+      return this._screenToWorldDisplacement(vector, pMatrix);
     }
     if (from == 'SCREEN' && to == "NDC") {
       return this._screenToNDCDisplacement(vector);
@@ -411,10 +432,10 @@
       return this._ndcToScreenDisplacement(vector);
     }
     if (from == 'WORLD' && to == "NDC") {
-      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(vector));
+      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(vector, pMatrix));
     }
     if (from == 'NDC' && to == 'WORLD') {
-      return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector));
+      return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return dMatrix({ from: from, to: to }).mult3(vector);
@@ -424,24 +445,23 @@
     // 'EYE' -> eMatrix()
     // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {
-      return dMatrix({ matrix: vMatrix }).mult3(vector);
+      return dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector);
     }
     if (from == 'EYE' && to instanceof p5.Matrix) {
-      return dMatrix({ matrix: axbMatrix(vMatrix, to) }).mult3(vector);
+      return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
-      return dMatrix({ matrix: eMatrix }).mult3(vector);
+      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
-      return dMatrix({ from: from, to: eMatrix }).mult3(vector);
+      return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
     }
     // no case
     return vector;
   }
 
-  p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, {
-    pMatrix = this.pMatrix()
-  } = {}) {
+  p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, pMatrix) {
+    pMatrix ??= this.pMatrix();
     let eyeVector = this.treeDisplacement(vector, { from: 'WORLD', to: 'EYE' });
     let dx = eyeVector.x;
     let dy = eyeVector.y;
@@ -459,9 +479,8 @@
   }
 
   // TODO buggy
-  p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, {
-    pMatrix = this.pMatrix()
-  } = {}) {
+  p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, pMatrix) {
+    pMatrix ??= this.pMatrix();
     let dx = vector.x;
     let dy = vector.y;
     // Scale to fit the screen relative vector displacement
