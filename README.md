@@ -1,11 +1,3 @@
-- [Description](#p5treegl)
-- [Basic matrices](#basic-matrices)
-- [Matrix queries](#matrix-queries)
-- [Space transformations](#space-transformations)
-- [Shader functions](#shader-functions)
-- [Installation](#installation)
-- [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
-
 # p5.treegl
 
 High-level matrix transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
@@ -16,8 +8,8 @@ High-level matrix transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL)
 2. `tMatrix(matrix)`: Returns the tranpose of `matrix`.
 3. `invMatrix(matrix)`: Returns the inverse of `matrix`.
 4. `axbMatrix(a, b)`: Returns the product of the `a` and `b` matrices.
-5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms points from matrix `from` to matrix `to`.
-6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms vectors from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
+5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
+6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
 
 # Matrix queries
 
