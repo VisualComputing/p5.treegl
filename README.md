@@ -1,18 +1,47 @@
 # p5.treegl
 
-library description pending.
+High-level matrix transformations [p5.js] library which eases shader development.
 
-# Functions
+## Matrix functions
 
-## readShader
+### beginHUD
+
+Begins [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space.
+
+#### Syntax
+
+`beginHUD([renderer])`
+
+#### Parameters
+
+| parameter| description                                                                                          |
+|----------|------------------------------------------------------------------------------------------------------|
+| renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
+
+### endHUD
+
+Ends [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space.
+
+#### Syntax
+
+`endHUD([renderer])`
+
+#### Parameters
+
+| parameter| description                                                                                          |
+|----------|------------------------------------------------------------------------------------------------------|
+| renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
+## Shader functions
+
+### readShader
 
 Creates a vertex shader, reads a fragment shader and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
 
-### Syntax
+#### Syntax
 
 `readShader(fragFilename, [{[color], [texcoord]}])`
 
-### Parameters
+#### Parameters
 
 | parameter    | description                                                           |
 |--------------|-----------------------------------------------------------------------|
@@ -20,15 +49,15 @@ Creates a vertex shader, reads a fragment shader and returns a [p5.Shader](https
 | color        | String: vertex color varying variable name. Default is `vVertexColor` |
 | texcoord     | String: vertex color varying variable name. Default is `vTexCoord`    |
 
-## makeShader
+### makeShader
 
 Creates a vertex shader, loads a fragment shader and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
 
-### Syntax
+#### Syntax
 
 `makeShader(fragSrc, [{[color], [texcoord]}])`
 
-### Parameters
+#### Parameters
 
 | parameter    | description                                                           |
 |--------------|-----------------------------------------------------------------------|
@@ -36,66 +65,15 @@ Creates a vertex shader, loads a fragment shader and returns a [p5.Shader](https
 | color        | String: vertex color varying variable name. Default is `vVertexColor` |
 | texcoord     | String: vertex color varying variable name. Default is `vTexCoord`    |
 
-## cover
-
-Covers exactly the window with a rectangle defined with [beginShape](https://p5js.org/reference/#/p5/beginShape) and [endShape](https://p5js.org/reference/#/p5/endShape).
-
-### Syntax
-
-`cover([{[renderer], [texture], [x], [y], [w], [h], [pattern1], [pattern0], [pattern2], [pattern3]}])`
-
-### Parameters
-
-| parameter| description                                                                                                  |
-|----------|--------------------------------------------------------------------------------------------------------------|
-| renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context to fill. Default is (the onscreen) `this._renderer` |
-| texture  | Boolean: defines normal texture coordinates on the four rectangle vertices. Default is `false`               |
-| x        | Number: cover x-coordinate. Default is `-renderer.width / 2`                                                 |
-| y        | Number: cover y-coordinate. Default is `-renderer.height / 2`                                                |
-| w        | Number: cover width. Default is `renderer.width`                                                             |
-| h        | Number: cover height. Default is `renderer.height`                                                           |
-| pattern0 | p5.Color: upper left corner vertex color. Default is `null`                                                  |
-| pattern1 | p5.Color: upper right corner vertex color. Default is `pattern0`                                             |
-| pattern2 | p5.Color: lower right corner vertex color. Default is `pattern0`                                             |
-| pattern3 | p5.Color: lower left corner vertex color. Default is `pattern0`                                              |
-
-## beginHUD
-
-Begins [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space.
-
-### Syntax
-
-`beginHUD([renderer])`
-
-### Parameters
-
-| parameter| description                                                                                          |
-|----------|------------------------------------------------------------------------------------------------------|
-| renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
-
-## endHUD
-
-Ends [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space.
-
-### Syntax
-
-`endHUD([renderer])`
-
-### Parameters
-
-| parameter| description                                                                                          |
-|----------|------------------------------------------------------------------------------------------------------|
-| renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
-
-## emitPointerPosition
+### emitPointerPosition
 
 Emits the current mouse position as a `vec2` uniform variable defined as: `[mouseX * pixelDensity(), (renderer.height - mouseY) * pixelDensity()]`.
 
-### Syntax
+#### Syntax
 
 `emitPointerPosition(shader, [{[renderer], [mouseX], [mouseY], [uniform]}])`
 
-### Parameters
+#### Parameters
 
 | parameter| description                                                                                          |
 |----------|------------------------------------------------------------------------------------------------------|
@@ -105,15 +83,15 @@ Emits the current mouse position as a `vec2` uniform variable defined as: `[mous
 | mouseY   | Number: mouse y position. Default is `this.mouseY`                                                   |
 | uniform  | String: name of the uniform variable. Default is `u_mouse`                                           |
 
-## emitResolution
+### emitResolution
 
 Emits the current window resolution as a `vec2` uniform variable defined as: `[renderer.width * pixelDensity(), renderer.height * pixelDensity()]`.
 
-### Syntax
+#### Syntax
 
 `emitResolution(shader, [{[renderer], [uniform]}])`
 
-### Parameters
+#### Parameters
 
 | parameter| description                                                                                          |
 |----------|------------------------------------------------------------------------------------------------------|
@@ -121,15 +99,15 @@ Emits the current window resolution as a `vec2` uniform variable defined as: `[r
 | renderer | p5.Graphics or p5.Renderer: (offscreen) renderer context. Default is (the onscreen) `this._renderer` |
 | uniform  | String: name of the uniform variable. Default is `u_resolution`                                      |
 
-## emitTexOffset
+### emitTexOffset
 
 Emits the image offset as a `vec2` uniform variable defined as: `[1 / image.width, 1 / image.height]`.
 
-### Syntax
+#### Syntax
 
 `emitTexOffset(shader, image, [uniform])`
 
-### Parameters
+#### Parameters
 
 | parameter| description                                                    |
 |----------|----------------------------------------------------------------|
