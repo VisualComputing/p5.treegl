@@ -1,14 +1,14 @@
-# p5.treegl
-
-High-level matrix transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
-
-- [p5.treegl](#p5treegl)
+- [Description](#p5treegl)
 - [Basic matrices](#basic-matrices)
 - [Matrix queries](#matrix-queries)
 - [Space transformations](#space-transformations)
 - [Shader functions](#shader-functions)
 - [Installation](#installation)
 - [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
+
+# p5.treegl
+
+High-level matrix transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
 # Basic matrices
 
