@@ -1,14 +1,14 @@
 let lightDir;
 let shadowMap;
+let depthShader;
 let shadowShader;
-let defaultShader;
 let landscape;
 let easycam;
 let biasMatrix;
 
 function preload() {
-    shadowShader = readShader('depth_frag.glsl');
-    defaultShader = loadShader('shadow_vert.glsl', 'shadow_frag.glsl');
+    depthShader = readShader('depth_frag.glsl');
+    shadowShader = loadShader('shadow_vert.glsl', 'shadow_frag.glsl');
 }
 
 function setup() {
@@ -25,7 +25,7 @@ function setup() {
     //shadowMap.loadPixels(); // Will interfere with noSmooth() (probably a bug in Processing)
     //shadowMap.beginDraw();
     shadowMap.noStroke();
-    shadowMap.shader(shadowShader);
+    shadowMap.shader(depthShader);
     shadowMap.ortho(-200, 200, -200, 200, 10, 400); // Setup orthogonal view matrix for the directional light
     //shadowMap.endDraw();
     // 2. default stuff
