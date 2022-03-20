@@ -2,7 +2,17 @@
 
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections below are available only to `p5`, while those of [matrix queries](#matrix-queries), [space transformations](#space-transformations) and [Heads Up Display](#heads-up-display) sections, are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+- [Shaders](#shaders)
+  - [Handling](#handling)
+  - [Macros](#macros)
+- [Basic matrices](#basic-matrices)
+- [Matrix queries](#matrix-queries)
+- [Space transformations](#space-transformations)
+- [Heads Up Display](#heads-up-display)
+- [Installation](#installation)
+- [vs-code & [vs-codium](https://vscodium.com/) & [gitpod](https://www.gitpod.io/) hacking instructions](#vs-code--vs-codium--gitpod-hacking-instructions)
+
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`, while those of [matrix queries](#matrix-queries), [space transformations](#space-transformations) and [Heads Up Display](#heads-up-display) sections, are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Shaders
 
