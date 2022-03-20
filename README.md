@@ -18,7 +18,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-`readShader` and `makeShader` take a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance having the following vertex shader [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) for it:
+`readShader` and `makeShader` take only a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. The behind the scenes vertex shader is actually generated from the following [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals):
 
 ```js
 `precision highp float;
@@ -36,7 +36,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
  }`
 ```
 
-observe in the code above that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
+observe in the code above (and in the function signatures below) that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
 
 1. `readShader(fragFilename, [{[color = 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
 2. `makeShader(fragSrc, [{[color= 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
