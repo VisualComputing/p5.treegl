@@ -10,7 +10,14 @@
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
   // test pre-existance of new properties with something like:
+  /*
+  console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult3'));
   console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult4'));
+  console.log('p5.Matrix._mult4', p5.Matrix.prototype.hasOwnProperty('_mult4'));
+  console.log('p5.Camera.vMatrix', p5.Camera.prototype.hasOwnProperty('vMatrix'));
+  console.log('p5.Camera.eMatrix', p5.Camera.prototype.hasOwnProperty('eMatrix'));
+  */
+ console.log('treegl version 0.0.3');
 
   // 1. Matrix stuff
 
@@ -128,7 +135,11 @@
   }
 
   p5.RendererGL.prototype.vMatrix = function () {
-    return this._curCamera.cameraMatrix.copy();
+    return this._curCamera.vMatrix();
+  }
+
+  p5.Camera.prototype.vMatrix = function () {
+    return this.cameraMatrix.copy();
   }
 
   p5.prototype.eMatrix = function () {
@@ -136,6 +147,10 @@
   }
 
   p5.RendererGL.prototype.eMatrix = function () {
+    return this._curCamera.eMatrix();
+  }
+
+  p5.Camera.prototype.eMatrix = function () {
     return invMatrix(this.vMatrix());
   }
 
