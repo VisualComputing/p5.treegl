@@ -18,24 +18,22 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-`readShader` and `makeShader` take a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance having the following vertex shader for it:
+`readShader` and `makeShader` take a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance having the following vertex shader [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) for it:
 
 ```js
-function _vertexShader(color, texcoord) {
-    return `precision highp float;
-          attribute vec3 aPosition;
-          attribute vec2 aTexCoord;
-          attribute vec4 aVertexColor;
-          uniform mat4 uProjectionMatrix;
-          uniform mat4 uModelViewMatrix;
-          varying vec4 ${color};
-          varying vec2 ${texcoord};
-          void main() {
-            ${color} = aVertexColor;
-            ${texcoord} = aTexCoord;
-            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
-          }`;
-  }
+`precision highp float;
+ attribute vec3 aPosition;
+ attribute vec2 aTexCoord;
+ attribute vec4 aVertexColor;
+ uniform mat4 uProjectionMatrix;
+ uniform mat4 uModelViewMatrix;
+ varying vec4 ${color};
+ varying vec2 ${texcoord};
+ void main() {
+   ${color} = aVertexColor;
+   ${texcoord} = aTexCoord;
+   gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+ }`
 ```
 
 observe in the code above that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
