@@ -2,41 +2,7 @@
 
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
-# Basic matrices
-
-1. `iMatrix()`: Returns the identity matrix.
-2. `tMatrix(matrix)`: Returns the tranpose of `matrix`.
-3. `invMatrix(matrix)`: Returns the inverse of `matrix`.
-4. `axbMatrix(a, b)`: Returns the product of the `a` and `b` matrices.
-5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
-6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
-
-# Matrix queries
-
-All of the following functions are available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-
-1. `pMatrix()`: Returns the current projection matrix.
-2. `mvMatrix()`: Returns the current modelview matrix.
-3. `mMatrix()`: Returns the current model matrix.
-4. `eMatrix()`: Returns the current eye matrix (the inverse of `vMatrix()`).
-5. `vMatrix()`: Returns the view matrix (the inverse of `eMatrix()`).
-6. `pvMatrix()`: Returns the current projection times view matrix.
-7. `pvInvMatrix()`: Returns the `pvMatrix` inverse.
-8. `nMatrix()`: Returns the current [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
-
-# Space transformations
-
-1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-
-available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-
-# [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display)
-
-1. `beginHUD()`: Begins [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
-2. `endHUD()`: Ends [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
-
-available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections below are available only to `p5`, while those of [matrix queries](#matrix-queries), [space transformations](#space-transformations) and [Heads Up Display](#heads-up-display) sections, are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Shaders
 
@@ -74,6 +40,36 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` as: `[1 / image.width, 1 / image.height]`.
 2. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_mouse'])` as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 3. `emitResolution(shader, [uniform = 'u_resolution'])` as: `[width * pixelDensity(), height * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+
+# Basic matrices
+
+1. `iMatrix()`: Returns the identity matrix.
+2. `tMatrix(matrix)`: Returns the tranpose of `matrix`.
+3. `invMatrix(matrix)`: Returns the inverse of `matrix`.
+4. `axbMatrix(a, b)`: Returns the product of the `a` and `b` matrices.
+5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
+6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
+
+# Matrix queries
+
+1. `pMatrix()`: Returns the current projection matrix.
+2. `mvMatrix()`: Returns the current modelview matrix.
+3. `mMatrix()`: Returns the current model matrix.
+4. `eMatrix()`: Returns the current eye matrix (the inverse of `vMatrix()`).
+5. `vMatrix()`: Returns the view matrix (the inverse of `eMatrix()`).
+6. `pvMatrix()`: Returns the current projection times view matrix.
+7. `pvInvMatrix()`: Returns the `pvMatrix` inverse.
+8. `nMatrix()`: Returns the current [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
+
+# Space transformations
+
+1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+
+# Heads Up Display
+
+1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
+2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
 
 # Installation
 
