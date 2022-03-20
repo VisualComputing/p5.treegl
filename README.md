@@ -26,20 +26,54 @@ All of the following functions are available to both, the `p5` object and [p5.Re
 
 # Space transformations
 
-All of the following functions are available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+
+available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+
+# [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display)
 
 1. `beginHUD()`: Begins [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
 2. `endHUD()`: Ends [Head Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
-3. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-4. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
 
-# Shader functions
+available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
-1. `readShader(fragFilename, [{[color = 'vVertexColor'], [texcoord = 'vTexCoord']}])`: creates a vertex shader, reads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The `color` and `texcoord` params define the color and texture coordinates `varying` variable names, respectively.
-2. `makeShader(fragSrc, [{[color= 'vVertexColor'], [texcoord = 'vTexCoord']}])`: creates a vertex shader, loads a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The `color` and `texcoord` params define the color and texture coordinates `varying` variable names, respectively.
-3. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])`: emits the `image` offset to the `shader` as a `vec2` uniform variable, computed as: `[1 / image.width, 1 / image.height]`. The `uniform` param defines the `varying` variable name.
-4. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_mouse'])`: emits the current pointer position to the `shader` as a `vec2` uniform variable, computed as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. The `uniform` param defines the `varying` variable name. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-5. `emitResolution(shader, [uniform = 'u_resolution'])`: emits the current resolution to the `shader` as a `vec2` uniform variable, computed as: `[width * pixelDensity(), height * pixelDensity()]`. The `uniform` param defines the `varying` variable name. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+# Shaders
+
+## Handling
+
+`readShader` and `makeShader` take a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance having the following vertex shader for it:
+
+```js
+function _vertexShader(color, texcoord) {
+    return `precision highp float;
+          attribute vec3 aPosition;
+          attribute vec2 aTexCoord;
+          attribute vec4 aVertexColor;
+          uniform mat4 uProjectionMatrix;
+          uniform mat4 uModelViewMatrix;
+          varying vec4 ${color};
+          varying vec2 ${texcoord};
+          void main() {
+            ${color} = aVertexColor;
+            ${texcoord} = aTexCoord;
+            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+          }`;
+  }
+```
+
+observe in the code above that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
+
+1. `readShader(fragFilename, [{[color = 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
+2. `makeShader(fragSrc, [{[color= 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
+
+## Macros
+
+Send common `uniform vec2` variables, such as: image offset, pointer position, and screen resolution, to `shader`. Note that the variable names are customizable.
+
+1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])`: emitted as: `[1 / image.width, 1 / image.height]`.
+2. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_mouse'])`: emitted as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+3. `emitResolution(shader, [uniform = 'u_resolution'])`: emitted as: `[width * pixelDensity(), height * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Installation
 
