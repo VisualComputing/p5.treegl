@@ -1,10 +1,10 @@
-let lightDir;
+let lightPosition;
 let shadowMap;
 let depthShader;
 let shadowShader;
 let landscape;
 let easycam;
-let biasMatrix;
+let biasMatrix, lightMatrix;
 
 function preload() {
     depthShader = readShader('depth_frag.glsl');
@@ -13,8 +13,8 @@ function preload() {
 
 function setup() {
     createCanvas(600, 600, WEBGL);
-    lightDir = createVector();
     landscape = 1;
+    lightPosition = createVector();
     biasMatrix = new p5.Matrix([0.5, 0, 0, 0,
         0, 0.5, 0, 0,
         0, 0, 0.5, 0,
@@ -26,9 +26,10 @@ function setup() {
     //shadowMap.beginDraw();
     shadowMap.noStroke();
     shadowMap.shader(depthShader);
-    shadowMap.ortho(-200, 200, -200, 200, 10, 400); // Setup orthogonal view matrix for the directional light
+    //shadowMap.ortho(-200, 200, -200, 200, 10, 400); // Setup orthogonal view matrix for the directional light
     //shadowMap.endDraw();
     // 2. default stuff
+    shader(shadowShader);
 
     // 3. easycam
     // define initial state
@@ -48,21 +49,23 @@ function setup() {
 function draw() {
     // Calculate the light direction (actually scaled by negative distance)
     lightAngle = frameCount * 0.002;
-    lightDir.set(sin(lightAngle) * 160, 160, cos(lightAngle) * 160);
+    lightPosition.set(sin(lightAngle) * 160, 160, cos(lightAngle) * 160);
 
-    /*
-    // Render shadow pass
-    shadowMap.beginDraw();
-    shadowMap.camera(lightDir.x, lightDir.y, lightDir.z, 0, 0, 0, 0, 1, 0);
-    shadowMap.background('#FFFFFF'); // Will set the depth to 1.0 (maximum depth)
+    // 1. Render the shadowmap
+    //shadowMapScene.openContext();
+    shadowMap.background('#FFFFFF');
+    shadowMap.ortho(-200, 200, -200, 200, 10, 400);
     renderLandscape(shadowMap);
-    shadowMap.endDraw();
-    shadowMap.updatePixels();
-    */
+    //shadowMapScene.render();
+    //shadowMapScene.closeContext();
 
     // Update the shadow transformation matrix and send it, the light
     // direction normal and the shadow map to the default shader.
-    //updateDefaultShader();
+    lightMatrix = axbMatrix(biasMatrix, shadowMap.pvMatrix());
+    shadowShader.setUniform('shadowTransform', axbMatrix(lightMatrix, eMatrix()).mat4);
+    let lightDirection = treeDisplacement(createVector(-lightPosition.x, -lightPosition.y, -lightPosition.z), { from: 'WORLD', to: 'EYE' });
+    shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
+    shadowShader.setUniform('shadowMap', shadowMap);
 
     // Render default pass
     background('#222222');
@@ -71,7 +74,7 @@ function draw() {
     // Render light source
     push();
     fill('#FFFFFF');
-    translate(lightDir.x, lightDir.y, lightDir.z);
+    translate(lightPosition.x, lightPosition.y, lightPosition.z);
     box(5);
     pop();
 }
