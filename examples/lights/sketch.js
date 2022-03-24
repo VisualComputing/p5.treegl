@@ -84,8 +84,10 @@ function draw() {
   ];
 
   ambientLight(ambient);
-  setDirectlight(directlights);
-  setPointlight(pointlights);
+  directlights.forEach(light => directionalLight(light.col,
+    // transform to camera-space
+    treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ })));
+  pointlights.forEach(light => pointLight(light.col, light.pos));
 
   push();
   for (let i = 0; i < pointlights.length; i++) {
@@ -123,19 +125,3 @@ let rand = function () {
 }
 
 rand.seed = 0;
-
-function setDirectlight(directlights) {
-  for (let i = 0; i < directlights.length; i++) {
-    let light = directlights[i];
-    // transform to camera-space
-    let light_dir = treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ });
-    directionalLight(light.col, light_dir);
-  }
-}
-
-function setPointlight(pointlights) {
-  for (let i = 0; i < pointlights.length; i++) {
-    let light = pointlights[i];
-    pointLight(light.col, light.pos);
-  }
-}
