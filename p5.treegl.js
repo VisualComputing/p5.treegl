@@ -299,6 +299,9 @@
     pvMatrix,
     pvInvMatrix
   } = {}) {
+    if (Array.isArray(vector)) {
+      vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+    }
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
     }
@@ -429,6 +432,9 @@
     eMatrix,
     pMatrix
   } = {}) {
+    if (Array.isArray(vector)) {
+      vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+    }
     if ((from == 'WORLD') && (to == 'SCREEN')) {
       return this._worldToScreenDisplacement(vector, pMatrix);
     }
