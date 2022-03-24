@@ -14,7 +14,6 @@ function preload() {
 
 function setup() {
   //pixelDensity(1);
-
   createCanvas(400, 400, WEBGL);
   setAttributes('antialias', true);
 
@@ -63,11 +62,13 @@ function windowResized() {
 }
 */
 
+/*
 let e;
 
 function backupCameraMatrix() {
   e = eMatrix();
 }
+*/
 
 let matWhite = {
   diff: [1, 1, 1],
@@ -89,7 +90,7 @@ let directlights = [
 function draw() {
   if (!depth_map) {
     // save current state of the modelview matrix
-    backupCameraMatrix();
+    //backupCameraMatrix();
     let angle = frameCount * 0.03;
     let rad = 30;
     let px = cos(angle) * rad;
@@ -181,7 +182,7 @@ function setDirectlight(directlights) {
     let z = light.dir[2];
     let mag = Math.sqrt(x * x + y * y + z * z); // should not be zero length
     // transform to camera-space
-    let light_dir = treeDisplacement(createVector(x / mag, y / mag, z / mag), { from: 'WORLD', to: 'EYE', eMatrix: e });
+    let light_dir = treeDisplacement(createVector(x / mag, y / mag, z / mag), { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ });
     directionalLight(light.col[0] * 255, light.col[1] * 255, light.col[2] * 255, light_dir.x, light_dir.y, light_dir.z);
   }
 }
