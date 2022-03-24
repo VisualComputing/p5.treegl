@@ -17,7 +17,14 @@
   console.log('p5.Camera.vMatrix', p5.Camera.prototype.hasOwnProperty('vMatrix'));
   console.log('p5.Camera.eMatrix', p5.Camera.prototype.hasOwnProperty('eMatrix'));
   */
- console.log('treegl version 0.0.3');
+  const INFO = 
+  {
+    LIBRARY : 'p5.treegl',
+    VERSION : '0.0.3',
+    HOME  : 'https://github.com/VisualComputing/p5.treegl'
+  };
+
+ console.log(INFO);
 
   // 1. Matrix stuff
 

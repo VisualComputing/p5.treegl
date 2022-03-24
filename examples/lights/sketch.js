@@ -87,19 +87,15 @@ function draw() {
   directlights.forEach(light => directionalLight(light.col,
     // transform to camera-space
     treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ })));
-  pointlights.forEach(light => pointLight(light.col, light.pos));
-
-  push();
-  for (let i = 0; i < pointlights.length; i++) {
-    let pl = pointlights[i];
+  pointlights.forEach(light => {
+    pointLight(light.col, light.pos);
     push();
-    translate(pl.pos);
-    emissiveMaterial(pl.col);
-    fill(pl.col);
+    translate(light.pos);
+    emissiveMaterial(light.col);
+    fill(light.col);
     sphere(3);
     pop();
-  }
-  pop();
+  });
 
   noStroke();
   rand.seed = 0;
