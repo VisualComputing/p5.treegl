@@ -9,6 +9,8 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
+  // TODO properly rename these functions:
+  //_near  _far  _left  _right  _top  _bottom  _fov  _hfov
   // test pre-existance of new properties with something like:
   /*
   console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult3'));
@@ -188,10 +190,18 @@
     return invMatrix(pvMatrix);
   }
 
+  p5.prototype._near = function () {
+    return this._renderer._near(...arguments);
+  }
+
   p5.RendererGL.prototype._near = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (pMatrix.mat4[10] - 1) :
       (1 + pMatrix.mat4[14]) / pMatrix.mat4[10];
+  }
+
+  p5.prototype._far = function () {
+    return this._renderer._far(...arguments);
   }
 
   p5.RendererGL.prototype._far = function (pMatrix) {
@@ -200,16 +210,28 @@
       (pMatrix.mat4[14] - 1) / pMatrix.mat4[10];
   }
 
+  p5.prototype._left = function () {
+    return this._renderer._left(...arguments);
+  }
+
   p5.RendererGL.prototype._left = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 1 ? -(1 + pMatrix.mat4[12]) / pMatrix.mat4[0] :
       this._near() * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
   }
 
+  p5.prototype._right = function () {
+    return this._renderer._right(...arguments);
+  }
+
   p5.RendererGL.prototype._right = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     return pMatrix.mat4[15] == 1 ? (1 - pMatrix.mat4[12]) / pMatrix.mat4[0] :
       this._near() * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
+  }
+
+  p5.prototype._top = function () {
+    return this._renderer._top(...arguments);
   }
 
   p5.RendererGL.prototype._top = function (pMatrix) {
@@ -220,6 +242,10 @@
       this._near() * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
   }
 
+  p5.prototype._bottom = function () {
+    return this._renderer._bottom(...arguments);
+  }
+
   p5.RendererGL.prototype._bottom = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     // note that inverted values are returned if the projection
@@ -228,12 +254,20 @@
       this._near() * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
   }
 
+  p5.prototype._fov = function () {
+    return this._renderer._fov(...arguments);
+  }
+
   p5.RendererGL.prototype._fov = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     if (pMatrix.mat4[15] != 0) {
       throw new Error('fov only works for a perspective projection');
     }
     return Math.abs(2 * Math.atan(1 / pMatrix.mat4[5]));
+  }
+
+  p5.prototype._hfov = function () {
+    return this._renderer._hfov(...arguments);
   }
 
   p5.RendererGL.prototype._hfov = function (pMatrix) {

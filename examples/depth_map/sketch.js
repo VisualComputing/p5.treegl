@@ -7,7 +7,8 @@ let near, far;
 let boxes;
 
 function preload() {
-  depthShader = readShader('depthmap.frag');
+  //depthShader = readShader('depth_nonlinear.frag');
+  depthShader = readShader('depth_linear.frag');
 }
 
 function setup() {
