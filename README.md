@@ -6,13 +6,14 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
   - [Handling](#handling)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
-- [Matrix queries](#matrix-queries)
 - [Space transformations](#space-transformations)
 - [Heads Up Display](#heads-up-display)
+- [Matrix queries](#matrix-queries)
+- [Frustum queries](#frustum-queries)
 - [Installation](#installation)
 - [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`, while those of the [matrix queries](#matrix-queries), [space transformations](#space-transformations) and [Heads Up Display](#heads-up-display) sections are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`, while those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display), [matrix queries](#matrix-queries) and [frustum queries](#frustum-queries) sections are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Shaders
 
@@ -58,6 +59,16 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
 6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
 
+# Space transformations
+
+1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+
+# Heads Up Display
+
+1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
+2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
+
 # Matrix queries
 
 1. `pMatrix()`: Returns the current projection matrix.
@@ -69,15 +80,16 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 7. `pvInvMatrix()`: Returns the `pvMatrix` inverse.
 8. `nMatrix()`: Returns the current [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
 
-# Space transformations
+# Frustum queries
 
-1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-
-# Heads Up Display
-
-1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
-2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
+1. `lPlane()`: Returns the current left clipping plane.
+2. `rPlane()`: Returns the current right clipping plane.
+3. `bPlane()`: Returns the current bottom clipping plane.
+4. `tPlane()`: Returns the current top clipping plane.
+5. `nPlane()`: Returns the current near clipping plane.
+6. `fPlane()`: Returns the current far clipping plane.
+7. `fov()`: Returns the current vertical field-of-view (fov) in radians.
+8. `hfov()`: Returns the current horizontal field-of-view (hfov) in radians.
 
 # Installation
 

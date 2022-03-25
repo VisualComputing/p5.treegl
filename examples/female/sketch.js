@@ -44,14 +44,14 @@ function setup() {
 
   //ortho([left], [right], [bottom], [top], [near], [far])
   //ortho(-150.1, 200.2, -90.3,      70.4, 1.5, 4500.6);
-  console.log('near', this._renderer._near());
-  console.log('far', this._renderer._far());
-  console.log('left', this._renderer._left());
-  console.log('right', this._renderer._right());
-  console.log('bottom', this._renderer._bottom());
-  console.log('top', this._renderer._top());
-  console.log('fov', this._renderer._fov());
-  console.log('hfov', this._renderer._hfov());
+  console.log('near', this._renderer.nPlane());
+  console.log('far', this._renderer.fPlane());
+  console.log('left', this._renderer.lPlane());
+  console.log('right', this._renderer.rPlane());
+  console.log('bottom', this._renderer.bPlane());
+  console.log('top', this._renderer.tPlane());
+  console.log('fov', this._renderer.fov());
+  console.log('hfov', this._renderer.hfov());
 
   n3 = new p5.Matrix([0.756289, -0.5062419, -0.41442266, 0.0,
     -0.054126263, 0.58285666, -0.81077033, 0.0,

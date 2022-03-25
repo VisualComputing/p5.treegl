@@ -54,6 +54,7 @@ function setup() {
 }
 
 function draw() {
+    let e = eMatrix();
     // Calculate the light direction (actually scaled by negative distance)
     lightAngle = frameCount * 0.002;
     lightPosition.set(sin(lightAngle) * 160, 160, cos(lightAngle) * 160);
@@ -62,22 +63,26 @@ function draw() {
     //shadowMapScene.openContext();
     depthCamera.setPosition(lightPosition.x, lightPosition.y, lightPosition.z);
     depthCamera.lookAt(0, 0, 0);
+    let pv = depthMap.pvMatrix();
     depthMap.background('#FFFFFF');
     depthMap.reset();
-    //depthMap.ortho(-200, 200, -200, 200, 10, 400);
-    let eyeZ = (depthMap.height / 2) / tan(PI / 6);
-    depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, eyeZ);
-    console.log(depthMap._near(), eyeZ / 10, depthMap._far(), eyeZ);
-    depthShader.setUniform('near', depthMap._near());
-    depthShader.setUniform('far', depthMap._far());
+    depthMap.ortho(-110, 110, -110, 110, 90, 350);
+    //let eyeZ = (depthMap.height / 2) / tan(PI / 6);
+    //depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, eyeZ);
+    if (linear) {
+        //console.log(depthMap._near(), eyeZ / 10, depthMap._far(), eyeZ);
+        console.log(depthMap.nPlane(), depthMap.fPlane());
+        depthShader.setUniform('near', depthMap.nPlane());
+        depthShader.setUniform('far', depthMap.fPlane());
+    }
     renderLandscape(depthMap);
     //shadowMapScene.render();
     //shadowMapScene.closeContext();
 
     // Update the shadow transformation matrix and send it, the light
     // direction normal and the shadow map to the default shader.
-    lightMatrix = axbMatrix(biasMatrix, depthMap.pvMatrix());
-    shadowShader.setUniform('shadowTransform', axbMatrix(lightMatrix, eMatrix()).mat4);
+    lightMatrix = axbMatrix(biasMatrix, pv);
+    shadowShader.setUniform('shadowTransform', axbMatrix(lightMatrix, e).mat4);
     let lightDirection = treeDisplacement(createVector(-lightPosition.x, -lightPosition.y, -lightPosition.z), { from: 'WORLD', to: 'EYE' });
     shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
     shadowShader.setUniform('shadowMap', depthMap);
@@ -87,15 +92,19 @@ function draw() {
     renderLandscape(this);
 
     // Render light source
+    ///*
     push();
     fill('#FFFFFF');
     translate(lightPosition.x, lightPosition.y, lightPosition.z);
     box(5);
     pop();
+    //*/
 
+    ///*
     beginHUD();
     image(depthMap, width / 2, height / 2);
     endHUD();
+    //*/
 }
 
 function renderLandscape(canvas) {
