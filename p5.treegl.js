@@ -32,7 +32,8 @@
 
   p5.Matrix.prototype.mult3 = function (vector) {
     if (this.mat3 === undefined) {
-      throw new Error('mult3 only works with mat3');
+      console.error('mult3 only works with mat3');
+      return;
     }
     return createVector(this.mat3[0] * vector.x + this.mat3[3] * vector.y + this.mat3[6] * vector.z,
       this.mat3[1] * vector.x + this.mat3[4] * vector.y + this.mat3[7] * vector.z,
@@ -45,7 +46,8 @@
 
   p5.Matrix.prototype._mult4 = function (vec4) {
     if (this.mat4 === undefined) {
-      throw new Error('_mult4 only works with mat4');
+      console.error('_mult4 only works with mat4');
+      return;
     }
     return [this.mat4[0] * vec4[0] + this.mat4[4] * vec4[1] + this.mat4[8] * vec4[2] + this.mat4[12] * vec4[3],
     this.mat4[1] * vec4[0] + this.mat4[5] * vec4[1] + this.mat4[9] * vec4[2] + this.mat4[13] * vec4[3],
@@ -261,7 +263,8 @@
   p5.RendererGL.prototype._fov = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     if (pMatrix.mat4[15] != 0) {
-      throw new Error('fov only works for a perspective projection');
+      console.error('fov only works for a perspective projection');
+      return;
     }
     return Math.abs(2 * Math.atan(1 / pMatrix.mat4[5]));
   }
@@ -273,7 +276,8 @@
   p5.RendererGL.prototype._hfov = function (pMatrix) {
     pMatrix ??= this.pMatrix();
     if (pMatrix.mat4[15] != 0) {
-      throw new Error('hfov only works for a perspective projection');
+      console.error('hfov only works for a perspective projection');
+      return;
     }
     return Math.abs(2 * Math.atan(1 / pMatrix.mat4[0]));
   }
@@ -397,7 +401,8 @@
     pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix ?? this.pMatrix(), vMatrix: vMatrix ?? this.vMatrix() });
     let target = pvMatrix._mult4([vector.x, vector.y, vector.z, 1]);
     if (target[3] == 0) {
-      throw new Error('screenLocation broken. Check your pvMatrix!');
+      console.error('screenLocation broken. Check your pvMatrix!');
+      return;
     }
     let viewport = [0, this.height, this.width, -this.height];
     // ndc, but y is inverted
@@ -436,7 +441,8 @@
     // pvInvMatrix.multiply(source, target);
     target = pvInvMatrix._mult4(source);
     if (target[3] == 0) {
-      throw new Error('location broken. Check your pvInvMatrix!');
+      console.error('location broken. Check your pvInvMatrix!');
+      return;
     }
     target[0] /= target[3];
     target[1] /= target[3];
