@@ -5,10 +5,12 @@
 
 let easycam;
 let directlights, ambient;
+let boxes;
 
 function setup() {
   //pixelDensity(1);
   createCanvas(400, 400, WEBGL);
+  noStroke();
   setAttributes('antialias', true);
 
   // define initial state
@@ -25,6 +27,18 @@ function setup() {
   document.oncontextmenu = function () { return false; }
 
   colorMode(RGB, 1);
+  let trange = 100;
+  boxes = [];
+  for (let i = 0; i < 100; i++) {
+    boxes.push(
+      {
+        position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
+        size: random() * 25 + 8,
+        color: color(random(), random(), random())
+      }
+    );
+  }
+
   ambient = color(0.0002, 0.0004, 0.0006);
   directlights = [
     {
@@ -69,13 +83,11 @@ function draw() {
       col: color(1 - r, r / 2, r),
       att: 80,
     },
-
     {
       pos: createVector(50, 50, pz * 40),
       col: color(r, 1, g),
       att: 80,
     },
-
     {
       pos: createVector(-50, -50, -pz * 40),
       col: color(1, r, g),
@@ -97,27 +109,11 @@ function draw() {
     pop();
   });
 
-  noStroke();
-  rand.seed = 0;
-  let count = 100;
-  let trange = 100;
-  for (let i = 0; i < count; i++) {
-    let dx = rand() * 25 + 8;
-    let tx = (rand() * 2 - 1) * trange;
-    let ty = (rand() * 2 - 1) * trange;
-    let tz = (rand() * 2 - 1) * trange;
+  boxes.forEach(element => {
     push();
-    translate(tx, ty, tz);
-    box(dx);
+    translate(element.position);
+    box(element.size);
     pop();
   }
+  );
 }
-
-let rand = function () {
-  this.x = ++rand.seed;
-  this.y = ++rand.seed;
-  let val = Math.sin(this.x * 12.9898 + this.y * 78.233) * 43758.545;
-  return (val - Math.floor(val));
-}
-
-rand.seed = 0;
