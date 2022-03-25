@@ -4,7 +4,7 @@
  */
 
 let easycam;
-let directlights, ambient;
+let directLights, ambient;
 let boxes;
 
 function setup() {
@@ -40,7 +40,7 @@ function setup() {
   }
 
   ambient = color(0.0002, 0.0004, 0.0006);
-  directlights = [
+  directLights = [
     {
       dir: createVector(-1, -1, -2).normalize(),
       col: color(0.0010, 0.0005, 0.00025),
@@ -77,7 +77,7 @@ function draw() {
   let b = (sin(frameCount * 0.02) * 0.5 + 0.5);
 
   let pz = sin(frameCount * 0.02);
-  let pointlights = [
+  let pointLights = [
     {
       pos: createVector(px, py, 0),
       col: color(1 - r, r / 2, r),
@@ -96,10 +96,10 @@ function draw() {
   ];
 
   ambientLight(ambient);
-  directlights.forEach(light => directionalLight(light.col,
+  directLights.forEach(light => directionalLight(light.col,
     // transform to camera-space
     treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ })));
-  pointlights.forEach(light => {
+  pointLights.forEach(light => {
     pointLight(light.col, light.pos);
     push();
     translate(light.pos);
