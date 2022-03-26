@@ -59,6 +59,8 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
 6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
 
+**Observation:** All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
+
 # Space transformations
 
 1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
@@ -66,8 +68,9 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 **Observations**
 
-1. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-2. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
+1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
+2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+3. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Heads Up Display
 
@@ -85,7 +88,10 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 7. `pvInvMatrix([{[pMatrix], [vMatrix], [pvMatrix]}])`: Returns the `pvMatrix` inverse.
 8. `nMatrix([{[vMatrix], [mMatrix], [mvMatrix]}])`: Returns the [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
 
-**Observation:** When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
+**Observations**
+
+1. All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
+2. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Frustum queries
 
