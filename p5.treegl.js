@@ -22,7 +22,7 @@
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.0.3',
+    VERSION: '0.0.4',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
 
@@ -627,11 +627,15 @@
     return shader;
   }
 
+  p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
+    shader.setUniform(uniform, [this.mouseX * pixelDensity(), (this.height - this.mouseY) * pixelDensity()]);
+  }
+
   p5.prototype.emitPointerPosition = function () {
     this._renderer.emitPointerPosition(...arguments);
   }
 
-  p5.RendererGL.prototype.emitPointerPosition = function (shader, pointerX, pointerY, uniform = 'u_mouse') {
+  p5.RendererGL.prototype.emitPointerPosition = function (shader, pointerX, pointerY, uniform = 'u_pointer') {
     shader.setUniform(uniform, [pointerX * pixelDensity(), (this.height - pointerY) * pixelDensity()]);
   }
 

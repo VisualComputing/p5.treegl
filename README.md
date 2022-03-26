@@ -47,8 +47,9 @@ observe in the code above (and in the function signatures below) that the varyin
 Send common `uniform vec2` variables, such as: image offset, pointer position, and screen resolution, to `shader`. Note that the variable names are customizable.
 
 1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` as: `[1 / image.width, 1 / image.height]`.
-2. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_mouse'])` as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-3. `emitResolution(shader, [uniform = 'u_resolution'])` as: `[width * pixelDensity(), height * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+2. `emitMousePosition(shader, [uniform = 'u_mouse'])` as: `[mouseX * pixelDensity(), (height - mouseY) * pixelDensity()]`.
+3. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+4. `emitResolution(shader, [uniform = 'u_resolution'])` as: `[width * pixelDensity(), height * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Basic matrices
 
