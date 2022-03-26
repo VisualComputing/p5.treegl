@@ -63,15 +63,15 @@ function draw() {
     //shadowMapScene.openContext();
     depthCamera.setPosition(lightPosition.x, lightPosition.y, lightPosition.z);
     depthCamera.lookAt(0, 0, 0);
-    let pv = depthMap.pvMatrix();
     depthMap.background('#FFFFFF');
     depthMap.reset();
     depthMap.ortho(-110, 110, -110, 110, 90, 350);
     //let eyeZ = (depthMap.height / 2) / tan(PI / 6);
     //depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, eyeZ);
+    let pv = depthMap.pvMatrix();
     if (linear) {
         //console.log(depthMap._near(), eyeZ / 10, depthMap._far(), eyeZ);
-        console.log(depthMap.nPlane(), depthMap.fPlane());
+        //console.log(depthMap.nPlane(), depthMap.fPlane());
         depthShader.setUniform('near', depthMap.nPlane());
         depthShader.setUniform('far', depthMap.fPlane());
     }
