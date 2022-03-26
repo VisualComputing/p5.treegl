@@ -58,16 +58,15 @@ function draw() {
     // Calculate the light direction (actually scaled by negative distance)
     lightAngle = frameCount * 0.002;
     lightPosition.set(sin(lightAngle) * 160, 160, cos(lightAngle) * 160);
-
     // 1. Render the shadowmap
     //shadowMapScene.openContext();
     depthCamera.setPosition(lightPosition.x, lightPosition.y, lightPosition.z);
     depthCamera.lookAt(0, 0, 0);
     depthMap.background('#FFFFFF');
     depthMap.reset();
-    depthMap.ortho(-110, 110, -110, 110, 90, 350);
+    depthMap.ortho(-110, 110, -110, 110, 90, 400);
     //let eyeZ = (depthMap.height / 2) / tan(PI / 6);
-    //depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, eyeZ);
+    //depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, 2 * eyeZ);
     let pv = depthMap.pvMatrix();
     if (linear) {
         //console.log(depthMap._near(), eyeZ / 10, depthMap._far(), eyeZ);
@@ -82,11 +81,13 @@ function draw() {
     // Update the shadow transformation matrix and send it, the light
     // direction normal and the shadow map to the default shader.
     lightMatrix = axbMatrix(biasMatrix, pv);
-    shadowShader.setUniform('shadowTransform', axbMatrix(lightMatrix, e).mat4);
-    let lightDirection = treeDisplacement(createVector(-lightPosition.x, -lightPosition.y, -lightPosition.z), { from: 'WORLD', to: 'EYE' });
+    let st = axbMatrix(lightMatrix, e);
+    shadowShader.setUniform('shadowTransform', st.mat4);
+    let worldLightDirection = lightPosition.copy();
+    worldLightDirection.mult(-1).normalize();
+    let lightDirection = treeDisplacement(worldLightDirection, { from: 'WORLD', to: 'EYE' });
     shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
     shadowShader.setUniform('shadowMap', depthMap);
-
     // Render default pass
     background('#222222');
     renderLandscape(this);
@@ -100,7 +101,7 @@ function draw() {
     pop();
     //*/
 
-    ///*
+    /*
     beginHUD();
     image(depthMap, width / 2, height / 2);
     endHUD();
