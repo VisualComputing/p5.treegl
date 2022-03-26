@@ -95,14 +95,16 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Frustum queries
 
-1. `lPlane()`: Returns the current left clipping plane.
-2. `rPlane()`: Returns the current right clipping plane.
-3. `bPlane()`: Returns the current bottom clipping plane.
-4. `tPlane()`: Returns the current top clipping plane.
-5. `nPlane()`: Returns the current near clipping plane.
-6. `fPlane()`: Returns the current far clipping plane.
-7. `fov()`: Returns the current vertical field-of-view (fov) in radians.
-8. `hfov()`: Returns the current horizontal field-of-view (hfov) in radians.
+1. `lPlane([pMatrix])`: Returns the left clipping plane.
+2. `rPlane([pMatrix])`: Returns the right clipping plane.
+3. `bPlane([pMatrix])`: Returns the bottom clipping plane.
+4. `tPlane([pMatrix])`: Returns the top clipping plane.
+5. `nPlane([pMatrix])`: Returns the near clipping plane.
+6. `fPlane([pMatrix])`: Returns the far clipping plane.
+7. `fov([pMatrix])`: Returns the vertical field-of-view (fov) in radians.
+8. `hfov([pMatrix])`: Returns the horizontal field-of-view (hfov) in radians.
+
+**Observation:** when no projection (`pMatrix`) matrix is passed the renderer [current value](#matrix-queries) is used instead.
 
 # Installation
 
