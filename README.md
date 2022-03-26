@@ -61,8 +61,13 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Space transformations
 
-1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD]}])`: transforms locations (points) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`. Note that `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
+2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
+
+**Observations**
+
+1. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Heads Up Display
 
@@ -72,13 +77,15 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 # Matrix queries
 
 1. `pMatrix()`: Returns the current projection matrix.
-2. `mvMatrix()`: Returns the current modelview matrix.
-3. `mMatrix()`: Returns the current model matrix.
+2. `mvMatrix([{[vMatrix], [mMatrix]}])`: Returns the modelview matrix.
+3. `mMatrix([{[eMatrix], [mvMatrix]}])`: Returns the model matrix.
 4. `eMatrix()`: Returns the current eye matrix (the inverse of `vMatrix()`). In addition to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances, this method is also available to [p5.Camera](https://p5js.org/reference/#/p5.Camera) objects.
 5. `vMatrix()`: Returns the view matrix (the inverse of `eMatrix()`). In addition to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances, this method is also available to [p5.Camera](https://p5js.org/reference/#/p5.Camera) objects.
-6. `pvMatrix()`: Returns the current projection times view matrix.
-7. `pvInvMatrix()`: Returns the `pvMatrix` inverse.
-8. `nMatrix()`: Returns the current [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
+6. `pvMatrix([{[pMatrix], [vMatrix]}])`: Returns the projection times view matrix.
+7. `pvInvMatrix([{[pMatrix], [vMatrix], [pvMatrix]}])`: Returns the `pvMatrix` inverse.
+8. `nMatrix([{[vMatrix], [mMatrix], [mvMatrix]}])`: Returns the [normal matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/).
+
+**Observation:** When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Frustum queries
 
