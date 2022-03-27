@@ -29,15 +29,10 @@ function setup() {
     depthMap = createGraphics(width / 2, height / 2, WEBGL);
     depthCamera = depthMap.createCamera();
     depthMap.noSmooth(); // Antialiasing on the shadowMap leads to weird artifacts
-    //shadowMap.loadPixels(); // Will interfere with noSmooth() (probably a bug in Processing)
-    //shadowMap.beginDraw();
     depthMap.noStroke();
     depthMap.shader(depthShader);
-    //shadowMap.ortho(-200, 200, -200, 200, 10, 400); // Setup orthogonal view matrix for the directional light
-    //shadowMap.endDraw();
     // 2. default stuff
     //shader(shadowShader);
-
     // 3. easycam
     // define initial state
     let state = {
@@ -45,9 +40,7 @@ function setup() {
         center: [0, 0, 0],
         rotation: [-0.285, -0.257, -0.619, 0.685],
     };
-
     console.log(Dw.EasyCam.INFO);
-
     easycam = new Dw.EasyCam(this._renderer);
     //easycam.state_reset = state;   // state to use on reset (double-click/tap)
     //easycam.setState(state, 2000); // now animate to that state
@@ -59,25 +52,19 @@ function draw() {
     lightAngle = frameCount * 0.002;
     lightPosition.set(sin(lightAngle) * 160, 160, cos(lightAngle) * 160);
     // 1. Render the shadowmap
-    //shadowMapScene.openContext();
+    depthMap.reset();
     depthCamera.setPosition(lightPosition.x, lightPosition.y, lightPosition.z);
     depthCamera.lookAt(0, 0, 0);
     depthMap.background('#FFFFFF');
-    depthMap.reset();
     depthMap.ortho(-110, 110, -110, 110, 90, 400);
     //let eyeZ = (depthMap.height / 2) / tan(PI / 6);
     //depthMap.perspective(PI / 3, depthMap.width / depthMap.height, eyeZ / 10, 2 * eyeZ);
     let pv = depthMap.pvMatrix();
     if (linear) {
-        //console.log(depthMap._near(), eyeZ / 10, depthMap._far(), eyeZ);
-        //console.log(depthMap.nPlane(), depthMap.fPlane());
         depthShader.setUniform('near', depthMap.nPlane());
         depthShader.setUniform('far', depthMap.fPlane());
     }
     renderLandscape(depthMap);
-    //shadowMapScene.render();
-    //shadowMapScene.closeContext();
-
     // Update the shadow transformation matrix and send it, the light
     // direction normal and the shadow map to the default shader.
     lightMatrix = axbMatrix(biasMatrix, pv);
@@ -88,20 +75,25 @@ function draw() {
     let lightDirection = treeDisplacement(worldLightDirection, { from: 'WORLD', to: 'EYE' });
     shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
     shadowShader.setUniform('shadowMap', depthMap);
+    // /*
+    if (frameCount <= 10) {
+        console.log(frameCount);
+        console.log(lightDirection);
+        console.log(st);
+    }
+    // */
     // Render default pass
     background('#222222');
     renderLandscape(this);
-
     // Render light source
-    ///*
+    // /*
     push();
     fill('#FFFFFF');
     translate(lightPosition.x, lightPosition.y, lightPosition.z);
     box(5);
     pop();
     //*/
-
-    /*
+    // /*
     beginHUD();
     image(depthMap, width / 2, height / 2);
     endHUD();
