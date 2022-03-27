@@ -9,16 +9,6 @@
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 (function () {
-  // TODO properly rename these functions:
-  //nPlane  fPlane  lPlane  rPlane  tPlane  bPlane  fov  hfov
-  // test pre-existance of new properties with something like:
-  /*
-  console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult3'));
-  console.log('p5.Matrix.mult4', p5.Matrix.prototype.hasOwnProperty('mult4'));
-  console.log('p5.Matrix._mult4', p5.Matrix.prototype.hasOwnProperty('_mult4'));
-  console.log('p5.Camera.vMatrix', p5.Camera.prototype.hasOwnProperty('vMatrix'));
-  console.log('p5.Camera.eMatrix', p5.Camera.prototype.hasOwnProperty('eMatrix'));
-  */
   const INFO =
   {
     LIBRARY: 'p5.treegl',
@@ -577,7 +567,7 @@
    * Renders a hollow cylinder.
    * @param  {Number} radius   radius of the base.
    * @param  {Number} height   height of the cylinder.
-   * @param  {Number} detail   number of primitives aproximating the ylinder
+   * @param  {Number} detail   number of primitives aproximating the cylinder
    */
   p5.RendererGL.prototype.hollowCylinder = function ({
     radius = 100,
@@ -590,8 +580,6 @@
       let angle = TWO_PI / detail;
       let x = sin(i * angle);
       let z = cos(i * angle);
-      // not even need to check (this._tex)
-      // to see to avoid missing tex p5 warnings
       let u = float(i) / detail;
       this.vertex(x * radius, -height / 2, z * radius, u, 0);
       this.vertex(x * radius, +height / 2, z * radius, u, 1);
