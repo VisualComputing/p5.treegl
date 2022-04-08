@@ -654,4 +654,222 @@
             gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
           }`;
   }
+
+	// axes
+	p5.prototype.drawAxes = function () {
+		this._renderer.drawAxes(...arguments);
+	};
+
+	/**
+	 * Draws axes
+	 * @param  {Number} radius   Axes length
+	 */
+	p5.RendererGL.prototype.drawAxes = function ({ length = 100 } = {}) {
+		this._rendererState = this.push();
+		const charWidth = length / 40.0;
+		const charHeight = length / 30.0;
+		const charShift = 1.04 * length;
+		noFill();
+		this.beginShape(LINES);
+		this.strokeWeight(2);
+		// The X
+		this.stroke(200, 0, 0);
+		this.vertex(charShift, charWidth, -charHeight);
+		this.vertex(charShift, -charWidth, charHeight);
+		this.vertex(charShift, -charWidth, -charHeight);
+		this.vertex(charShift, charWidth, charHeight);
+		// The Y
+		this.stroke(0, 200, 0);
+		this.vertex(charWidth, charShift, charHeight);
+		this.vertex(0.0, charShift, 0.0);
+		this.vertex(-charWidth, charShift, charHeight);
+		this.vertex(0.0, charShift, 0.0);
+		this.vertex(0.0, charShift, 0.0);
+		this.vertex(0.0, charShift, -charHeight);
+		// The Z
+		this.stroke(0, 100, 200);
+		this.vertex(-charWidth,  -charHeight, charShift);
+		this.vertex(charWidth,  -charHeight, charShift);
+		this.vertex(charWidth,  -charHeight, charShift);
+		this.vertex(-charWidth,  charHeight, charShift);
+		this.vertex(-charWidth,  charHeight, charShift);
+		this.vertex(charWidth,  charHeight, charShift);
+		this.endShape();
+		// X Axis
+		this.stroke(200, 0, 0);
+		this.line(0, 0, 0, length, 0, 0);
+		// Y Axis
+		this.stroke(0, 200, 0);
+		this.line(0, 0, 0, 0, length, 0);
+		// Z Axis
+		this.stroke(0, 100, 200);
+		this.line(0, 0, 0, 0, 0, length);
+		this.pop(this._rendererState);
+	};
+
+  // Grid
+	p5.prototype.drawGrid = function () {
+		this._renderer.drawGrid(...arguments);
+	};
+
+	/**
+	 * Draws grid
+	 * @param  {Number} size grid size
+	 * @param  {Number} subDivisions number of subdivisions on grid
+	 */
+	p5.RendererGL.prototype.drawGrid = function ({ size, subdivisions = 10 } = {}) {
+		this._rendererState = this.push();
+    noFill();
+    this.beginShape(LINES);
+    for (let i = 0; i <= subdivisions; ++i) {
+      const pos = size * (2.0 * i / subdivisions - 1.0);
+      this.vertex(pos, -size, 0);
+      this.vertex(pos, +size, 0);
+      this.vertex(-size, pos, 0);
+      this.vertex(size, pos, 0);
+    }
+    this.endShape();
+    this.pop(this._rendererState);
+	};
+
+  // dotted Grid
+	p5.prototype.drawDottedGrid = function () {
+		this._renderer.drawDottedGrid(...arguments);
+	};
+
+	/**
+	 * Draws grid
+	 * @param  {Number} size grid size
+	 * @param  {Number} subDivisions number of subdivisions on grid
+	 */
+	p5.RendererGL.prototype.drawDottedGrid = function ({ size, subdivisions = 10, applet } = {}) {
+		this._rendererState = this.push();
+    let posi = 0;
+    let posj = 0;
+    this.beginShape(POINTS);
+    for (let i = 0; i <= subdivisions; ++i) {
+      posi = size * (2.0 * i / subdivisions - 1.0);
+        for (let j = 0; j <= subdivisions; ++j) {
+        posj = size * (2.0 * j / subdivisions - 1.0);
+        this.vertex(posi, posj, 0);
+      }
+    }
+    this.endShape();
+    const internalSub = 5;
+    const subSubdivisions = subdivisions * internalSub;
+    const currentWeight = this.curStrokeWeight;
+    // const hue = this.hue(this.strokeColor);
+    // const saturation = this.saturation(this.strokeColor);
+    // const brightness = this.brightness(this.strokeColor);
+    // this.stroke(hue, saturation, brightness * 10.0 / 17.0);
+    this.strokeWeight(currentWeight / 2);
+    this.beginShape(POINTS);
+    for (let i = 0; i <= subSubdivisions; ++i) {
+      posi = size * (2.0 * i / subSubdivisions - 1.0);
+      for (let j = 0; j <= subSubdivisions; ++j) {
+        posj = size * (2.0 * j / subSubdivisions - 1.0);
+        if (((i % internalSub) != 0) || ((j % internalSub) != 0))
+          this.vertex(posi, posj, 0);
+      }
+    }
+    this.endShape();
+    this.pop(this._rendererState);
+	};
+
+  // cross
+	p5.prototype.drawCross = function () {
+		this._renderer.drawCross(...arguments);
+	};
+
+	/**
+	 * Draws a cross, ussualy used in bullseyes. Does not use the z axis
+	 * @param  {Number} x x coordinate
+	 * @param  {Number} y y coordinate
+   * @param  {Number} length bullseye size
+	 */
+	p5.RendererGL.prototype.drawCross = function ({ x = 0, y = 0, length = 50 } = {}) {
+    const half_size = length / 2.0;
+    this._rendererState = this.push();
+    this.beginHUD();
+    noFill();
+    this.beginShape(LINES);
+    this.vertex(x - half_size, y);
+    this.vertex(x + half_size, y);
+    this.vertex(x, y - half_size);
+    this.vertex(x, y + half_size);
+    this.endShape();
+    this.endHUD();
+    this.pop(this._rendererState);
+  };
+
+  // squared bulls eye
+	p5.prototype.drawSquaredBullsEye = function () {
+		this._renderer.drawSquaredBullsEye(...arguments);
+	};
+
+	/**
+	 * Draws an sqared bulls eye on the specified location. Does not use the z axis
+	 * @param  {Number} x x coordinate
+	 * @param  {Number} y y coordinate
+   * @param  {Number} length bullseye size
+	 */
+	p5.RendererGL.prototype.drawSquaredBullsEye = function ({ x = 0, y = 0, length = 50 } = {}) {
+    const half_length = length / 2.0;
+    this._rendererState = this.push();
+    this.beginHUD();
+    noFill();
+
+    this.beginShape(LINES);
+    this.vertex((x - half_length), (y - half_length) + (0.6 * half_length));
+    this.vertex((x - half_length), (y - half_length));
+    this.vertex((x - half_length) + (0.6 * half_length), (y - half_length));
+    this.endShape();
+
+    this.beginShape();
+    this.vertex((x + half_length) - (0.6 * half_length), (y - half_length));
+    this.vertex((x + half_length), (y - half_length));
+    this.vertex((x + half_length), ((y - half_length) + (0.6 * half_length)));
+    this.endShape();
+
+    this.beginShape();
+    this.vertex((x + half_length), ((y + half_length) - (0.6 * half_length)));
+    this.vertex((x + half_length), (y + half_length));
+    this.vertex(((x + half_length) - (0.6 * half_length)), (y + half_length));
+    this.endShape();
+
+    this.beginShape();
+    this.vertex((x - half_length) + (0.6 * half_length), (y + half_length));
+    this.vertex((x - half_length), (y + half_length));
+    this.vertex((x - half_length), ((y + half_length) - (0.6 * half_length)));
+    this.endShape();
+
+    this.endHUD();
+    this.drawCross({x, y, length: 0.6 * length});
+    this.pop(this._rendererState);
+	};
+
+  // squared bulls eye
+	p5.prototype.drawCircledBullsEye = function () {
+		this._renderer.drawCircledBullsEye(...arguments);
+	};
+
+	/**
+	 * Draws an sqared bulls eye on the specified location. Does not use the z axis
+	 * @param  {Number} x x coordinate
+	 * @param  {Number} y y coordinate
+   * @param  {Number} diameter circle diameter
+	 */
+	p5.RendererGL.prototype.drawCircledBullsEye = function ({ x = 0, y = 0, diameter = 50 } = {}) {
+    this._rendererState = this.push();
+    this.beginHUD();
+    noFill();
+
+    ellipseMode(CENTER);
+    circle(x, y, diameter);
+
+    this.endHUD();
+    this.drawCross({x, y, length: 0.6 * diameter});
+    this.pop(this._rendererState);
+	};
+
 })();
