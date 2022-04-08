@@ -819,7 +819,7 @@
     this.beginHUD();
     noFill();
 
-    this.beginShape(LINES);
+    this.beginShape();
     this.vertex((x - half_length), (y - half_length) + (0.6 * half_length));
     this.vertex((x - half_length), (y - half_length));
     this.vertex((x - half_length) + (0.6 * half_length), (y - half_length));
