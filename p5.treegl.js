@@ -839,7 +839,7 @@
     this.vertex((x - half_length), ((y + half_length) - (0.6 * half_length)));
     this.endShape();
     this.endHUD();
-    this.cross({ x, y, length: 0.6 * size });
+    this.cross({ x: x, y: y, size: 0.6 * size });
     this.pop(this._rendererState);
   };
 
@@ -861,7 +861,7 @@
     ellipseMode(CENTER);
     circle(x, y, size);
     this.endHUD();
-    this.cross({ x, y, length: 0.6 * size });
+    this.cross({ x: x, y: y, size: 0.6 * size });
     this.pop(this._rendererState);
   };
 })();

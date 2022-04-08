@@ -33,8 +33,10 @@ function draw() {
   squaredBullsEye({ x: 100, y: 200, size: 100 });
   pop();
   circledBullsEye({ x: 100, y: 100 }); 
+  push();
   stroke('magenta');
   circledBullsEye(); 
+  pop();
 }
 
 function windowResized() {
