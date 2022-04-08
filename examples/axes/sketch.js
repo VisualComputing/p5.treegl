@@ -20,11 +20,21 @@ function draw() {
   else {
     orbitControl();
   }
-  drawAxes({ length: 100 });
-  drawGrid({ size: 100 });
-  drawDottedGrid({ size: 100 });
-  drawSquaredBullsEye({ x: 100, y: 200 });
-  drawCircledBullsEye({ x: 100, y: 100 }); 
+  axes({ size: 100 });
+  push();
+  stroke('red');
+  strokeWeight(1.3);
+  //grid({ size: 100 });
+  dottedGrid();
+  pop();
+  push();
+  strokeWeight(4);
+  stroke('green');
+  squaredBullsEye({ x: 100, y: 200, size: 100 });
+  pop();
+  circledBullsEye({ x: 100, y: 100 }); 
+  stroke('magenta');
+  circledBullsEye(); 
 }
 
 function windowResized() {

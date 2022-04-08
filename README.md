@@ -10,6 +10,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 - [Heads Up Display](#heads-up-display)
 - [Matrix queries](#matrix-queries)
 - [Frustum queries](#frustum-queries)
+- [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
 - [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
 
@@ -106,6 +107,8 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 8. `hfov([pMatrix])`: Returns the horizontal field-of-view (hfov) in radians.
 
 **Observation:** when no projection (`pMatrix`) matrix is passed the renderer [current value](#matrix-queries) is used instead.
+
+# Drawing stuff
 
 # Installation
 
