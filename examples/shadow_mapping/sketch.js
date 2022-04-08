@@ -67,6 +67,7 @@ function draw() {
     renderLandscape(depthMap);
     // Update the shadow transformation matrix and send it, the light
     // direction normal and the shadow map to the default shader.
+    /*
     lightMatrix = axbMatrix(biasMatrix, pv);
     let st = axbMatrix(lightMatrix, e);
     shadowShader.setUniform('shadowTransform', st.mat4);
@@ -75,7 +76,6 @@ function draw() {
     let lightDirection = treeDisplacement(worldLightDirection, { from: 'WORLD', to: 'EYE' });
     shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
     shadowShader.setUniform('shadowMap', depthMap);
-    // /*
     if (frameCount <= 10) {
         console.log(frameCount);
         console.log(lightDirection);
