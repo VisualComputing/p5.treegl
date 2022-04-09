@@ -843,6 +843,28 @@
     this.pop(this._rendererState);
   };
 
+  // Draw circle
+  p5.prototype._circle = function () {
+    this._renderer._circle(...arguments);
+  };
+
+  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2,radius = 100, detail = 50 } = {}) {
+    this._rendererState = this.push();
+    translate(x, y);
+    const angle = TWO_PI / detail;
+    let lastPosition = { x: radius , y: 0};
+    for (let i = 0; i <= detail; i++) {
+      let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius};
+      this.beginShape(LINES);
+      this.vertex(lastPosition.x, lastPosition.y);
+      this.vertex(position.x, position.y);
+      this.endShape();
+      lastPosition = position;
+    }
+
+    this.pop(this._rendererState);
+  };
+
   // squared bulls eye
   p5.prototype.circledBullsEye = function () {
     this._renderer.circledBullsEye(...arguments);
@@ -857,9 +879,7 @@
   p5.RendererGL.prototype.circledBullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
     this._rendererState = this.push();
     this.beginHUD();
-    noFill();
-    ellipseMode(CENTER);
-    circle(x, y, size);
+    this._circle({x, y, radius: size})
     this.endHUD();
     this.cross({ x: x, y: y, size: 0.6 * size });
     this.pop(this._rendererState);
