@@ -850,7 +850,7 @@
 
   p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2,radius = 100, detail = 50 } = {}) {
     this._rendererState = this.push();
-    translate(x, y);
+    this.translate(x, y);
     const angle = TWO_PI / detail;
     let lastPosition = { x: radius , y: 0};
     for (let i = 0; i <= detail; i++) {
