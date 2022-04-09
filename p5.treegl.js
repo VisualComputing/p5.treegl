@@ -853,7 +853,7 @@
     this.translate(x, y);
     const angle = TWO_PI / detail;
     let lastPosition = { x: radius , y: 0};
-    for (let i = 0; i <= detail; i++) {
+    for (let i = 1; i <= detail; i++) {
       let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius};
       this.beginShape(LINES);
       this.vertex(lastPosition.x, lastPosition.y);
