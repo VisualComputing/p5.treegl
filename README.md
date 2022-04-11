@@ -1,4 +1,7 @@
 # p5.treegl
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
@@ -149,3 +152,23 @@ Don't forget to check these [p5.js](https://p5js.org/) references:
 1. [Library creation](https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md).
 2. [Software architecture](https://github.com/processing/p5.js/blob/main/src/core/README.md).
 3. [Webgl mode](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md).
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/nakednous"><img src="https://avatars.githubusercontent.com/u/645599?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jean Pierre Charalambos</b></sub></a><br /><a href="#ideas-nakednous" title="Ideas, Planning, & Feedback">🤔</a> <a href="#design-nakednous" title="Design">🎨</a> <a href="#talk-nakednous" title="Talks">📢</a> <a href="#blog-nakednous" title="Blogposts">📝</a> <a href="#example-nakednous" title="Examples">💡</a> <a href="#tutorial-nakednous" title="Tutorials">✅</a> <a href="#video-nakednous" title="Videos">📹</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=nakednous" title="Tests">⚠️</a> <a href="https://github.com/VisualComputing/p5.treegl/issues?q=author%3Anakednous" title="Bug reports">🐛</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=nakednous" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
