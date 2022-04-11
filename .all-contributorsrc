@@ -22,6 +22,18 @@
         "bug",
         "code"
       ]
+    },
+    {
+      "login": "dangulos",
+      "name": "dangulos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/38595886?v=4",
+      "profile": "https://github.com/dangulos",
+      "contributions": [
+        "doc",
+        "test",
+        "bug",
+        "code"
+      ]
     }
   ],
   "contributorsSortAlphabetically": true,
