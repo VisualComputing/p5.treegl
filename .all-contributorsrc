@@ -1,0 +1,33 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "nakednous",
+      "name": "Jean Pierre Charalambos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/645599?v=4",
+      "profile": "https://github.com/nakednous",
+      "contributions": [
+        "ideas",
+        "design",
+        "talk",
+        "blog",
+        "example",
+        "tutorial",
+        "video",
+        "test",
+        "bug",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "p5.treegl",
+  "projectOwner": "VisualComputing",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
