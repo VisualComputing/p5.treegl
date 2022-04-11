@@ -1,6 +1,6 @@
 # p5.treegl
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
@@ -163,6 +163,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/nakednous"><img src="https://avatars.githubusercontent.com/u/645599?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jean Pierre Charalambos</b></sub></a><br /><a href="#ideas-nakednous" title="Ideas, Planning, & Feedback">🤔</a> <a href="#design-nakednous" title="Design">🎨</a> <a href="#talk-nakednous" title="Talks">📢</a> <a href="#blog-nakednous" title="Blogposts">📝</a> <a href="#example-nakednous" title="Examples">💡</a> <a href="#tutorial-nakednous" title="Tutorials">✅</a> <a href="#video-nakednous" title="Videos">📹</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=nakednous" title="Tests">⚠️</a> <a href="https://github.com/VisualComputing/p5.treegl/issues?q=author%3Anakednous" title="Bug reports">🐛</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=nakednous" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/dangulos"><img src="https://avatars.githubusercontent.com/u/38595886?v=4?s=100" width="100px;" alt=""/><br /><sub><b>dangulos</b></sub></a><br /><a href="https://github.com/VisualComputing/p5.treegl/commits?author=dangulos" title="Documentation">📖</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=dangulos" title="Tests">⚠️</a> <a href="https://github.com/VisualComputing/p5.treegl/issues?q=author%3Adangulos" title="Bug reports">🐛</a> <a href="https://github.com/VisualComputing/p5.treegl/commits?author=dangulos" title="Code">💻</a></td>
   </tr>
 </table>
 
