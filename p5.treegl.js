@@ -1,10 +1,3 @@
-/***************************************************************************************
-* p5.treegl.js
-* @author Daniel Angulo, https://github.com/dangulos
-* @author Jean Pierre Charalambos, https://github.com/VisualComputing/p5.treegl/
-* Released under the terms of the GPLv3, refer to: http://www.gnu.org/licenses/gpl.html
-***************************************************************************************/
-
 'use strict';
 
 // See:
