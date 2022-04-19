@@ -665,32 +665,22 @@
     const charWidth = size / 40.0;
     const charHeight = size / 30.0;
     const charShift = 1.04 * size;
-    noFill();
-    this.beginShape(LINES);
     this.strokeWeight(1);
     // The X
     this.stroke(200, 0, 0);
-    this.vertex(charShift, charWidth, -charHeight);
-    this.vertex(charShift, -charWidth, charHeight);
-    this.vertex(charShift, -charWidth, -charHeight);
-    this.vertex(charShift, charWidth, charHeight);
+    this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
+    this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
     // The Y
     this.stroke(0, 200, 0);
-    this.vertex(charWidth, charShift, charHeight);
-    this.vertex(0.0, charShift, 0.0);
-    this.vertex(-charWidth, charShift, charHeight);
-    this.vertex(0.0, charShift, 0.0);
-    this.vertex(0.0, charShift, 0.0);
-    this.vertex(0.0, charShift, -charHeight);
+    this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+    this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
+    this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+    this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
     // The Z
     this.stroke(0, 100, 200);
-    this.vertex(-charWidth, -charHeight, charShift);
-    this.vertex(charWidth, -charHeight, charShift);
-    this.vertex(charWidth, -charHeight, charShift);
-    this.vertex(-charWidth, charHeight, charShift);
-    this.vertex(-charWidth, charHeight, charShift);
-    this.vertex(charWidth, charHeight, charShift);
-    this.endShape();
+    this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
+    this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
+    this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
     // X Axis
     this.stroke(200, 0, 0);
     this.line(0, 0, 0, size, 0, 0);
@@ -715,16 +705,11 @@
    */
   p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10 } = {}) {
     this._rendererState = this.push();
-    noFill();
-    this.beginShape(LINES);
     for (let i = 0; i <= subdivisions; ++i) {
       const pos = size * (2.0 * i / subdivisions - 1.0);
-      this.vertex(pos, -size, 0);
-      this.vertex(pos, +size, 0);
-      this.vertex(-size, pos, 0);
-      this.vertex(size, pos, 0);
+      this.line(pos, -size, 0, pos, +size, 0);
+      this.line(-size, pos, 0, size, pos, 0);
     }
-    this.endShape();
     this.pop(this._rendererState);
   };
 
@@ -784,20 +769,15 @@
     const half_size = size / 2.0;
     this._rendererState = this.push();
     this.beginHUD();
-    noFill();
-    this.beginShape(LINES);
-    this.vertex(x - half_size, y);
-    this.vertex(x + half_size, y);
-    this.vertex(x, y - half_size);
-    this.vertex(x, y + half_size);
-    this.endShape();
+    this.line(x - half_size, y, x + half_size, y)
+    this.line(x, y - half_size, x, y + half_size)
     this.endHUD();
     this.pop(this._rendererState);
   };
 
   // squared bulls eye
-  p5.prototype.squaredBullsEye = function () {
-    this._renderer.squaredBullsEye(...arguments);
+  p5.prototype.bullsEye = function () {
+    this._renderer.bullsEye(...arguments);
   };
 
   /**
@@ -806,33 +786,39 @@
    * @param  {Number} y screen y coordinate. Default is height / 2
    * @param  {Number} size bullseye edge length in pixels. Default is 50
    */
-  p5.RendererGL.prototype.squaredBullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
     const half_length = size / 2.0;
     this._rendererState = this.push();
     this.beginHUD();
-    noFill();
-    this.beginShape();
-    this.vertex((x - half_length), (y - half_length) + (0.6 * half_length));
-    this.vertex((x - half_length), (y - half_length));
-    this.vertex((x - half_length) + (0.6 * half_length), (y - half_length));
-    this.endShape();
-    this.beginShape();
-    this.vertex((x + half_length) - (0.6 * half_length), (y - half_length));
-    this.vertex((x + half_length), (y - half_length));
-    this.vertex((x + half_length), ((y - half_length) + (0.6 * half_length)));
-    this.endShape();
-    this.beginShape();
-    this.vertex((x + half_length), ((y + half_length) - (0.6 * half_length)));
-    this.vertex((x + half_length), (y + half_length));
-    this.vertex(((x + half_length) - (0.6 * half_length)), (y + half_length));
-    this.endShape();
-    this.beginShape();
-    this.vertex((x - half_length) + (0.6 * half_length), (y + half_length));
-    this.vertex((x - half_length), (y + half_length));
-    this.vertex((x - half_length), ((y + half_length) - (0.6 * half_length)));
-    this.endShape();
+    this.line((x - half_length), (y - half_length) + (0.6 * half_length), (x - half_length), (y - half_length));
+    this.line((x - half_length), (y - half_length), (x - half_length) + (0.6 * half_length), (y - half_length));
+    this.line((x + half_length) - (0.6 * half_length), (y - half_length), (x + half_length), (y - half_length));
+    this.line((x + half_length), (y - half_length), (x + half_length), ((y - half_length) + (0.6 * half_length)));
+    this.line((x + half_length), ((y + half_length) - (0.6 * half_length)), (x + half_length), (y + half_length));
+    this.line((x + half_length), (y + half_length), ((x + half_length) - (0.6 * half_length)), (y + half_length));
+    this.line((x - half_length) + (0.6 * half_length), (y + half_length), (x - half_length), (y + half_length));
+    this.line((x - half_length), (y + half_length), (x - half_length), ((y + half_length) - (0.6 * half_length)));
     this.endHUD();
     this.cross({ x: x, y: y, size: 0.6 * size });
+    this.pop(this._rendererState);
+  };
+
+  // Draw circle
+  p5.prototype._circle = function () {
+    this._renderer._circle(...arguments);
+  };
+
+  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2,radius = 100, detail = 50 } = {}) {
+    this._rendererState = this.push();
+    this.translate(x, y);
+    const angle = TWO_PI / detail;
+    let lastPosition = { x: radius , y: 0};
+    for (let i = 1; i <= detail; i++) {
+      let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius};
+      this.line(lastPosition.x, lastPosition.y, position.x, position.y);
+      lastPosition = position;
+    }
+
     this.pop(this._rendererState);
   };
 
@@ -850,9 +836,7 @@
   p5.RendererGL.prototype.circledBullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
     this._rendererState = this.push();
     this.beginHUD();
-    noFill();
-    ellipseMode(CENTER);
-    circle(x, y, size);
+    this._circle({x, y, radius: size})
     this.endHUD();
     this.cross({ x: x, y: y, size: 0.6 * size });
     this.pop(this._rendererState);
