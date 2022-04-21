@@ -838,7 +838,7 @@
     this.beginHUD();
     this._circle({x, y, radius: size})
     this.endHUD();
-    this.cross({ x: x, y: y, size: 0.6 * size });
+    this.cross({ x: x, y: y, size: size });
     this.pop(this._rendererState);
   };
 })();
