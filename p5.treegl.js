@@ -777,7 +777,7 @@
    * Draws a bulls-eye on the screen.
    * @param  {Number}  x screen x coordinate. Default is width / 2.
    * @param  {Number}  y screen y coordinate. Default is height / 2.
-   * @param  {Number}  size bullseye edge diameter in pixels. Default is 50.
+   * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
   p5.RendererGL.prototype.bullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50, circled = true } = {}) {
