@@ -820,4 +820,39 @@
     }
     this.pop(this._rendererState);
   };
+
+  p5.prototype.viewFrustum = function () {
+    this._renderer.viewFrustum(...arguments);
+  };
+
+  p5.RendererGL.prototype.viewFrustum = function (renderer) {
+    if (this === renderer) {
+      console.error('displaying viewFrustum requires a renderer different than this');
+      return;
+    }
+    renderer.pMatrix().mat4[15] != 0 ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+  };
+
+  p5.RendererGL.prototype._viewOrtho = function (renderer) {
+    this._rendererState = this.push();
+    let left = renderer.lPlane(renderer.uPMatrix);
+    let right = renderer.rPlane(renderer.uPMatrix);
+    let bottom = renderer.bPlane(renderer.uPMatrix);
+    let near = renderer.nPlane(renderer.uPMatrix);
+    let far = renderer.fPlane(renderer.uPMatrix);
+    // TODO implement me. See:
+    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
+    this.pop(this._rendererState);
+  };
+
+  p5.RendererGL.prototype._viewPerspective = function (renderer) {
+    this._rendererState = this.push();
+    let magnitude = Math.tan(renderer.fov(renderer.uPMatrix) / 2);
+    let aspectRatio = renderer.width / renderer.height;
+    let near = renderer.nPlane(renderer.uPMatrix);
+    let far = renderer.fPlane(renderer.uPMatrix);
+    // TODO implement me. See:
+    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
+    this.pop(this._rendererState);
+  };
 })();

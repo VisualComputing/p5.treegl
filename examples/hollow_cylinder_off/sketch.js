@@ -36,6 +36,13 @@ let dotted = true;
 
 function draw() {
   background('#316DCA');
+  pg.perspective();
+  //pg.ortho();
+  if (frameCount === 5) {
+    //viewFrustum(pg); // good
+    pg.viewFrustum(_renderer); // good
+    //viewFrustum(_renderer); // bad
+  }
   pg.push();
   pg.background(0);
   /*
