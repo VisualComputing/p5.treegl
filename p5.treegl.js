@@ -841,4 +841,35 @@
     this.cross({ x: x, y: y, size: size });
     this.pop(this._rendererState);
   };
+
+  // Hollow cone
+  p5.prototype.hollowCone = function () {
+		this._renderer.hollowCone(...arguments);
+	};
+
+  /**
+   * Draws a hollow cone 
+   * @param  {Number} radius cone base's radius
+   * @param  {Number} height cone's height
+   * @param  {Number} detail cone's detail
+   */
+	p5.RendererGL.prototype.hollowCone = function ({
+		radius = 100,
+		height = 200,
+		detail = 32,
+	} = {}) {
+		this._rendererState = this.push();
+		this.beginShape(TRIANGLE_STRIP);
+		for (let i = 0; i <= detail; i++) {
+			let angle = TWO_PI / detail;
+			let x = sin(i * angle);
+			let z = cos(i * angle);
+			let u = float(i) / detail;
+			this.vertex(x * radius, -height / 2, z * radius, u, 0);
+			this.vertex(0, +height / 2, 0, 0.5, 1);
+		}
+		this.endShape();
+		this.pop(this._rendererState);
+	};
+
 })();
