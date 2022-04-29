@@ -651,16 +651,15 @@
     this.pop(this._rendererState);
   }
 
-  // axes
   p5.prototype.axes = function () {
     this._renderer.axes(...arguments);
   };
 
   /**
-   * Draws world axes.
-   * @param  {Number} size   Axes size in world units. Default is 100.
+   * Draws axes.
+   * @param  {Number} size Axes size in world units. Default is 100.
    */
-  p5.RendererGL.prototype.axes = function ({ size = 100 } = {}) {
+  p5.RendererGL.prototype.axes = function (size = 100) {
     this._rendererState = this.push();
     const charWidth = size / 40.0;
     const charHeight = size / 30.0;
@@ -693,138 +692,78 @@
     this.pop(this._rendererState);
   };
 
-  // Grid
   p5.prototype.grid = function () {
     this._renderer.grid(...arguments);
   };
 
   /**
-   * Draws world grid
-   * @param  {Number} size grid size in world units. Default is 100.
-   * @param  {Number} subdivisions number of grid subdivisions. Default is 10
-   */
-  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10 } = {}) {
-    this._rendererState = this.push();
-    for (let i = 0; i <= subdivisions; ++i) {
-      const pos = size * (2.0 * i / subdivisions - 1.0);
-      this.line(pos, -size, 0, pos, +size, 0);
-      this.line(-size, pos, 0, size, pos, 0);
-    }
-    this.pop(this._rendererState);
-  };
-
-  // dotted Grid
-  p5.prototype.dottedGrid = function () {
-    this._renderer.dottedGrid(...arguments);
-  };
-
-  /**
    * Draws grid
-   * @param  {Number} size grid size in world units. Default is 100.
-   * @param  {Number} subDivisions number of grid subdivisions. Default is 10.
+   * @param  {Number}  size grid size in world units. Default is 100.
+   * @param  {Number}  subdivisions number of grid subdivisions. Default is 10.
+   * @param  {Boolean} dotted defines either a continuous or a dotted grid. Default is true.
    */
-  p5.RendererGL.prototype.dottedGrid = function ({ size = 100, subdivisions = 10 } = {}) {
+  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10, dotted = true } = {}) {
     this._rendererState = this.push();
-    let weight = this.curStrokeWeight;
-    let posi = 0;
-    let posj = 0;
-    this.strokeWeight(weight * 2);
-    this.beginShape(POINTS);
-    for (let i = 0; i <= subdivisions; ++i) {
-      posi = size * (2.0 * i / subdivisions - 1.0);
-      for (let j = 0; j <= subdivisions; ++j) {
-        posj = size * (2.0 * j / subdivisions - 1.0);
-        this.vertex(posi, posj, 0);
-      }
-    }
-    this.endShape();
-    const internalSub = 5;
-    const subSubdivisions = subdivisions * internalSub;
-    this.strokeWeight(weight);
-    this.beginShape(POINTS);
-    for (let i = 0; i <= subSubdivisions; ++i) {
-      posi = size * (2.0 * i / subSubdivisions - 1.0);
-      for (let j = 0; j <= subSubdivisions; ++j) {
-        posj = size * (2.0 * j / subSubdivisions - 1.0);
-        if (((i % internalSub) != 0) || ((j % internalSub) != 0))
+    if (dotted) {
+      let weight = this.curStrokeWeight;
+      let posi = 0;
+      let posj = 0;
+      this.strokeWeight(weight * 2);
+      this.beginShape(POINTS);
+      for (let i = 0; i <= subdivisions; ++i) {
+        posi = size * (2.0 * i / subdivisions - 1.0);
+        for (let j = 0; j <= subdivisions; ++j) {
+          posj = size * (2.0 * j / subdivisions - 1.0);
           this.vertex(posi, posj, 0);
+        }
+      }
+      this.endShape();
+      const internalSub = 5;
+      const subSubdivisions = subdivisions * internalSub;
+      this.strokeWeight(weight);
+      this.beginShape(POINTS);
+      for (let i = 0; i <= subSubdivisions; ++i) {
+        posi = size * (2.0 * i / subSubdivisions - 1.0);
+        for (let j = 0; j <= subSubdivisions; ++j) {
+          posj = size * (2.0 * j / subSubdivisions - 1.0);
+          if (((i % internalSub) != 0) || ((j % internalSub) != 0))
+            this.vertex(posi, posj, 0);
+        }
+      }
+      this.endShape();
+    }
+    else {
+      for (let i = 0; i <= subdivisions; ++i) {
+        const pos = size * (2.0 * i / subdivisions - 1.0);
+        this.line(pos, -size, 0, pos, +size, 0);
+        this.line(-size, pos, 0, size, pos, 0);
       }
     }
-    this.endShape();
     this.pop(this._rendererState);
   };
 
-  // cross
   p5.prototype.cross = function () {
     this._renderer.cross(...arguments);
   };
 
   /**
    * Draws a cross on the screen.
-   * @param  {Number} x screen x coordinate. Default is width / 2
-   * @param  {Number} y screen y coordinate. Default is height / 2
-   * @param  {Number} size cross size in pixels. Default is 50
+   * @param  {Number} x screen x coordinate. Default is width / 2.
+   * @param  {Number} y screen y coordinate. Default is height / 2.
+   * @param  {Number} size cross size in pixels. Default is 50.
    */
   p5.RendererGL.prototype.cross = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
     const half_size = size / 2.0;
     this._rendererState = this.push();
     this.beginHUD();
-    this.line(x - half_size, y, x + half_size, y)
-    this.line(x, y - half_size, x, y + half_size)
+    this.line(x - half_size, y, x + half_size, y);
+    this.line(x, y - half_size, x, y + half_size);
     this.endHUD();
     this.pop(this._rendererState);
   };
 
-  // squared bulls eye
   p5.prototype.bullsEye = function () {
     this._renderer.bullsEye(...arguments);
-  };
-
-  /**
-   * Draws a squared-shape bulls-eye on the screen.
-   * @param  {Number} x screen x coordinate. Default is width / 2
-   * @param  {Number} y screen y coordinate. Default is height / 2
-   * @param  {Number} size bullseye edge length in pixels. Default is 50
-   */
-  p5.RendererGL.prototype.bullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
-    const half_length = size / 2.0;
-    this._rendererState = this.push();
-    this.beginHUD();
-    this.line((x - half_length), (y - half_length) + (0.6 * half_length), (x - half_length), (y - half_length));
-    this.line((x - half_length), (y - half_length), (x - half_length) + (0.6 * half_length), (y - half_length));
-    this.line((x + half_length) - (0.6 * half_length), (y - half_length), (x + half_length), (y - half_length));
-    this.line((x + half_length), (y - half_length), (x + half_length), ((y - half_length) + (0.6 * half_length)));
-    this.line((x + half_length), ((y + half_length) - (0.6 * half_length)), (x + half_length), (y + half_length));
-    this.line((x + half_length), (y + half_length), ((x + half_length) - (0.6 * half_length)), (y + half_length));
-    this.line((x - half_length) + (0.6 * half_length), (y + half_length), (x - half_length), (y + half_length));
-    this.line((x - half_length), (y + half_length), (x - half_length), ((y + half_length) - (0.6 * half_length)));
-    this.endHUD();
-    this.cross({ x: x, y: y, size: 0.6 * size });
-    this.pop(this._rendererState);
-  };
-
-  // Draw circle
-  p5.prototype._circle = function () {
-    this._renderer._circle(...arguments);
-  };
-
-  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2,radius = 100, detail = 50 } = {}) {
-    this._rendererState = this.push();
-    this.translate(x, y);
-    const angle = TWO_PI / detail;
-    let lastPosition = { x: radius , y: 0};
-    for (let i = 1; i <= detail; i++) {
-      let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius};
-      this.line(lastPosition.x, lastPosition.y, position.x, position.y);
-      lastPosition = position;
-    }
-
-    this.pop(this._rendererState);
-  };
-
-  // squared bulls eye
-  p5.prototype.circledBullsEye = function () {
-    this._renderer.circledBullsEye(...arguments);
   };
 
   /**
@@ -833,12 +772,87 @@
    * @param  {Number} y screen y coordinate. Default is height / 2
    * @param  {Number} size bullseye diameter in pixels. Default is 50
    */
-  p5.RendererGL.prototype.circledBullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
+
+  /**
+   * Draws a bulls-eye on the screen.
+   * @param  {Number}  x screen x coordinate. Default is width / 2.
+   * @param  {Number}  y screen y coordinate. Default is height / 2.
+   * @param  {Number}  size bullseye diameter in pixels. Default is 50.
+   * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
+   */
+  p5.RendererGL.prototype.bullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50, circled = true } = {}) {
     this._rendererState = this.push();
-    this.beginHUD();
-    this._circle({x, y, radius: size})
-    this.endHUD();
-    this.cross({ x: x, y: y, size: size });
+    if (circled) {
+      this.beginHUD();
+      this._circle({ x, y, radius: size / 2 })
+      this.endHUD();
+    }
+    else {
+      const half_length = size / 2.0;
+      this.beginHUD();
+      this.line((x - half_length), (y - half_length) + (0.6 * half_length), (x - half_length), (y - half_length));
+      this.line((x - half_length), (y - half_length), (x - half_length) + (0.6 * half_length), (y - half_length));
+      this.line((x + half_length) - (0.6 * half_length), (y - half_length), (x + half_length), (y - half_length));
+      this.line((x + half_length), (y - half_length), (x + half_length), ((y - half_length) + (0.6 * half_length)));
+      this.line((x + half_length), ((y + half_length) - (0.6 * half_length)), (x + half_length), (y + half_length));
+      this.line((x + half_length), (y + half_length), ((x + half_length) - (0.6 * half_length)), (y + half_length));
+      this.line((x - half_length) + (0.6 * half_length), (y + half_length), (x - half_length), (y + half_length));
+      this.line((x - half_length), (y + half_length), (x - half_length), ((y + half_length) - (0.6 * half_length)));
+      this.endHUD();
+    }
+    this.cross({ x: x, y: y, size: 0.6 * size });
+    this.pop(this._rendererState);
+  };
+
+  p5.prototype._circle = function () {
+    this._renderer._circle(...arguments);
+  };
+
+  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
+    this._rendererState = this.push();
+    this.translate(x, y);
+    const angle = TWO_PI / detail;
+    let lastPosition = { x: radius, y: 0 };
+    for (let i = 1; i <= detail; i++) {
+      let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius };
+      this.line(lastPosition.x, lastPosition.y, position.x, position.y);
+      lastPosition = position;
+    }
+    this.pop(this._rendererState);
+  };
+
+  p5.prototype.viewFrustum = function () {
+    this._renderer.viewFrustum(...arguments);
+  };
+
+  p5.RendererGL.prototype.viewFrustum = function (renderer) {
+    if (this === renderer) {
+      console.error('displaying viewFrustum requires a renderer different than this');
+      return;
+    }
+    renderer.pMatrix().mat4[15] != 0 ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+  };
+
+  p5.RendererGL.prototype._viewOrtho = function (renderer) {
+    this._rendererState = this.push();
+    let left = renderer.lPlane(renderer.uPMatrix);
+    let right = renderer.rPlane(renderer.uPMatrix);
+    let bottom = renderer.bPlane(renderer.uPMatrix);
+    let near = renderer.nPlane(renderer.uPMatrix);
+    let far = renderer.fPlane(renderer.uPMatrix);
+    // TODO implement me. See:
+    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
+    this.pop(this._rendererState);
+  };
+
+  p5.RendererGL.prototype._viewPerspective = function (renderer) {
+    this._rendererState = this.push();
+    let magnitude = Math.tan(renderer.fov(renderer.uPMatrix) / 2);
+    let aspectRatio = renderer.width / renderer.height;
+    let near = renderer.nPlane(renderer.uPMatrix);
+    let far = renderer.fPlane(renderer.uPMatrix);
+    // TODO implement me. See:
+    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
     this.pop(this._rendererState);
   };
 

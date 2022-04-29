@@ -31,8 +31,18 @@ function setup() {
   mode.value('Texture');
 }
 
+let circled = true;
+let dotted = true;
+
 function draw() {
   background('#316DCA');
+  pg.perspective();
+  //pg.ortho();
+  if (frameCount === 5) {
+    //viewFrustum(pg); // good
+    pg.viewFrustum(_renderer); // good
+    //viewFrustum(_renderer); // bad
+  }
   pg.push();
   pg.background(0);
   /*
@@ -45,6 +55,14 @@ function draw() {
   copy the behavior of the standard canvas.
   */
   pg.reset();
+  //pg.axes();
+  pg.push();
+  pg.stroke('magenta');
+  pg.grid({ dotted: dotted });
+  pg.strokeWeight(3);
+  pg.stroke('orange');
+  pg.bullsEye({ size: 100, circled: circled });
+  pg.pop();
   switch (mode.value()) {
     case 'Fill':
       pg.fill(255, 0, 0);
@@ -82,4 +100,13 @@ function draw() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+function keyPressed() {
+  if (key === 'c') {
+    circled = !circled;
+  }
+  if (key === 'd') {
+    dotted = !dotted;
+  }
 }
