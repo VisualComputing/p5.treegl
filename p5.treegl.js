@@ -60,10 +60,10 @@
   // defaults: from: iMatrix, to: eMatrix
   p5.prototype.lMatrix = function (
     {
-      from,
-      to
+      from = iMatrix(),
+      to = eMatrix()
     } = {}) {
-    return invMatrix(to ?? eMatrix()).apply(from ?? iMatrix());
+    return invMatrix(to).apply(from);
   }
 
   // defaults: from: iMatrix, to: eMatrix
@@ -158,10 +158,10 @@
   // defaults: pMatrix: this.pMatrix, vMatrix: this.vMatrix
   p5.RendererGL.prototype.pvMatrix = function (
     {
-      pMatrix,
-      vMatrix
+      pMatrix = this.uPMatrix,
+      vMatrix = this.cameraMatrix
     } = {}) {
-    return axbMatrix(pMatrix ?? this.pMatrix(), vMatrix ?? this.vMatrix());
+    return axbMatrix(pMatrix, vMatrix);
   }
 
   p5.prototype.pvInvMatrix = function () {
@@ -178,12 +178,19 @@
     return invMatrix(pvMatrix);
   }
 
+  p5.prototype._isOrtho = function () {
+    return this._renderer._isOrtho(...arguments);
+  }
+
+  p5.RendererGL.prototype._isOrtho = function (pMatrix = this.uPMatrix) {
+    return pMatrix.mat4[15] != 0;
+  }
+
   p5.prototype.nPlane = function () {
     return this._renderer.nPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.nPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.nPlane = function (pMatrix = this.uPMatrix) {
     return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (pMatrix.mat4[10] - 1) :
       (1 + pMatrix.mat4[14]) / pMatrix.mat4[10];
   }
@@ -192,8 +199,7 @@
     return this._renderer.fPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.fPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.fPlane = function (pMatrix = this.uPMatrix) {
     return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (1 + pMatrix.mat4[10]) :
       (pMatrix.mat4[14] - 1) / pMatrix.mat4[10];
   }
@@ -202,52 +208,47 @@
     return this._renderer.lPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.lPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.lPlane = function (pMatrix = this.uPMatrix) {
     return pMatrix.mat4[15] == 1 ? -(1 + pMatrix.mat4[12]) / pMatrix.mat4[0] :
-      this.nPlane() * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
+      this.nPlane(pMatrix) * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
   }
 
   p5.prototype.rPlane = function () {
     return this._renderer.rPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.rPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.rPlane = function (pMatrix = this.uPMatrix) {
     return pMatrix.mat4[15] == 1 ? (1 - pMatrix.mat4[12]) / pMatrix.mat4[0] :
-      this.nPlane() * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
+      this.nPlane(pMatrix) * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
   }
 
   p5.prototype.tPlane = function () {
     return this._renderer.tPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.tPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.tPlane = function (pMatrix = this.uPMatrix) {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return pMatrix.mat4[15] == 1 ? (pMatrix.mat4[13] - 1) / pMatrix.mat4[5] :
-      this.nPlane() * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
+      this.nPlane(pMatrix) * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
   }
 
   p5.prototype.bPlane = function () {
     return this._renderer.bPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.bPlane = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.bPlane = function (pMatrix = this.uPMatrix) {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return pMatrix.mat4[15] == 1 ? (1 + pMatrix.mat4[13]) / pMatrix.mat4[5] :
-      this.nPlane() * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
+      this.nPlane(pMatrix) * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
   }
 
   p5.prototype.fov = function () {
     return this._renderer.fov(...arguments);
   }
 
-  p5.RendererGL.prototype.fov = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.fov = function (pMatrix = this.uPMatrix) {
     if (pMatrix.mat4[15] != 0) {
       console.error('fov only works for a perspective projection');
       return;
@@ -259,8 +260,7 @@
     return this._renderer.hfov(...arguments);
   }
 
-  p5.RendererGL.prototype.hfov = function (pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype.hfov = function (pMatrix = this.uPMatrix) {
     if (pMatrix.mat4[15] != 0) {
       console.error('hfov only works for a perspective projection');
       return;
@@ -509,8 +509,7 @@
     return vector;
   }
 
-  p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, pMatrix = this.uPMatrix) {
     let eyeVector = this.treeDisplacement(vector, { from: 'WORLD', to: 'EYE' });
     let dx = eyeVector.x;
     let dy = eyeVector.y;
@@ -527,8 +526,7 @@
     return createVector(dx, dy, dz);
   }
 
-  p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, pMatrix) {
-    pMatrix ??= this.pMatrix();
+  p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, pMatrix = this.uPMatrix) {
     let dx = vector.x;
     let dy = vector.y;
     // Scale to fit the screen relative vector displacement
@@ -830,16 +828,18 @@
       console.error('displaying viewFrustum requires a renderer different than this');
       return;
     }
-    renderer.pMatrix().mat4[15] != 0 ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+    renderer._isOrtho() ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
   };
 
   p5.RendererGL.prototype._viewOrtho = function (renderer) {
     this._rendererState = this.push();
-    let left = renderer.lPlane(renderer.uPMatrix);
-    let right = renderer.rPlane(renderer.uPMatrix);
-    let bottom = renderer.bPlane(renderer.uPMatrix);
-    let near = renderer.nPlane(renderer.uPMatrix);
-    let far = renderer.fPlane(renderer.uPMatrix);
+    let left = renderer.lPlane();
+    let right = renderer.rPlane();
+    let bottom = renderer.bPlane();
+    let top = renderer.tPlane();
+    let near = renderer.nPlane();
+    let far = renderer.fPlane();
+    console.log(left, right, bottom, top, near, far);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
     this.pop(this._rendererState);
@@ -847,10 +847,11 @@
 
   p5.RendererGL.prototype._viewPerspective = function (renderer) {
     this._rendererState = this.push();
-    let magnitude = Math.tan(renderer.fov(renderer.uPMatrix) / 2);
+    let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
-    let near = renderer.nPlane(renderer.uPMatrix);
-    let far = renderer.fPlane(renderer.uPMatrix);
+    let near = renderer.nPlane();
+    let far = renderer.fPlane();
+    console.log(magnitude, aspectRatio, near, far);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
     this.pop(this._rendererState);
