@@ -63,7 +63,7 @@
       from,
       to
     } = {}) {
-    return axbMatrix(invMatrix(to ?? eMatrix()), from ?? iMatrix());
+    return invMatrix(to ?? eMatrix()).apply(from ?? iMatrix());
   }
 
   // defaults: from: iMatrix, to: eMatrix
@@ -73,7 +73,7 @@
       to,
       matrix
     } = {}) {
-    matrix ??= axbMatrix(invMatrix(from ?? iMatrix()), to ?? eMatrix());
+    matrix ??= invMatrix(from ?? iMatrix()).apply(to ?? eMatrix());
     // Note that this transposes mat4 into mat3
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
     matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
@@ -148,7 +148,7 @@
   }
 
   p5.Camera.prototype.eMatrix = function () {
-    return invMatrix(this.vMatrix());
+    return invMatrix(this.cameraMatrix);
   }
 
   p5.prototype.pvMatrix = function () {
