@@ -69,11 +69,10 @@
   // defaults: from: iMatrix, to: eMatrix
   p5.prototype.dMatrix = function (
     {
-      from,
-      to,
-      matrix
+      from = iMatrix(),
+      to = eMatrix(),
+      matrix = invMatrix(from).apply(to)
     } = {}) {
-    matrix ??= invMatrix(from ?? iMatrix()).apply(to ?? eMatrix());
     // Note that this transposes mat4 into mat3
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
     matrix.mat4[1], matrix.mat4[5], matrix.mat4[9],
@@ -109,10 +108,10 @@
   // defaults: eMatrix: this.eMatrix, mvMatrix: this.mvMatrix
   p5.RendererGL.prototype.mMatrix = function (
     {
-      eMatrix,
-      mvMatrix
+      eMatrix = this.eMatrix(),
+      mvMatrix = this.mvMatrix()
     } = {}) {
-    return axbMatrix(eMatrix ?? this.eMatrix(), mvMatrix ?? this.mvMatrix());
+    return axbMatrix(eMatrix, mvMatrix);
   }
 
   p5.prototype.nMatrix = function () {
@@ -122,9 +121,9 @@
   p5.RendererGL.prototype.nMatrix = function ({
     vMatrix,
     mMatrix,
-    mvMatrix
+    mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
   } = {}) {
-    return new p5.Matrix('mat3').inverseTranspose(mvMatrix ?? this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix }));
+    return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
 
   p5.prototype.vMatrix = function () {
@@ -174,8 +173,8 @@
       vMatrix,
       pvMatrix
     } = {}) {
-    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
-    return invMatrix(pvMatrix);
+    let matrix = pvMatrix ? pvMatrix.copy() : this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
+    return matrix.invert(matrix);
   }
 
   p5.prototype._isOrtho = function () {
@@ -378,13 +377,11 @@
 
   p5.RendererGL.prototype._screenLocation = function (
     {
-      vector,
+      vector = createVector(0, 0, 0.5),
       pMatrix,
       vMatrix,
-      pvMatrix
+      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
     } = {}) {
-    vector ??= createVector(0, 0, 0.5);
-    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
     let target = pvMatrix._mult4([vector.x, vector.y, vector.z, 1]);
     if (target[3] == 0) {
       console.error('screenLocation broken. Check your pvMatrix!');
@@ -407,14 +404,12 @@
 
   p5.RendererGL.prototype._location = function (
     {
-      vector,
+      vector = createVector(this.width / 2, this.height / 2, 0.5),
       pMatrix,
       vMatrix,
       pvMatrix,
-      pvInvMatrix
+      pvInvMatrix = this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })
     } = {}) {
-    vector ??= createVector(this.width / 2, this.height / 2, 0.5);
-    pvInvMatrix ??= this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
     let viewport = [0, this.height, this.width, -this.height];
     let source = [vector.x, vector.y, vector.z, 1];
     // Map x and y from window coordinates
