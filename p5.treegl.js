@@ -174,7 +174,7 @@
       vMatrix,
       pvMatrix
     } = {}) {
-    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
+    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
     return invMatrix(pvMatrix);
   }
 
