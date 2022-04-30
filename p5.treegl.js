@@ -384,7 +384,7 @@
       pvMatrix
     } = {}) {
     vector ??= createVector(0, 0, 0.5);
-    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix ?? this.pMatrix(), vMatrix: vMatrix ?? this.vMatrix() });
+    pvMatrix ??= this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
     let target = pvMatrix._mult4([vector.x, vector.y, vector.z, 1]);
     if (target[3] == 0) {
       console.error('screenLocation broken. Check your pvMatrix!');
@@ -414,7 +414,7 @@
       pvInvMatrix
     } = {}) {
     vector ??= createVector(this.width / 2, this.height / 2, 0.5);
-    pvInvMatrix ??= this.pvInvMatrix({ pMatrix: pMatrix ?? this.pMatrix(), vMatrix: vMatrix ?? this.vMatrix(), pvMatrix: pvMatrix ?? this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix }) });
+    pvInvMatrix ??= this.pvInvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
     let viewport = [0, this.height, this.width, -this.height];
     let source = [vector.x, vector.y, vector.z, 1];
     // Map x and y from window coordinates
