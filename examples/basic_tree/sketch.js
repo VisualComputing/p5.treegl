@@ -109,5 +109,9 @@ function keyPressed() {
     let worldProjection = treeLocation(screenProjection, { to: sphere1, from: 'SCREEN' });
     print('s: ', screenProjection);
     print('w: ', worldProjection);
+    let model2ndc = treeLocation([0, 0, 0], { from: sphere1, to: 'NDC' });
+    let ndc2model = treeLocation(model2ndc, { to: sphere1, from: 'NDC' });
+    print('model2ndc: ', model2ndc);
+    print('ndc2model: ', ndc2model);
   }
 }

@@ -374,7 +374,7 @@
     if ((from == 'SCREEN') && (to == 'WORLD')) {
       return this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
     }
-    if (from == 'SCREEN' && to == "NDC") {
+    if (from == 'SCREEN' && to == 'NDC') {
       return this._screenToNDCLocation(vector);
     }
     if (from == 'NDC' && to == 'SCREEN') {
@@ -386,6 +386,12 @@
     if (from == 'NDC' && to == 'WORLD') {
       return this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
     }
+    if (from == 'NDC' && (to instanceof p5.Matrix || to == 'EYE')) {
+      return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
+    }
+    if ((from instanceof p5.Matrix || from == 'EYE') && to == 'NDC') {
+      return this._screenToNDCLocation(this._screenLocation({ vector: (from == 'EYE' ? (eMatrix ?? this.eMatrix()) : from).mult4(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix }));
+    }
     if (from == 'WORLD' && (to instanceof p5.Matrix || to == 'EYE')) {
       return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(vector);
     }
@@ -395,7 +401,6 @@
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return lMatrix({ from: from, to: to }).mult4(vector);
     }
-    //
     if (from == 'SCREEN' && (to instanceof p5.Matrix || to == 'EYE')) {
       return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
     }
@@ -542,7 +547,7 @@
     if (from instanceof p5.Matrix && to == 'EYE') {
       return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
     }
-    // no case
+    console.error('couldn\'t parse your treeDisplacement query!');
     return vector;
   }
 
