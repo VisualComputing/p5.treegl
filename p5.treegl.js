@@ -158,7 +158,7 @@
   p5.RendererGL.prototype.pvMatrix = function (
     {
       pMatrix = this.uPMatrix,
-      vMatrix = this.cameraMatrix
+      vMatrix = this._curCamera.cameraMatrix
     } = {}) {
     return axbMatrix(pMatrix, vMatrix);
   }
@@ -419,8 +419,7 @@
     source[0] = source[0] * 2 - 1;
     source[1] = source[1] * 2 - 1;
     source[2] = source[2] * 2 - 1;
-    // pvInvMatrix.multiply(source, target);
-    target = pvInvMatrix._mult4(source);
+    let target = pvInvMatrix._mult4(source);
     if (target[3] == 0) {
       console.error('location broken. Check your pvInvMatrix!');
       return;
