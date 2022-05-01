@@ -395,7 +395,14 @@
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return lMatrix({ from: from, to: to }).mult4(vector);
     }
-    // no case
+    //
+    if (from == 'SCREEN' && (to instanceof p5.Matrix || to == 'EYE')) {
+      return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
+    }
+    if ((from instanceof p5.Matrix || from == 'EYE') && to == 'SCREEN') {
+      return this._screenLocation({ vector: (from == 'EYE' ? (eMatrix ?? this.eMatrix()) : from).mult4(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
+    }
+    console.error('couldn\'t parse your treeLocation query!');
     return vector;
   }
 

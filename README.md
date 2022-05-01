@@ -17,7 +17,16 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 - [Installation](#installation)
 - [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display) and [matrix queries](#matrix-queries) sections are available to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
+
+```js
+let matrix = new p5.Matrix();
+// invMatrix doesn't modify its matrix param, it gives a new value
+let iMatrix = invMatrix(matrix);
+// iMatrix !== matrix
+```
+
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display) and [matrix queries](#matrix-queries) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
@@ -62,7 +71,7 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 3. `invMatrix(matrix)`: Returns the inverse of `matrix`.
 4. `axbMatrix(a, b)`: Returns the product of the `a` and `b` matrices.
 5. `lMatrix(from, to)`: Returns the 4x4 matrix that transforms locations (points) from matrix `from` to matrix `to`.
-6. `dMatrix(from, to)`: Returns the 3x3 matrix that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
+6. `dMatrix(from, to)`: Returns the 3x3 matrix (only [rotational part](https://visualcomputing.github.io/docs/transformations/affine/#3d-rotation) is needed) that transforms displacements (vectors) from matrix `from` to matrix `to`. The `nMatrix` below is a special case of this one.
 
 **Observation:** All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 
@@ -71,11 +80,23 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
 2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
 
+Pass matrix params when you need *cache* them, either to speedup computations, e.g.,
+
+```js
+   
+```
+
+or to transform points (and vectors) between local spaces, e.g.,
+
+```js
+
+```
+
 **Observations**
 
 1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
 2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-3. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
+3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Heads Up Display
 
@@ -110,6 +131,8 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
 
 # Drawing stuff
+
+1. 
 
 # Installation
 
