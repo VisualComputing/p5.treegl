@@ -111,5 +111,11 @@ function keyPressed() {
     let s2e = treeDisplacement(e2s, { to: 'EYE', from: 'SCREEN' });
     print('e2s: ', e2s);
     print('s2e: ', s2e);
+    let m2w = treeDisplacement([0, 10, 0], { from: sphere1, to: 'WORLD' });
+    let w2m = treeDisplacement(m2w, { to: sphere1, from: 'WORLD' });
+    print('m2w: ', m2w);
+    print('d_m2w:', dMatrix({ from: sphere1, to: iMatrix() }).mult3(createVector(0, 10, 0)));
+    print('w2m: ', w2m);
+    print('d_w2m:', dMatrix({ to: sphere1, from: iMatrix() }).mult3(m2w));
   }
 }

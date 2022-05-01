@@ -547,11 +547,26 @@
     if (from == 'SCREEN' && to == 'EYE') {
       return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
     }
+    /*
+    if (from == 'SCREEN' && to instanceof p5.Matrix) {
+      //return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
+    }
+    if (from instanceof p5.Matrix && to == 'SCREEN') {
+      //return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
+    }
+    // */
     if (from == 'EYE' && to instanceof p5.Matrix) {
+      // TODO improve me
       return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
       return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
+    }
+    if (from == 'WORLD' && to instanceof p5.Matrix) {
+      return dMatrix({ matrix: to }).mult3(vector);
+    }
+    if (from instanceof p5.Matrix && to == 'WORLD') {
+      return dMatrix({ matrix: invMatrix(from) }).mult3(vector);
     }
     console.error('couldn\'t parse your treeDisplacement query!');
     return vector;
