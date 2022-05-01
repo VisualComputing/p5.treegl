@@ -9,9 +9,9 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
   - [Handling](#handling)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
+- [Matrix queries](#matrix-queries)
 - [Space transformations](#space-transformations)
 - [Heads Up Display](#heads-up-display)
-- [Matrix queries](#matrix-queries)
 - [Frustum queries](#frustum-queries)
 - [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
@@ -26,7 +26,7 @@ let iMatrix = invMatrix(matrix);
 // iMatrix !== matrix
 ```
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display) and [matrix queries](#matrix-queries) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [matrix queries](#matrix-queries), [space transformations](#space-transformations), [Heads Up Display](#heads-up-display) and [drawing stuff](#drawing-stuff) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
@@ -75,34 +75,6 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 **Observation:** All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 
-# Space transformations
-
-1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
-2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
-
-Pass matrix params when you need *cache* them, either to speedup computations, e.g.,
-
-```js
-   
-```
-
-or to transform points (and vectors) between local spaces, e.g.,
-
-```js
-
-```
-
-**Observations**
-
-1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
-2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
-3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
-
-# Heads Up Display
-
-1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
-2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
-
 # Matrix queries
 
 1. `pMatrix()`: Returns the current projection matrix.
@@ -119,6 +91,59 @@ or to transform points (and vectors) between local spaces, e.g.,
 1. All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 2. When no matrix params are passed the renderer [current values](#matrix-queries) are used instead.
 
+# Space transformations
+
+1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
+2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
+
+Pass matrix params when you *cached* those matrices (see the [previous section](#matrix-queries)), either to speedup computations, e.g.,
+
+```js
+let pvInv;
+
+functon draw() {
+  // cache pvInv at the beginning of the rendering loop
+  // note that this matrix rarely change within the iteration
+  pvInv = pvInvMatrix();
+  // ...
+  // speedup treeLocation
+  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
+  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
+  // ... many more treeLocation calls....
+  // ... all the above treeLocation calls used the (only computed once) cached pvInv matrix
+}
+```
+
+or to transform points (and vectors) between local spaces, e.g.,
+
+```js
+let model;
+
+function draw() {
+  // ...
+  // save model matrix as it is set just before drawing your model
+  model = mMatrix();
+  drawModel();
+  // continue drawing your tree...
+  // let's draw a bulls eye at the model origin screen projection
+  push();
+  let screenProjection = treeLocation([0, 0, 0], { from: model, to: 'SCREEN' });
+  bullsEye({ x: screenProjection.x, y: screenProjection.y });
+  pop();
+}
+```
+
+**Observations**
+
+1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
+2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
+
+# Heads Up Display
+
+1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
+2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
+
 # Frustum queries
 
 1. `lPlane()`: Returns the left clipping plane.
@@ -132,7 +157,11 @@ or to transform points (and vectors) between local spaces, e.g.,
 
 # Drawing stuff
 
-1. 
+1. `axes(size = 100)`: Draws axes with given `size` in world units.
+2. `grid({ size = 100, subdivisions = 10, dotted = true })`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
+3. `cross({ x = this.width / 2, y = this.height / 2, size = 50 })`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
+4. `bullsEye({ x = this.width / 2, y = this.height / 2, size = 50, circled = true })`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
+5. `hollowCylinder({ radius = 100, height = 200, detail = 32 })`: Draws a hollow cylinder with given `radius` and `height` in world units and given level of `detail`.
 
 # Installation
 

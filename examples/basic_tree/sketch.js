@@ -75,7 +75,7 @@ function draw() {
   axes(30);
   noStroke();
   fill(0, 255, 255, 125);
-  sphere(5);
+  sphere(10);
   pop();
   push();
   translate(50, -30);
@@ -84,13 +84,13 @@ function draw() {
   axes(30);
   noStroke();
   fill(255, 0, 255, 125);
-  sphere(5);
+  sphere(10);
   pop();
   push();
   screenProjection = treeLocation([0, 0, 0], { from: sphere1, to: 'SCREEN' });
-  //stroke('green');
-  //strokeWeight(8);
-  //bullsEye({ x: screenProjection.x, y: screenProjection.y });
+  stroke('purple');
+  strokeWeight(6);
+  bullsEye({ x: screenProjection.x, y: screenProjection.y });
   pop();
 }
 
