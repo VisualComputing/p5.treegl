@@ -117,5 +117,9 @@ function keyPressed() {
     print('d_m2w:', dMatrix({ from: sphere1, to: iMatrix() }).mult3(createVector(0, 10, 0)));
     print('w2m: ', w2m);
     print('d_w2m:', dMatrix({ to: sphere1, from: iMatrix() }).mult3(m2w));
+    let m2e = treeDisplacement([-5, 10, 5], { from: sphere1, to: 'EYE' });
+    let e2m = treeDisplacement(m2e, { to: sphere1, from: 'EYE' });
+    print('m2e: ', m2e);
+    print('e2m: ', e2m);
   }
 }

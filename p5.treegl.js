@@ -556,11 +556,10 @@
     }
     // */
     if (from == 'EYE' && to instanceof p5.Matrix) {
-      // TODO improve me
-      return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
+      return dMatrix({ matrix: (vMatrix ?? this.vMatrix()).apply(to) }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
-      return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
+      return dMatrix({ matrix: invMatrix(from).apply(eMatrix ?? this.eMatrix()) }).mult3(vector);
     }
     if (from == 'WORLD' && to instanceof p5.Matrix) {
       return dMatrix({ matrix: to }).mult3(vector);
