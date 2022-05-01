@@ -181,90 +181,126 @@
     return this._renderer._isOrtho(...arguments);
   }
 
-  p5.RendererGL.prototype._isOrtho = function (pMatrix = this.uPMatrix) {
-    return pMatrix.mat4[15] != 0;
+  p5.RendererGL.prototype._isOrtho = function () {
+    return this.uPMatrix._isOrtho();
+  }
+
+  p5.Matrix.prototype._isOrtho = function () {
+    return this.mat4[15] != 0;
   }
 
   p5.prototype.nPlane = function () {
     return this._renderer.nPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.nPlane = function (pMatrix = this.uPMatrix) {
-    return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (pMatrix.mat4[10] - 1) :
-      (1 + pMatrix.mat4[14]) / pMatrix.mat4[10];
+  p5.RendererGL.prototype.nPlane = function () {
+    return this.uPMatrix.nPlane();
+  }
+
+  p5.Matrix.prototype.nPlane = function () {
+    return this.mat4[15] == 0 ? this.mat4[14] / (this.mat4[10] - 1) :
+      (1 + this.mat4[14]) / this.mat4[10];
   }
 
   p5.prototype.fPlane = function () {
     return this._renderer.fPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.fPlane = function (pMatrix = this.uPMatrix) {
-    return pMatrix.mat4[15] == 0 ? pMatrix.mat4[14] / (1 + pMatrix.mat4[10]) :
-      (pMatrix.mat4[14] - 1) / pMatrix.mat4[10];
+  p5.RendererGL.prototype.fPlane = function () {
+    return this.uPMatrix.fPlane();
+  }
+
+  p5.Matrix.prototype.fPlane = function () {
+    return this.mat4[15] == 0 ? this.mat4[14] / (1 + this.mat4[10]) :
+      (this.mat4[14] - 1) / this.mat4[10];
   }
 
   p5.prototype.lPlane = function () {
     return this._renderer.lPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.lPlane = function (pMatrix = this.uPMatrix) {
-    return pMatrix.mat4[15] == 1 ? -(1 + pMatrix.mat4[12]) / pMatrix.mat4[0] :
-      this.nPlane(pMatrix) * (pMatrix.mat4[8] - 1) / pMatrix.mat4[0];
+  p5.RendererGL.prototype.lPlane = function () {
+    return this.uPMatrix.lPlane();
+  }
+
+  p5.Matrix.prototype.lPlane = function () {
+    return this.mat4[15] == 1 ? -(1 + this.mat4[12]) / this.mat4[0] :
+      this.nPlane(this) * (this.mat4[8] - 1) / this.mat4[0];
   }
 
   p5.prototype.rPlane = function () {
     return this._renderer.rPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.rPlane = function (pMatrix = this.uPMatrix) {
-    return pMatrix.mat4[15] == 1 ? (1 - pMatrix.mat4[12]) / pMatrix.mat4[0] :
-      this.nPlane(pMatrix) * (1 + pMatrix.mat4[8]) / pMatrix.mat4[0];
+  p5.RendererGL.prototype.rPlane = function () {
+    return this.uPMatrix.rPlane();
+  }
+
+  p5.Matrix.prototype.rPlane = function () {
+    return this.mat4[15] == 1 ? (1 - this.mat4[12]) / this.mat4[0] :
+      this.nPlane(this) * (1 + this.mat4[8]) / this.mat4[0];
   }
 
   p5.prototype.tPlane = function () {
     return this._renderer.tPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.tPlane = function (pMatrix = this.uPMatrix) {
+  p5.RendererGL.prototype.tPlane = function () {
+    return this.uPMatrix.tPlane();
+  }
+
+  p5.Matrix.prototype.tPlane = function () {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
-    return pMatrix.mat4[15] == 1 ? (pMatrix.mat4[13] - 1) / pMatrix.mat4[5] :
-      this.nPlane(pMatrix) * (pMatrix.mat4[9] - 1) / pMatrix.mat4[5];
+    return this.mat4[15] == 1 ? (this.mat4[13] - 1) / this.mat4[5] :
+      this.nPlane(this) * (this.mat4[9] - 1) / this.mat4[5];
   }
 
   p5.prototype.bPlane = function () {
     return this._renderer.bPlane(...arguments);
   }
 
-  p5.RendererGL.prototype.bPlane = function (pMatrix = this.uPMatrix) {
+  p5.RendererGL.prototype.bPlane = function () {
+    return this.uPMatrix.bPlane();
+  }
+
+  p5.Matrix.prototype.bPlane = function () {
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
-    return pMatrix.mat4[15] == 1 ? (1 + pMatrix.mat4[13]) / pMatrix.mat4[5] :
-      this.nPlane(pMatrix) * (1 + pMatrix.mat4[9]) / pMatrix.mat4[5];
+    return this.mat4[15] == 1 ? (1 + this.mat4[13]) / this.mat4[5] :
+      this.nPlane(this) * (1 + this.mat4[9]) / this.mat4[5];
   }
 
   p5.prototype.fov = function () {
     return this._renderer.fov(...arguments);
   }
 
-  p5.RendererGL.prototype.fov = function (pMatrix = this.uPMatrix) {
-    if (pMatrix.mat4[15] != 0) {
+  p5.RendererGL.prototype.fov = function () {
+    return this.uPMatrix.fov();
+  }
+
+  p5.Matrix.prototype.fov = function () {
+    if (this.mat4[15] != 0) {
       console.error('fov only works for a perspective projection');
       return;
     }
-    return Math.abs(2 * Math.atan(1 / pMatrix.mat4[5]));
+    return Math.abs(2 * Math.atan(1 / this.mat4[5]));
   }
 
   p5.prototype.hfov = function () {
     return this._renderer.hfov(...arguments);
   }
 
-  p5.RendererGL.prototype.hfov = function (pMatrix = this.uPMatrix) {
-    if (pMatrix.mat4[15] != 0) {
+  p5.RendererGL.prototype.hfov = function () {
+    return this.uPMatrix.hfov();
+  }
+
+  p5.Matrix.prototype.hfov = function () {
+    if (this.mat4[15] != 0) {
       console.error('hfov only works for a perspective projection');
       return;
     }
-    return Math.abs(2 * Math.atan(1 / pMatrix.mat4[0]));
+    return Math.abs(2 * Math.atan(1 / this.mat4[0]));
   }
 
   // 2. Space transformations

@@ -17,7 +17,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 - [Installation](#installation)
 - [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`, while those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display), [matrix queries](#matrix-queries) and [frustum queries](#frustum-queries) sections are also available to [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [space transformations](#space-transformations), [Heads Up Display](#heads-up-display) and [matrix queries](#matrix-queries) sections are available to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
@@ -100,16 +100,14 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Frustum queries
 
-1. `lPlane([pMatrix])`: Returns the left clipping plane.
-2. `rPlane([pMatrix])`: Returns the right clipping plane.
-3. `bPlane([pMatrix])`: Returns the bottom clipping plane.
-4. `tPlane([pMatrix])`: Returns the top clipping plane.
-5. `nPlane([pMatrix])`: Returns the near clipping plane.
-6. `fPlane([pMatrix])`: Returns the far clipping plane.
-7. `fov([pMatrix])`: Returns the vertical field-of-view (fov) in radians.
-8. `hfov([pMatrix])`: Returns the horizontal field-of-view (hfov) in radians.
-
-**Observation:** when no projection (`pMatrix`) matrix is passed the renderer [current value](#matrix-queries) is used instead.
+1. `lPlane()`: Returns the left clipping plane.
+2. `rPlane()`: Returns the right clipping plane.
+3. `bPlane()`: Returns the bottom clipping plane.
+4. `tPlane()`: Returns the top clipping plane.
+5. `nPlane()`: Returns the near clipping plane.
+6. `fPlane()`: Returns the far clipping plane.
+7. `fov()`: Returns the vertical field-of-view (fov) in radians.
+8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
 
 # Drawing stuff
 
