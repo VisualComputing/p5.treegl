@@ -225,7 +225,7 @@
 
   p5.Matrix.prototype.lPlane = function () {
     return this.mat4[15] == 1 ? -(1 + this.mat4[12]) / this.mat4[0] :
-      this.nPlane(this) * (this.mat4[8] - 1) / this.mat4[0];
+      this.nPlane() * (this.mat4[8] - 1) / this.mat4[0];
   }
 
   p5.prototype.rPlane = function () {
@@ -238,7 +238,7 @@
 
   p5.Matrix.prototype.rPlane = function () {
     return this.mat4[15] == 1 ? (1 - this.mat4[12]) / this.mat4[0] :
-      this.nPlane(this) * (1 + this.mat4[8]) / this.mat4[0];
+      this.nPlane() * (1 + this.mat4[8]) / this.mat4[0];
   }
 
   p5.prototype.tPlane = function () {
@@ -253,7 +253,7 @@
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return this.mat4[15] == 1 ? (this.mat4[13] - 1) / this.mat4[5] :
-      this.nPlane(this) * (this.mat4[9] - 1) / this.mat4[5];
+      this.nPlane() * (this.mat4[9] - 1) / this.mat4[5];
   }
 
   p5.prototype.bPlane = function () {
@@ -268,7 +268,7 @@
     // note that inverted values are returned if the projection
     // matrix was set with @function frustum.
     return this.mat4[15] == 1 ? (1 + this.mat4[13]) / this.mat4[5] :
-      this.nPlane(this) * (1 + this.mat4[9]) / this.mat4[5];
+      this.nPlane() * (1 + this.mat4[9]) / this.mat4[5];
   }
 
   p5.prototype.fov = function () {
@@ -552,7 +552,7 @@
     }
     let dz = eyeVector.z;
     // sign is inverted
-    dz /= (this.nPlane(pMatrix) - this.fPlane(pMatrix)) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(this.rPlane(pMatrix) - this.lPlane(pMatrix)) / this.width);
+    dz /= (pMatrix.nPlane() - pMatrix.fPlane()) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(pMatrix.rPlane() - pMatrix.lPlane()) / this.width);
     return createVector(dx, dy, dz);
   }
 
@@ -568,7 +568,7 @@
       dy *= 2 * k / this.height;
     }
     let dz = vector.z;
-    dz *= (this.nPlane(pMatrix) - this.fPlane(pMatrix)) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(this.rPlane(pMatrix) - this.lPlane(pMatrix)) / this.width);
+    dz *= (pMatrix.nPlane() - pMatrix.fPlane()) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(pMatrix.rPlane() - pMatrix.lPlane()) / this.width);
     let eyeVector = createVector(dx, dy, dz);
     return this.treeDisplacement(eyeVector, { from: 'EYE', to: 'WORLD' });
   }
