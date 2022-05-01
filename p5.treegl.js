@@ -528,6 +528,12 @@
     if (from == 'NDC' && to == 'WORLD') {
       return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix);
     }
+    if (from == 'SCREEN' && to instanceof p5.Matrix) {
+      return dMatrix({ matrix: to }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
+    }
+    if (from instanceof p5.Matrix && to == 'SCREEN') {
+      return this._worldToScreenDisplacement(dMatrix({ matrix: invMatrix(from) }).mult3(vector), pMatrix);
+    }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return dMatrix({ from: from, to: to }).mult3(vector);
     }
@@ -547,14 +553,6 @@
     if (from == 'SCREEN' && to == 'EYE') {
       return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
     }
-    /*
-    if (from == 'SCREEN' && to instanceof p5.Matrix) {
-      //return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
-    }
-    if (from instanceof p5.Matrix && to == 'SCREEN') {
-      //return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
-    }
-    // */
     if (from == 'EYE' && to instanceof p5.Matrix) {
       return dMatrix({ matrix: (vMatrix ?? this.vMatrix()).apply(to) }).mult3(vector);
     }
