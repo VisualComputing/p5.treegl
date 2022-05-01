@@ -75,13 +75,7 @@ function draw() {
   axes(30);
   noStroke();
   fill(0, 255, 255, 125);
-  //sphere(5);
-  if (screenProjection) {
-    console.log('win');
-    modelProjection = treeLocation(screenProjection, { to: sphere1, from: 'SCREEN' });
-    translate(modelProjection);
-    sphere(5);
-  }
+  sphere(5);
   pop();
   push();
   translate(50, -30);
@@ -113,5 +107,9 @@ function keyPressed() {
     let ndc2model = treeLocation(model2ndc, { to: sphere1, from: 'NDC' });
     print('model2ndc: ', model2ndc);
     print('ndc2model: ', ndc2model);
+    let e2s = treeDisplacement([0, 0, -100], { from: 'EYE', to: 'SCREEN' });
+    let s2e = treeDisplacement(e2s, { to: 'EYE', from: 'SCREEN' });
+    print('e2s: ', e2s);
+    print('s2e: ', s2e);
   }
 }

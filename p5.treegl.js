@@ -538,11 +538,17 @@
     if (from == 'EYE' && to == 'WORLD') {
       return dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector);
     }
-    if (from == 'EYE' && to instanceof p5.Matrix) {
-      return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
-    }
     if (from == 'WORLD' && to == 'EYE') {
       return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(vector);
+    }
+    if (from == 'EYE' && to == 'SCREEN') {
+      return this._worldToScreenDisplacement(dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix);
+    }
+    if (from == 'SCREEN' && to == 'EYE') {
+      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
+    }
+    if (from == 'EYE' && to instanceof p5.Matrix) {
+      return dMatrix({ matrix: axbMatrix(vMatrix ?? this.vMatrix(), to) }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
       return dMatrix({ from: from, to: eMatrix ?? this.eMatrix() }).mult3(vector);
