@@ -125,5 +125,9 @@ function keyPressed() {
     let s2m = treeDisplacement(m2s, { to: sphere1, from: 'SCREEN' });
     print('m2s: ', m2s);
     print('s2m: ', s2m);
+    let e2n = treeDisplacement([5, 10, -5], { from: 'EYE', to: 'NDC' });
+    let n2e = treeDisplacement(e2n, { to: 'EYE', from: 'NDC' });
+    print('e2n: ', e2n);
+    print('n2e: ', n2e);
   }
 }

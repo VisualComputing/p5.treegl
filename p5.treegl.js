@@ -380,7 +380,7 @@
     if (from == 'NDC' && to == 'SCREEN') {
       return this._ndcToScreenLocation(vector);
     }
-    if (from == 'WORLD' && to == "NDC") {
+    if (from == 'WORLD' && to == 'NDC') {
       return this._screenToNDCLocation(this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix }));
     }
     if (from == 'NDC' && to == 'WORLD') {
@@ -516,17 +516,23 @@
     if ((from == 'SCREEN') && (to == 'WORLD')) {
       return this._screenToWorldDisplacement(vector, pMatrix);
     }
-    if (from == 'SCREEN' && to == "NDC") {
+    if (from == 'SCREEN' && to == 'NDC') {
       return this._screenToNDCDisplacement(vector);
     }
     if (from == 'NDC' && to == 'SCREEN') {
       return this._ndcToScreenDisplacement(vector);
     }
-    if (from == 'WORLD' && to == "NDC") {
+    if (from == 'WORLD' && to == 'NDC') {
       return this._screenToNDCDisplacement(this._worldToScreenDisplacement(vector, pMatrix));
     }
     if (from == 'NDC' && to == 'WORLD') {
       return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix);
+    }
+    if (from == 'NDC' && to == 'EYE') {
+      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix));
+    }
+    if (from == 'EYE' && to == 'NDC') {
+      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix));
     }
     if (from == 'SCREEN' && to instanceof p5.Matrix) {
       return dMatrix({ matrix: to }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
