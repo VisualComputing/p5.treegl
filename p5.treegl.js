@@ -894,13 +894,12 @@
 		this.pop(this._rendererState);
 	};
 
-    // Arrow
-    p5.prototype.arrow = function () {
-      this._renderer.arrow(...arguments);
-    };
+  // Arrow
+  p5.prototype.arrow = function () {
+    this._renderer.arrow(...arguments);
+  };
 
-
-      /**
+  /**
    * Draws an arrow
    * @param  {Number} radius cone base's radius
    * @param  {Number} height cone's height
