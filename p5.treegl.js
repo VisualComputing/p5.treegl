@@ -631,11 +631,15 @@
    * @param  {Number} radius   radius of the base.
    * @param  {Number} height   height of the cylinder.
    * @param  {Number} detail   number of primitives aproximating the cylinder
+   * @param  {Number} lv       lower v value (Nombre sujeto a cambio)
+   * @param  {Number} hv       higher v value (Nombre sujeto a cambio)
    */
   p5.RendererGL.prototype.hollowCylinder = function ({
     radius = 100,
     height = 200,
-    detail = 32
+    detail = 32,
+    lv = 0,
+    hv = 1,
   } = {}) {
     this._rendererState = this.push();
     this.beginShape(TRIANGLE_STRIP);
@@ -644,8 +648,8 @@
       let x = sin(i * angle);
       let z = cos(i * angle);
       let u = float(i) / detail;
-      this.vertex(x * radius, -height / 2, z * radius, u, 0);
-      this.vertex(x * radius, +height / 2, z * radius, u, 1);
+      this.vertex(x * radius, -height / 2, z * radius, u, lv);
+      this.vertex(x * radius, +height / 2, z * radius, u, hv);
     }
     this.endShape();
     this.pop(this._rendererState);
@@ -866,11 +870,15 @@
    * @param  {Number} radius cone base's radius
    * @param  {Number} height cone's height
    * @param  {Number} detail cone's detail
+   * @param  {Number} lv     lower v value (Nombre sujeto a cambio)
+   * @param  {Number} hv     higher v value (Nombre sujeto a cambio)
    */
 	p5.RendererGL.prototype.hollowCone = function ({
 		radius = 100,
 		height = 200,
 		detail = 32,
+    lv = 0,
+    hv = 1,
 	} = {}) {
 		this._rendererState = this.push();
 		this.beginShape(TRIANGLE_STRIP);
@@ -879,10 +887,36 @@
 			let x = sin(i * angle);
 			let z = cos(i * angle);
 			let u = float(i) / detail;
-			this.vertex(x * radius, -height / 2, z * radius, u, 0);
-			this.vertex(0, +height / 2, 0, 0.5, 1);
+			this.vertex(x * radius, -height / 2, z * radius, u, lv);
+			this.vertex(0, +height / 2, 0, 0.5, hv);
 		}
 		this.endShape();
+		this.pop(this._rendererState);
+	};
+
+    // Arrow
+    p5.prototype.arrow = function () {
+      this._renderer.arrow(...arguments);
+    };
+
+
+      /**
+   * Draws an arrow
+   * @param  {Number} radius cone base's radius
+   * @param  {Number} height cone's height
+   * @param  {Number} detail cone's detail
+   */
+	p5.RendererGL.prototype.arrow = function ({
+		radius = 100,
+		height = 200,
+		detail = 32,
+	} = {}) {
+		this._rendererState = this.push();
+    const head = 2.5 * (radius / height) + 0.1;
+    const coneRadiusCoef = 4.0 - 5.0 * head;
+    this.hollowCylinder({radius, height: height * 0.80, detail, hv: 0.8});
+    this.translate(0, height * 0.50, 0);
+		this.hollowCone({radius: coneRadiusCoef * radius, height: height * 0.20, detail, lv: 0.8});
 		this.pop(this._rendererState);
 	};
 
