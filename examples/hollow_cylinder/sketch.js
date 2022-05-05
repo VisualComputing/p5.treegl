@@ -48,9 +48,11 @@ function draw() {
       stroke(0, 255, 255);
       break;
     default:
+      noStroke();
       texture(img);
   }
-  hollowCylinder({ radius: 50, detail : details.value() });
+  //pg.cylinder(50, 200);
+  cone(50, 200);
   pop();
 }
 

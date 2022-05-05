@@ -72,12 +72,14 @@ function draw() {
       pg.stroke(0, 255, 255);
       break;
     default:
+      pg.noStroke();
       pg.texture(img);
   }
   pg.rotateZ(frameCount * 0.01);
   pg.rotateX(frameCount * 0.01);
   pg.rotateY(frameCount * 0.01);
-  pg.hollowCylinder({ radius: 50, detail: details.value() });
+  //pg.cylinder(50, 200);
+  pg.cone(50, 200);
   if (hud.checked()) {
     // init p5.treegl.HUD
     beginHUD();
