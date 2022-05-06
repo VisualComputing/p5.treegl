@@ -907,7 +907,6 @@
   };
 
   p5.RendererGL.prototype._viewOrtho = function (renderer) {
-    this._rendererState = this.push();
     let left = renderer.lPlane();
     let right = renderer.rPlane();
     let bottom = renderer.bPlane();
@@ -918,11 +917,9 @@
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
     // in the meantime display axes just for debugging
     this.axes(50);
-    this.pop(this._rendererState);
   };
 
   p5.RendererGL.prototype._viewPerspective = function (renderer) {
-    this._rendererState = this.push();
     let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
     let near = renderer.nPlane();
@@ -931,6 +928,5 @@
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
     // in the meantime display axes just for debugging
     this.axes(50);
-    this.pop(this._rendererState);
   };
 })();
