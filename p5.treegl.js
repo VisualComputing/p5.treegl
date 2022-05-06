@@ -894,7 +894,10 @@
       console.error('displaying viewFrustum requires a renderer different than this');
       return;
     }
+    this._rendererState = this.push();
+    this.applyMatrix(...renderer.eMatrix().mat4);
     renderer._isOrtho() ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+    this.pop(this._rendererState);
   };
 
   p5.RendererGL.prototype._viewOrtho = function (renderer) {
@@ -905,7 +908,8 @@
     let top = renderer.tPlane();
     let near = renderer.nPlane();
     let far = renderer.fPlane();
-    console.log(left, right, bottom, top, near, far);
+    //console.log(left, right, bottom, top, near, far);
+    this.axes(50);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
     this.pop(this._rendererState);
@@ -917,7 +921,8 @@
     let aspectRatio = renderer.width / renderer.height;
     let near = renderer.nPlane();
     let far = renderer.fPlane();
-    console.log(magnitude, aspectRatio, near, far);
+    //console.log(magnitude, aspectRatio, near, far);
+    this.axes(50);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
     this.pop(this._rendererState);
