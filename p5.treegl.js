@@ -8,7 +8,7 @@
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.0.5',
+    VERSION: '0.1.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
 
@@ -306,7 +306,9 @@
   // 2. Space transformations
 
   p5.prototype.beginHUD = function () {
-    this._renderer.beginHUD(...arguments);
+    if (this._renderer instanceof p5.RendererGL) {
+      this._renderer.beginHUD(...arguments);
+    }
   }
 
   p5.RendererGL.prototype.beginHUD = function () {
@@ -322,7 +324,9 @@
   }
 
   p5.prototype.endHUD = function () {
-    this._renderer.endHUD(...arguments);
+    if (this._renderer instanceof p5.RendererGL) {
+      this._renderer.endHUD(...arguments);
+    }
   }
 
   p5.RendererGL.prototype.endHUD = function () {
@@ -910,10 +914,10 @@
     let top = renderer.tPlane();
     let near = renderer.nPlane();
     let far = renderer.fPlane();
-    //console.log(left, right, bottom, top, near, far);
-    this.axes(50);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
+    // in the meantime display axes just for debugging
+    this.axes(50);
     this.pop(this._rendererState);
   };
 
@@ -923,10 +927,10 @@
     let aspectRatio = renderer.width / renderer.height;
     let near = renderer.nPlane();
     let far = renderer.fPlane();
-    //console.log(magnitude, aspectRatio, near, far);
-    this.axes(50);
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
+    // in the meantime display axes just for debugging
+    this.axes(50);
     this.pop(this._rendererState);
   };
 })();
