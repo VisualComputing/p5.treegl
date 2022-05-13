@@ -7,6 +7,7 @@ let length = 600;
 let box_key_matrix;
 let boxes;
 let box_key;
+let fovy;
 
 function setup() {
   createCanvas(length, length / 2);
@@ -38,11 +39,15 @@ function setup() {
       }
     );
   }
+  fovy = createSlider(PI / 12, PI * (11 /12), PI / 3, PI / 12);
+  fovy.position(10, 10);
+  fovy.style('width', '80px');
 }
 
 function draw() {
   fbo1.background(175, 125, 115);
   fbo1.reset();
+  fbo1.perspective(fovy.value());
   fbo1.axes();
   fbo1.grid();
   box_key_matrix = undefined;
