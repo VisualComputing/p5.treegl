@@ -20,25 +20,29 @@ function draw() {
   else {
     orbitControl();
   }
-  axes({ size: 100 });
+  push();
+  strokeWeight(5);
+  axes({ size: 100, labels: false });
+  pop();
   push();
   stroke('red');
   strokeWeight(1.3);
   //grid({ size: 100 });
-  dottedGrid();
   pop();
   push();
   strokeWeight(4);
   stroke('green');
-  squaredBullsEye({ x: 100, y: 200, size: 100 });
+  bullsEye({ x: 100, y: 200, size: 100, circled: false });
   pop();
-  circledBullsEye({ x: 100, y: 100 }); 
+  bullsEye({ x: 100, y: 100 }); 
   push();
   stroke('magenta');
-  circledBullsEye(); 
+  bullsEye(); 
   pop();
 }
 
+/*
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
+*/
