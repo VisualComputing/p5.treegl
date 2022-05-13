@@ -695,26 +695,14 @@
   }
 
   /**
-   * Returns the ratio of scene (units) to pixel at {@code position}.
-   * <p>
-   * A line of {@code n * pixelRatio(location)} world units, defined at {@code location} in
-   * the world coordinate system, will be projected with a length of {@code n} pixels on
-   * screen.
-   * <p>
-   * Use this method to scale objects so that they have a constant pixel size on screen.
-   * The following code will draw a 20 pixel line, starting at {@link #center} and
-   * always directed along the screen vertical direction ({@link #upVector()}):
-   * <p>
-   * {@code beginShape(LINES);}<br>
-   * {@code vertex(scene.center().x(), scene.center().y(), scene.center().z());}<br>
-   * {@code Vector v = Vector.add(scene.center(), Vector.multiply(scene.upVector(), 20 * scene.sceneToPixelRatio(scene.center())));}
-   * <br>
-   * {@code vertex(v.x(), v.y(), v.z());}<br>
-   * {@code endShape();}<br>
+   * Returns the ratio of scene (units) to pixel at given world location.
+   * A line of n * pixelRatio(location) world units will be projected
+   * with a length of {@code n} pixels on screen.
+   * @param  {p5.Vector | Array} location      reference world location
    */
-  p5.RendererGL.prototype.pixelRatio = function (pos) {
+  p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
-      2 * Math.abs((this.treeLocation(pos, { from: 'WORLD', to: 'EYE' })).y) * Math.tan(this.fov() / 2) / this.height;
+      2 * Math.abs((this.treeLocation(location, { from: 'WORLD', to: 'EYE' })).y) * Math.tan(this.fov() / 2) / this.height;
   }
 
   // 5. Drawing stuff
@@ -754,35 +742,28 @@
 
   /**
    * Draws axes.
-   * @param  {Number} size Axes size in world units. Default is 100.
    */
-  p5.RendererGL.prototype.axes = function ({ size = 100, labels = true } = {}) {
+  p5.RendererGL.prototype.axes = function (size = 100) {
     this._rendererState = this.push();
     const charWidth = size / 40.0;
     const charHeight = size / 30.0;
     const charShift = 1.04 * size;
-    if (labels) {
-      let weight = this.curStrokeWeight;
-      this._rendererState = this.push();
-      this.strokeWeight(weight > 2 ? weight / 2 : weight);
-      // The X
-      this.stroke(200, 0, 0);
-      this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
-      this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
-      // The Y
-      this.stroke(0, 200, 0);
-      this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
-      this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
-      this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
-      this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
-      // The Z
-      this.stroke(0, 100, 200);
-      this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
-      this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
-      this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
-      this.pop(this._rendererState);
-      this.strokeWeight(weight);
-    }
+    this.strokeWeight(1);
+    // The X
+    this.stroke(200, 0, 0);
+    this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
+    this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
+    // The Y
+    this.stroke(0, 200, 0);
+    this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+    this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
+    this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+    this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
+    // The Z
+    this.stroke(0, 100, 200);
+    this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
+    this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
+    this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
     // X Axis
     this.stroke(200, 0, 0);
     this.line(0, 0, 0, size, 0, 0);
