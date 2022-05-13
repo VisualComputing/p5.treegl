@@ -690,8 +690,8 @@
 
   // 4. Utility functions
 
-  p5.prototype.magicNumber = function () {
-    return this._renderer.magicNumber(...arguments);
+  p5.prototype.pixelRatio = function () {
+    return this._renderer.pixelRatio(...arguments);
   }
 
   /**
@@ -712,7 +712,7 @@
    * {@code vertex(v.x(), v.y(), v.z());}<br>
    * {@code endShape();}<br>
    */
-  p5.RendererGL.prototype.magicNumber = function (pos) {
+  p5.RendererGL.prototype.pixelRatio = function (pos) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
       2 * Math.abs((this.treeLocation(pos, { from: 'WORLD', to: 'EYE' })).y) * Math.tan(this.fov() / 2) / this.height;
   }
