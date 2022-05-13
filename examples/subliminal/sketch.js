@@ -39,7 +39,7 @@ function setup() {
       }
     );
   }
-  fovy = createSlider(PI / 12, PI * (11 /12), PI / 3, PI / 12);
+  fovy = createSlider(PI / 12, PI * (11 / 12), PI / 3, PI / 12);
   fovy.position(10, 10);
   fovy.style('width', '80px');
 }
@@ -73,14 +73,15 @@ function scene(graphics, update = false) {
     graphics.translate(box.position);
     if (update) {
       let mMatrix = graphics.mMatrix();
+      let pixelRatio = graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
       if (box_key) {
         if (boxes[box_key - 1] === box) {
           box_key_matrix = mMatrix;
-          box.size = box.target * graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+          box.size = box.target * pixelRatio;
         }
       }
       else {
-        box.target = box.size / graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+        box.target = box.size / pixelRatio;
       }
     }
     graphics.box(box.size);
