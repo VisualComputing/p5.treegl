@@ -29,11 +29,11 @@ function setup() {
   colorMode(RGB, 1);
   let trange = 100;
   boxes = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 9; i++) {
     boxes.push(
       {
         position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
-        size: 30,
+        size: random() * 25 + 8,
         color: color(random(), random(), random())
       }
     );
@@ -64,14 +64,19 @@ function draw() {
 function scene(graphics, update = false) {
   boxes.forEach(box => {
     graphics.push();
-    graphics.fill(boxes[box_key] === box ? color('red') : box.color);
+    graphics.fill(boxes[box_key - 1] === box ? color('red') : box.color);
     graphics.translate(box.position);
-    if (box_key && update) {
+    if (update) {
       let mMatrix = graphics.mMatrix();
-      if (boxes[box_key] === box) {
-        box_key_matrix = mMatrix;
+      if (box_key) {
+        if (boxes[box_key - 1] === box) {
+          box_key_matrix = mMatrix;
+          box.size = box.target * graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+        }
       }
-      box.size = target * graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+      else {
+        box.target = box.size / graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+      }
     }
     graphics.box(box.size);
     graphics.pop();
@@ -80,7 +85,7 @@ function scene(graphics, update = false) {
 }
 
 function keyPressed() {
-  // press [0..9] keys to pick a box and other keys to unpick
+  // press [1..9] keys to pick a box and other keys (including 0) to unpick
   box_key = parseInt(key);
   box_key ? cam1.removeMouseListeners() : cam1.attachMouseListeners(this._renderer);
 }
@@ -92,7 +97,7 @@ function mouseWheel(event) {
     let v = p5.Vector.sub(v1, v2);
     v.normalize();
     v.mult(event.delta / 10);
-    boxes[box_key].position.add(v);
+    boxes[box_key - 1].position.add(v);
   }
   // comment to unblock page scrolling
   return false;
