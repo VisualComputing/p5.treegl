@@ -50,8 +50,7 @@ function draw() {
   fbo1.perspective(fovy.value());
   fbo1.axes();
   fbo1.grid();
-  box_key_matrix = undefined;
-  scene(fbo1, true);
+  scene1();
   beginHUD();
   image(fbo1, 0, 0);
   endHUD();
@@ -59,33 +58,43 @@ function draw() {
   fbo2.reset();
   fbo2.axes();
   fbo2.grid();
-  scene(fbo2);
+  scene2();
   fbo2.viewFrustum(fbo1);
   beginHUD();
   image(fbo2, width / 2, 0);
   endHUD();
 }
 
-function scene(graphics, update = false) {
+function scene1() {
+  box_key_matrix = undefined;
   boxes.forEach(box => {
-    graphics.push();
-    graphics.fill(boxes[box_key - 1] === box ? color('red') : box.color);
-    graphics.translate(box.position);
-    if (update) {
-      let mMatrix = graphics.mMatrix();
-      let pixelRatio = graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
-      if (box_key && !mouseIsPressed) {
-        if (boxes[box_key - 1] === box) {
-          box_key_matrix = mMatrix;
-          box.size = box.target * pixelRatio;
-        }
-      }
-      else {
-        box.target = box.size / pixelRatio;
+    fbo1.push();
+    fbo1.fill(boxes[box_key - 1] === box ? color('red') : box.color);
+    fbo1.translate(box.position);
+    let mMatrix = fbo1.mMatrix();
+    let pixelRatio = fbo1.pixelRatio(fbo1.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
+    if (box_key && !mouseIsPressed) {
+      if (boxes[box_key - 1] === box) {
+        box_key_matrix = mMatrix;
+        box.size = box.target * pixelRatio;
       }
     }
-    graphics.box(box.size);
-    graphics.pop();
+    else {
+      box.target = box.size / pixelRatio;
+    }
+    fbo1.box(box.size);
+    fbo1.pop();
+  }
+  );
+}
+
+function scene2() {
+  boxes.forEach(box => {
+    fbo2.push();
+    fbo2.fill(boxes[box_key - 1] === box ? color('red') : box.color);
+    fbo2.translate(box.position);
+    fbo2.box(box.size);
+    fbo2.pop();
   }
   );
 }
