@@ -39,12 +39,15 @@ function setup() {
       }
     );
   }
-  fovy = createSlider(PI / 12, PI * (11 / 12), PI / 3, PI / 12);
+  fovy = createSlider(PI / 12, PI * (11 / 12), PI / 3, PI / 48);
   fovy.position(10, 10);
   fovy.style('width', '80px');
 }
 
 function draw() {
+  if (box_key && keyIsPressed === true && (key === 'w' || key === 'z')) {
+    moveBox(key === 'w' ? 5 : -5);
+  }
   fbo1.background(200, 125, 115);
   fbo1.reset();
   fbo1.perspective(fovy.value());
@@ -105,9 +108,6 @@ function keyPressed() {
   // which are used to move the box away or closer to eye.
   if (key !== 'w' && key !== 'z') {
     box_key = parseInt(key);
-  }
-  else if (box_key) {
-    moveBox(key === 'w' ? 10 : -10);
   }
 }
 
