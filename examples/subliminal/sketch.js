@@ -45,7 +45,7 @@ function setup() {
 }
 
 function draw() {
-  fbo1.background(175, 125, 115);
+  fbo1.background(200, 125, 115);
   fbo1.reset();
   fbo1.perspective(fovy.value());
   fbo1.axes();
@@ -74,7 +74,7 @@ function scene(graphics, update = false) {
     if (update) {
       let mMatrix = graphics.mMatrix();
       let pixelRatio = graphics.pixelRatio(graphics.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
-      if (box_key) {
+      if (box_key && !mouseIsPressed) {
         if (boxes[box_key - 1] === box) {
           box_key_matrix = mMatrix;
           box.size = box.target * pixelRatio;
@@ -91,20 +91,24 @@ function scene(graphics, update = false) {
 }
 
 function keyPressed() {
-  // press [1..9] keys to pick a box and other keys (including 0) to unpick
-  box_key = parseInt(key);
-  box_key ? cam1.removeMouseListeners() : cam1.attachMouseListeners(this._renderer);
+  // press [1..9] keys to pick a box and other keys
+  // including 0 to unpick, excepting 'w' and 'z'
+  // which are used to move the box away or closer to eye.
+  if (key !== 'w' && key !== 'z') {
+    box_key = parseInt(key);
+  }
+  else if (box_key) {
+    moveBox(key === 'w' ? 10 : -10);
+  }
 }
 
-function mouseWheel(event) {
+function moveBox(z) {
   if (box_key_matrix) {
     let v1 = fbo1.treeLocation([0, 0, 0], { from: box_key_matrix, to: 'WORLD' });
     let v2 = fbo1.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
     let v = p5.Vector.sub(v1, v2);
     v.normalize();
-    v.mult(event.delta / 10);
+    v.mult(z);
     boxes[box_key - 1].position.add(v);
   }
-  // comment to unblock page scrolling
-  return false;
 }
