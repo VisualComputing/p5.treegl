@@ -30,7 +30,7 @@ function setup() {
   colorMode(RGB, 1);
   let trange = 100;
   boxes = [];
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < 10; i++) {
     boxes.push(
       {
         position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
@@ -45,7 +45,7 @@ function setup() {
 }
 
 function draw() {
-  if (box_key && keyIsPressed === true && (key === 'w' || key === 'z')) {
+  if (!isNaN(box_key) && keyIsPressed === true && (key === 'w' || key === 'z')) {
     moveBox(key === 'w' ? 5 : -5);
   }
   fbo1.background(200, 125, 115);
@@ -72,18 +72,18 @@ function scene1() {
   box_key_matrix = undefined;
   boxes.forEach(box => {
     fbo1.push();
-    fbo1.fill(boxes[box_key - 1] === box ? color('red') : box.color);
+    fbo1.fill(boxes[box_key] === box ? color('red') : box.color);
     fbo1.translate(box.position);
     let mMatrix = fbo1.mMatrix();
     let pixelRatio = fbo1.pixelRatio(fbo1.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
-    if (box_key && !mouseIsPressed) {
-      if (boxes[box_key - 1] === box) {
+    if (isNaN(box_key) || mouseIsPressed) {
+      box.target = box.size / pixelRatio;
+    }
+    else {
+      if (boxes[box_key] === box) {
         box_key_matrix = mMatrix;
         box.size = box.target * pixelRatio;
       }
-    }
-    else {
-      box.target = box.size / pixelRatio;
     }
     fbo1.box(box.size);
     fbo1.pop();
@@ -94,7 +94,7 @@ function scene1() {
 function scene2() {
   boxes.forEach(box => {
     fbo2.push();
-    fbo2.fill(boxes[box_key - 1] === box ? color('red') : box.color);
+    fbo2.fill(boxes[box_key] === box ? color('red') : box.color);
     fbo2.translate(box.position);
     fbo2.box(box.size);
     fbo2.pop();
@@ -103,9 +103,9 @@ function scene2() {
 }
 
 function keyPressed() {
-  // press [1..9] keys to pick a box and other keys
-  // including 0 to unpick, excepting 'w' and 'z'
-  // which are used to move the box away or closer to eye.
+  // press [0..9] keys to pick a box and other keys
+  // to unpick, excepting 'w' and 'z' which are used
+  // to move the box away or closer to eye.
   if (key !== 'w' && key !== 'z') {
     box_key = parseInt(key);
   }
@@ -118,6 +118,6 @@ function moveBox(z) {
     let v = p5.Vector.sub(v1, v2);
     v.normalize();
     v.mult(z);
-    boxes[box_key - 1].position.add(v);
+    boxes[box_key].position.add(v);
   }
 }
