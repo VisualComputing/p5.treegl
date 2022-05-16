@@ -1,5 +1,3 @@
-'use strict';
-
 let fbo1, fbo2;
 let cam1, cam2;
 let target = 150;
