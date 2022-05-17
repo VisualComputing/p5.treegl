@@ -2,10 +2,10 @@ let fbo1, fbo2;
 let cam1, cam2;
 let target = 150;
 let length = 600;
-let box_key_matrix;
 let boxes;
 let box_key;
 let fovy;
+const SPEED = 5;
 
 function setup() {
   createCanvas(length, length / 2);
@@ -43,9 +43,6 @@ function setup() {
 }
 
 function draw() {
-  if (!isNaN(box_key) && keyIsPressed === true && (key === 'w' || key === 'z')) {
-    moveBox(key === 'w' ? 5 : -5);
-  }
   fbo1.background(200, 125, 115);
   fbo1.reset();
   fbo1.perspective(fovy.value());
@@ -67,20 +64,21 @@ function draw() {
 }
 
 function scene1() {
-  box_key_matrix = undefined;
   boxes.forEach(box => {
     fbo1.push();
     fbo1.fill(boxes[box_key] === box ? color('red') : box.color);
     fbo1.translate(box.position);
-    let mMatrix = fbo1.mMatrix();
-    let pixelRatio = fbo1.pixelRatio(fbo1.treeLocation([0, 0, 0], { from: mMatrix, to: 'WORLD' }));
-    if (isNaN(box_key) || mouseIsPressed) {
-      box.target = box.size / pixelRatio;
-    }
-    else {
-      if (boxes[box_key] === box) {
-        box_key_matrix = mMatrix;
+    if (boxes[box_key] === box) {
+      if (keyIsPressed && !mouseIsPressed) {
+        let boxLocation = fbo1.treeLocation([0, 0, 0], { from: fbo1.mMatrix(), to: 'WORLD' });
+        let pixelRatio = fbo1.pixelRatio(boxLocation);
+        box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
+        let eyeLocation = fbo1.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
+        box.position.add(p5.Vector.sub(boxLocation, eyeLocation).normalize().mult(key === 'w' ? SPEED : -SPEED));
+      }
+      else {
+        box.target = undefined;
       }
     }
     fbo1.box(box.size);
@@ -106,16 +104,5 @@ function keyPressed() {
   // to move the box away or closer to eye.
   if (key !== 'w' && key !== 'z') {
     box_key = parseInt(key);
-  }
-}
-
-function moveBox(z) {
-  if (box_key_matrix) {
-    let v1 = fbo1.treeLocation([0, 0, 0], { from: box_key_matrix, to: 'WORLD' });
-    let v2 = fbo1.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
-    let v = p5.Vector.sub(v1, v2);
-    v.normalize();
-    v.mult(z);
-    boxes[box_key].position.add(v);
   }
 }
