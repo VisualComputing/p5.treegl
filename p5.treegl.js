@@ -929,6 +929,19 @@
     let top = renderer.tPlane();
     let near = renderer.nPlane();
     let far = renderer.fPlane();
+
+    this.line(right, top, -near, right, top, -far);
+    this.line(left, top, -near, left, top, -far);
+    this.line(left, bottom, -near, left, bottom, -far);
+    this.line(right, bottom, -near, right, bottom, -far)
+
+    this.beginShape();
+    this.vertex(right, top, -near, 0, 0);
+    this.vertex(left, top, -near, 1, 0);
+    this.vertex(left, bottom, -near, 1, 1);
+    this.vertex(right, bottom, -near, 0, 1);
+    this.endShape();
+
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
     // in the meantime display axes just for debugging
@@ -940,9 +953,48 @@
     let aspectRatio = renderer.width / renderer.height;
     let near = renderer.nPlane();
     let far = renderer.fPlane();
+
+    const points = [
+			{ x: 0, y: 0, z: 0 },
+			{ x: 0, y: 0, z: 0 },
+		];
+
+    points[0].z = near;
+    points[1].z = far;
+
+    points[0].y = points[0].z * magnitude;
+    points[0].x = points[0].y * aspectRatio;
+
+    const ratio = points[1].z / points[0].z;
+    points[1].y = ratio * points[0].y;
+    points[1].x = ratio * points[0].x;
+
+    this.line(0.0, 0.0, 0.0, points[1].x, points[1].y, -points[1].z);
+    this.line(0.0, 0.0, 0.0, -points[1].x, points[1].y, -points[1].z);
+    this.line(0.0, 0.0, 0.0, -points[1].x, -points[1].y, -points[1].z);
+    this.line(0.0, 0.0, 0.0, points[1].x, -points[1].y, -points[1].z);
+
+    this.beginShape();
+    this.vertex(-points[0].x, points[0].y, -points[0].z);
+    this.vertex(points[0].x, points[0].y, -points[0].z);
+    this.vertex(points[0].x, -points[0].y, -points[0].z);
+    this.vertex(-points[0].x, -points[0].y, -points[0].z);
+    this.vertex(-points[0].x, points[0].y, -points[0].z);
+    this.endShape();
+
+
+    // renderer.textureMode(NORMAL);
+    // renderer.tint(255, 126); // Apply transparency without changing color
+    // renderer.texture(renderer);
+
     // TODO implement me. See:
     // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
     // in the meantime display axes just for debugging
+
+    // renderer.perspective();
+    // renderer.background(0);
+    // renderer.reset();
+
     this.axes(50);
   };
 })();
