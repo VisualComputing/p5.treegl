@@ -2,12 +2,15 @@ let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
 let boxes;
+let persp = true;
 
 function setup() {
   createCanvas(length, length / 2);
   // frame buffer object instances (FBOs)
   fbo1 = createGraphics(width / 2, height, WEBGL);
   fbo2 = createGraphics(width / 2, height, WEBGL);
+  //fbo2.ortho();
+  fbo2.ortho(-fbo2.width / 2, fbo2.width / 2, -fbo2.height / 2, fbo2.height / 2, 1, 10000);
   // FBOs cams
   cam1 = new Dw.EasyCam(fbo1._renderer, { distance: 200 });
   let state1 = cam1.getState();
@@ -64,4 +67,19 @@ function scene(graphics) {
     graphics.pop();
   }
   );
+}
+
+function keyPressed() {
+  if (key === 'p') {
+    persp = !persp;
+    if (persp) {
+      let eyeZ = (fbo1.height / 2) / tan(PI / 6);
+      fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ);
+      //fbo1.perspective();
+    }
+    else {
+      fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 100);
+      //fbo1.ortho();
+    }
+  }
 }

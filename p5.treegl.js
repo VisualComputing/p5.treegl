@@ -695,10 +695,10 @@
   }
 
   /**
-   * Returns the ratio of scene (units) to pixel at given world location.
+   * Returns the world to pixel ratio units at given world location.
    * A line of n * pixelRatio(location) world units will be projected
-   * with a length of {@code n} pixels on screen.
-   * @param  {p5.Vector | Array} location      reference world location
+   * with a length of n pixels on screen.
+   * @param  {p5.Vector | Array} location      world location reference
    */
   p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
@@ -706,35 +706,6 @@
   }
 
   // 5. Drawing stuff
-
-  p5.prototype.hollowCylinder = function () {
-    this._renderer.hollowCylinder(...arguments);
-  }
-
-  /**
-   * Renders a hollow cylinder.
-   * @param  {Number} radius   radius of the base.
-   * @param  {Number} height   height of the cylinder.
-   * @param  {Number} detail   number of primitives aproximating the cylinder
-   */
-  p5.RendererGL.prototype.hollowCylinder = function ({
-    radius = 100,
-    height = 200,
-    detail = 32
-  } = {}) {
-    this._rendererState = this.push();
-    this.beginShape(TRIANGLE_STRIP);
-    for (let i = 0; i <= detail; i++) {
-      let angle = TWO_PI / detail;
-      let x = sin(i * angle);
-      let z = cos(i * angle);
-      let u = float(i) / detail;
-      this.vertex(x * radius, -height / 2, z * radius, u, 0);
-      this.vertex(x * radius, +height / 2, z * radius, u, 1);
-    }
-    this.endShape();
-    this.pop(this._rendererState);
-  }
 
   p5.prototype.axes = function () {
     this._renderer.axes(...arguments);
@@ -909,7 +880,10 @@
     this._renderer.viewFrustum(...arguments);
   };
 
-  p5.RendererGL.prototype.viewFrustum = function (renderer) {
+  p5.RendererGL.prototype.viewFrustum = function (renderer, {
+    near,
+    far = false
+  } = {}) {
     if (this === renderer) {
       console.error('displaying viewFrustum requires a renderer different than this');
       return;
@@ -918,61 +892,71 @@
     this.resetMatrix();
     this.applyMatrix(...this.vMatrix().mat4);
     this.applyMatrix(...renderer.eMatrix().mat4);
-    renderer._isOrtho() ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+    renderer._isOrtho() ? this._viewOrtho(...arguments) : this._viewPerspective(...arguments);
     this.pop(this._rendererState);
   };
 
-  p5.RendererGL.prototype._viewOrtho = function (renderer) {
-    let left = renderer.lPlane();
-    let right = renderer.rPlane();
-    let bottom = renderer.bPlane();
-    let top = renderer.tPlane();
-    let near = renderer.nPlane();
-    let far = renderer.fPlane();
+  p5.RendererGL.prototype._viewOrtho = function (renderer, {
+    near,
+    far = false
+  } = {}) {
+    let l = renderer.lPlane();
+    let r = renderer.rPlane();
+    let b = renderer.bPlane();
+    let t = renderer.tPlane();
+    let n = renderer.nPlane();
+    let f = renderer.fPlane();
 
-    this.line(right, top, -near, right, top, -far);
-    this.line(left, top, -near, left, top, -far);
-    this.line(left, bottom, -near, left, bottom, -far);
-    this.line(right, bottom, -near, right, bottom, -far);
+    this.line(r, t, -n, r, t, -f);
+    this.line(l, t, -n, l, t, -f);
+    this.line(l, b, -n, l, b, -f);
+    this.line(r, b, -n, r, b, -f);
 
-    this.line(0, 0, 0, right, top, -near);
-    this.line(0, 0, 0, left, top, -near);
-    this.line(0, 0, 0, left, bottom, -near);
-    this.line(0, 0, 0, right, bottom, -near);
-
-    this.beginShape();
-    this.vertex(right, top, -near, 0, 0);
-    this.vertex(left, top, -near, 1, 0);
-    this.vertex(left, bottom, -near, 1, 1);
-    this.vertex(right, bottom, -near, 0, 1);
-    this.endShape();
+    this.line(0, 0, 0, r, t, -n);
+    this.line(0, 0, 0, l, t, -n);
+    this.line(0, 0, 0, l, b, -n);
+    this.line(0, 0, 0, r, b, -n);
 
     this.beginShape();
-    this.vertex(right, top, -far, 0, 0);
-    this.vertex(left, top, -far, 1, 0);
-    this.vertex(left, bottom, -far, 1, 1);
-    this.vertex(right, bottom, -far, 0, 1);
+    this.vertex(r, t, -n, 0, 0);
+    this.vertex(l, t, -n, 1, 0);
+    this.vertex(l, b, -n, 1, 1);
+    this.vertex(r, b, -n, 0, 1);
     this.endShape();
 
-    // TODO implement me. See:
-    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4806
-    // in the meantime display axes just for debugging
+    if (far) {
+      this.beginShape();
+      this.vertex(r, t, -f, 0, 0);
+      this.vertex(l, t, -f, 1, 0);
+      this.vertex(l, b, -f, 1, 1);
+      this.vertex(r, b, -f, 0, 1);
+      this.endShape();
+    }
+    else {
+      this.line(r, t, -f, l, t, -f);
+      this.line(l, t, -f, l, b, -f);
+      this.line(l, b, -f, r, b, -f);
+      this.line(r, b, -f, r, t, -f);
+    }
+
+    // TODO implement near plane texture
     this.axes(50);
   };
 
-  p5.RendererGL.prototype._viewPerspective = function (renderer) {
+  p5.RendererGL.prototype._viewPerspective = function (renderer, {
+    near,
+    far = false
+  } = {}) {
     let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
-    let near = renderer.nPlane();
-    let far = renderer.fPlane();
-    
-    const points = [
-			{ x: 0, y: 0, z: 0 },
-			{ x: 0, y: 0, z: 0 },
-		];
 
-    points[0].z = near;
-    points[1].z = far;
+    const points = [
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 0, z: 0 },
+    ];
+
+    points[0].z = renderer.nPlane();
+    points[1].z = renderer.fPlane();
 
     points[0].y = points[0].z * magnitude;
     points[0].x = points[0].y * aspectRatio;
@@ -981,10 +965,10 @@
     points[1].y = ratio * points[0].y;
     points[1].x = ratio * points[0].x;
 
-    this.line(0.0, 0.0, 0.0, points[1].x, points[1].y, -points[1].z);
-    this.line(0.0, 0.0, 0.0, -points[1].x, points[1].y, -points[1].z);
-    this.line(0.0, 0.0, 0.0, -points[1].x, -points[1].y, -points[1].z);
-    this.line(0.0, 0.0, 0.0, points[1].x, -points[1].y, -points[1].z);
+    this.line(0, 0, 0, points[1].x, points[1].y, -points[1].z);
+    this.line(0, 0, 0, -points[1].x, points[1].y, -points[1].z);
+    this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
+    this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
 
     this.beginShape();
     this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
@@ -993,25 +977,25 @@
     this.vertex(-points[0].x, -points[0].y, -points[0].z, 1, 1);
     this.endShape();
 
-    this.beginShape();
-    this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
-    this.vertex(points[1].x, points[1].y, -points[1].z, 1, 0);
-    this.vertex(points[1].x, -points[1].y, -points[1].z, 0, 1);
-    this.vertex(-points[1].x, -points[1].y, -points[1].z, 1, 1);
-    this.endShape();
+    if (far) {
+      this.beginShape();
+      this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
+      this.vertex(points[1].x, points[1].y, -points[1].z, 1, 0);
+      this.vertex(points[1].x, -points[1].y, -points[1].z, 0, 1);
+      this.vertex(-points[1].x, -points[1].y, -points[1].z, 1, 1);
+      this.endShape();
+    }
+    else {
+      this.line(-points[1].x, points[1].y, -points[1].z, points[1].x, points[1].y, -points[1].z);
+      this.line(points[1].x, points[1].y, -points[1].z, points[1].x, -points[1].y, -points[1].z);
+      this.line(points[1].x, -points[1].y, -points[1].z, -points[1].x, -points[1].y, -points[1].z);
+      this.line(-points[1].x, -points[1].y, -points[1].z, -points[1].x, points[1].y, -points[1].z);
+    }
 
-
-    // renderer.textureMode(NORMAL);
-    // renderer.tint(255, 126); // Apply transparency without changing color
-    // renderer.texture(renderer);
-
-    // TODO implement me. See:
-    // https://github.com/VisualComputing/nub/blob/99ffe0e8be88680c8918c6be0b4679b5aafdb85b/src/nub/core/Scene.java#L4859
-    // in the meantime display axes just for debugging
-
-    // renderer.perspective();
-    // renderer.background(0);
-    // renderer.reset();
+    // TODO implement near plane texture
+    // this.textureMode(NORMAL);
+    // this.tint(255, 126); // Apply transparency without changing color
+    // this.texture(renderer);
 
     this.axes(50);
   };
