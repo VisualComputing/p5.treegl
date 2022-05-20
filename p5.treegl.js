@@ -761,6 +761,7 @@
     this._rendererState = this.push();
     if (dotted) {
       let weight = this.curStrokeWeight;
+      // other useful as well: this.curStrokeColor this.curFillColor
       let posi = 0;
       let posj = 0;
       this.strokeWeight(weight * 2);
@@ -897,7 +898,7 @@
   };
 
   p5.RendererGL.prototype._viewOrtho = function (renderer, {
-    near,
+    near = false,
     far = false
   } = {}) {
     let l = renderer.lPlane();
@@ -911,11 +912,6 @@
     this.line(l, t, -n, l, t, -f);
     this.line(l, b, -n, l, b, -f);
     this.line(r, b, -n, r, b, -f);
-
-    this.line(0, 0, 0, r, t, -n);
-    this.line(0, 0, 0, l, t, -n);
-    this.line(0, 0, 0, l, b, -n);
-    this.line(0, 0, 0, r, b, -n);
 
     this.beginShape();
     this.vertex(r, t, -n, 0, 0);
@@ -944,7 +940,7 @@
   };
 
   p5.RendererGL.prototype._viewPerspective = function (renderer, {
-    near,
+    near = false,
     far = false
   } = {}) {
     let magnitude = Math.tan(renderer.fov() / 2);
