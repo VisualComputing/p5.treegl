@@ -53,10 +53,12 @@ function draw() {
   fbo2.grid();
   scene(fbo2);
   fbo2.push();
-  fbo2.strokeWeight(2);
+  fbo2.strokeWeight(3);
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.5));
   fbo2.viewFrustum(fbo1);
+  //fbo2.viewFrustum(fbo1, {near: true});
+  //fbo2.viewFrustum(fbo1, {near: true, far: true});
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);

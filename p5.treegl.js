@@ -882,7 +882,7 @@
   };
 
   p5.RendererGL.prototype.viewFrustum = function (renderer, {
-    near,
+    near = false,
     far = false
   } = {}) {
     if (this === renderer) {
@@ -913,13 +913,6 @@
     this.line(l, b, -n, l, b, -f);
     this.line(r, b, -n, r, b, -f);
 
-    this.beginShape();
-    this.vertex(r, t, -n, 0, 0);
-    this.vertex(l, t, -n, 1, 0);
-    this.vertex(l, b, -n, 1, 1);
-    this.vertex(r, b, -n, 0, 1);
-    this.endShape();
-
     if (far) {
       this.beginShape();
       this.vertex(r, t, -f, 0, 0);
@@ -933,6 +926,21 @@
       this.line(l, t, -f, l, b, -f);
       this.line(l, b, -f, r, b, -f);
       this.line(r, b, -f, r, t, -f);
+    }
+
+    if (near) {
+      this.beginShape();
+      this.vertex(r, t, -n, 0, 0);
+      this.vertex(l, t, -n, 1, 0);
+      this.vertex(l, b, -n, 1, 1);
+      this.vertex(r, b, -n, 0, 1);
+      this.endShape();
+    }
+    else {
+      this.line(r, t, -n, l, t, -n);
+      this.line(l, t, -n, l, b, -n);
+      this.line(l, b, -n, r, b, -n);
+      this.line(r, b, -n, r, t, -n);
     }
 
     // TODO implement near plane texture
@@ -966,13 +974,6 @@
     this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
     this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
 
-    this.beginShape();
-    this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
-    this.vertex(points[0].x, points[0].y, -points[0].z, 1, 0);
-    this.vertex(points[0].x, -points[0].y, -points[0].z, 0, 1);
-    this.vertex(-points[0].x, -points[0].y, -points[0].z, 1, 1);
-    this.endShape();
-
     if (far) {
       this.beginShape();
       this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
@@ -986,6 +987,21 @@
       this.line(points[1].x, points[1].y, -points[1].z, points[1].x, -points[1].y, -points[1].z);
       this.line(points[1].x, -points[1].y, -points[1].z, -points[1].x, -points[1].y, -points[1].z);
       this.line(-points[1].x, -points[1].y, -points[1].z, -points[1].x, points[1].y, -points[1].z);
+    }
+
+    if (near) {
+      this.beginShape();
+      this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
+      this.vertex(points[0].x, points[0].y, -points[0].z, 1, 0);
+      this.vertex(points[0].x, -points[0].y, -points[0].z, 0, 1);
+      this.vertex(-points[0].x, -points[0].y, -points[0].z, 1, 1);
+      this.endShape();
+    }
+    else {
+      this.line(-points[0].x, points[0].y, -points[0].z, points[0].x, points[0].y, -points[0].z);
+      this.line(points[0].x, points[0].y, -points[0].z, points[0].x, -points[0].y, -points[0].z);
+      this.line(points[0].x, -points[0].y, -points[0].z, -points[0].x, -points[0].y, -points[0].z);
+      this.line(-points[0].x, -points[0].y, -points[0].z, -points[0].x, points[0].y, -points[0].z);
     }
 
     // TODO implement near plane texture
