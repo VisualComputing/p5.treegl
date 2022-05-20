@@ -918,7 +918,7 @@
     this.resetMatrix();
     this.applyMatrix(...this.vMatrix().mat4);
     this.applyMatrix(...renderer.eMatrix().mat4);
-    renderer._isOrtho() || true ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+    renderer._isOrtho() ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
     this.pop(this._rendererState);
   };
 
