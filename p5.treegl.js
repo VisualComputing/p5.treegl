@@ -882,6 +882,7 @@
   };
 
   p5.RendererGL.prototype.viewFrustum = function (renderer, {
+    sides = false,
     near = false,
     far = false
   } = {}) {
@@ -898,6 +899,7 @@
   };
 
   p5.RendererGL.prototype._viewOrtho = function (renderer, {
+    sides = false,
     near = false,
     far = false
   } = {}) {
@@ -907,12 +909,6 @@
     let t = renderer.tPlane();
     let n = renderer.nPlane();
     let f = renderer.fPlane();
-
-    this.line(r, t, -n, r, t, -f);
-    this.line(l, t, -n, l, t, -f);
-    this.line(l, b, -n, l, b, -f);
-    this.line(r, b, -n, r, b, -f);
-
     if (far) {
       this.beginShape();
       this.vertex(r, t, -f, 0, 0);
@@ -927,7 +923,38 @@
       this.line(l, b, -f, r, b, -f);
       this.line(r, b, -f, r, t, -f);
     }
-
+    if (sides) {
+      this.beginShape();
+      this.vertex(l, t, -f);
+      this.vertex(l, t, -n);
+      this.vertex(r, t, -n);
+      this.vertex(r, t, -f);
+      this.endShape();
+      this.beginShape();
+      this.vertex(r, t, -f);
+      this.vertex(r, t, -n);
+      this.vertex(r, b, -n);
+      this.vertex(r, b, -f);
+      this.endShape();
+      this.beginShape();
+      this.vertex(r, b, -f);
+      this.vertex(r, b, -n);
+      this.vertex(l, b, -n);
+      this.vertex(l, b, -f);
+      this.endShape();
+      this.beginShape();
+      this.vertex(l, t, -n);
+      this.vertex(l, t, -f);
+      this.vertex(l, b, -f);
+      this.vertex(l, b, -n);
+      this.endShape();
+    }
+    else {
+      this.line(r, t, -n, r, t, -f);
+      this.line(l, t, -n, l, t, -f);
+      this.line(l, b, -n, l, b, -f);
+      this.line(r, b, -n, r, b, -f);
+    }
     if (near) {
       this.beginShape();
       this.vertex(r, t, -n, 0, 0);
@@ -942,38 +969,28 @@
       this.line(l, b, -n, r, b, -n);
       this.line(r, b, -n, r, t, -n);
     }
-
     // TODO implement near plane texture
     this.axes(50);
   };
 
   p5.RendererGL.prototype._viewPerspective = function (renderer, {
+    sides = false,
     near = false,
     far = false
   } = {}) {
     let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
-
     const points = [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 0 },
     ];
-
     points[0].z = renderer.nPlane();
     points[1].z = renderer.fPlane();
-
     points[0].y = points[0].z * magnitude;
     points[0].x = points[0].y * aspectRatio;
-
     const ratio = points[1].z / points[0].z;
     points[1].y = ratio * points[0].y;
     points[1].x = ratio * points[0].x;
-
-    this.line(0, 0, 0, points[1].x, points[1].y, -points[1].z);
-    this.line(0, 0, 0, -points[1].x, points[1].y, -points[1].z);
-    this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
-    this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
-
     if (far) {
       this.beginShape();
       this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
@@ -988,7 +1005,42 @@
       this.line(points[1].x, -points[1].y, -points[1].z, -points[1].x, -points[1].y, -points[1].z);
       this.line(-points[1].x, -points[1].y, -points[1].z, -points[1].x, points[1].y, -points[1].z);
     }
-
+    if (sides) {
+      this.beginShape();
+      this.vertex(-points[1].x, points[1].y, -points[1].z);
+      this.vertex(-points[0].x, points[0].y, -points[0].z);
+      this.vertex(points[0].x, points[0].y, -points[0].z);
+      this.vertex(points[1].x, points[1].y, -points[1].z);
+      this.endShape();
+      this.beginShape();
+      this.vertex(points[1].x, points[1].y, -points[1].z);
+      this.vertex(points[0].x, points[0].y, -points[0].z);
+      this.vertex(points[0].x, -points[0].y, -points[0].z);
+      this.vertex(points[1].x, -points[1].y, -points[1].z);
+      this.endShape();
+      this.beginShape();
+      this.vertex(points[1].x, -points[1].y, -points[1].z);
+      this.vertex(points[0].x, -points[0].y, -points[0].z);
+      this.vertex(-points[0].x, -points[0].y, -points[0].z);
+      this.vertex(-points[1].x, -points[1].y, -points[1].z);
+      this.endShape();
+      this.beginShape();
+      this.vertex(-points[0].x, points[0].y, -points[0].z);
+      this.vertex(-points[1].x, points[1].y, -points[1].z);
+      this.vertex(-points[1].x, -points[1].y, -points[1].z);
+      this.vertex(-points[0].x, -points[0].y, -points[0].z);
+      this.endShape();
+      this.line(0, 0, 0, points[0].x, points[0].y, -points[0].z);
+      this.line(0, 0, 0, -points[0].x, points[0].y, -points[0].z);
+      this.line(0, 0, 0, -points[0].x, -points[0].y, -points[0].z);
+      this.line(0, 0, 0, points[0].x, -points[0].y, -points[0].z);
+    }
+    else {
+      this.line(0, 0, 0, points[1].x, points[1].y, -points[1].z);
+      this.line(0, 0, 0, -points[1].x, points[1].y, -points[1].z);
+      this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
+      this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
+    }
     if (near) {
       this.beginShape();
       this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
@@ -1003,12 +1055,10 @@
       this.line(points[0].x, -points[0].y, -points[0].z, -points[0].x, -points[0].y, -points[0].z);
       this.line(-points[0].x, -points[0].y, -points[0].z, -points[0].x, points[0].y, -points[0].z);
     }
-
     // TODO implement near plane texture
     // this.textureMode(NORMAL);
     // this.tint(255, 126); // Apply transparency without changing color
     // this.texture(renderer);
-
     this.axes(50);
   };
 })();
