@@ -918,7 +918,7 @@
     this.resetMatrix();
     this.applyMatrix(...this.vMatrix().mat4);
     this.applyMatrix(...renderer.eMatrix().mat4);
-    renderer._isOrtho() ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
+    renderer._isOrtho() || true ? this._viewOrtho(renderer) : this._viewPerspective(renderer);
     this.pop(this._rendererState);
   };
 
@@ -933,13 +933,25 @@
     this.line(right, top, -near, right, top, -far);
     this.line(left, top, -near, left, top, -far);
     this.line(left, bottom, -near, left, bottom, -far);
-    this.line(right, bottom, -near, right, bottom, -far)
+    this.line(right, bottom, -near, right, bottom, -far);
+
+    this.line(0, 0, 0, right, top, -near);
+    this.line(0, 0, 0, left, top, -near);
+    this.line(0, 0, 0, left, bottom, -near);
+    this.line(0, 0, 0, right, bottom, -near);
 
     this.beginShape();
     this.vertex(right, top, -near, 0, 0);
     this.vertex(left, top, -near, 1, 0);
     this.vertex(left, bottom, -near, 1, 1);
     this.vertex(right, bottom, -near, 0, 1);
+    this.endShape();
+
+    this.beginShape();
+    this.vertex(right, top, -far, 0, 0);
+    this.vertex(left, top, -far, 1, 0);
+    this.vertex(left, bottom, -far, 1, 1);
+    this.vertex(right, bottom, -far, 0, 1);
     this.endShape();
 
     // TODO implement me. See:
@@ -953,7 +965,7 @@
     let aspectRatio = renderer.width / renderer.height;
     let near = renderer.nPlane();
     let far = renderer.fPlane();
-
+    
     const points = [
 			{ x: 0, y: 0, z: 0 },
 			{ x: 0, y: 0, z: 0 },
@@ -975,11 +987,17 @@
     this.line(0.0, 0.0, 0.0, points[1].x, -points[1].y, -points[1].z);
 
     this.beginShape();
-    this.vertex(-points[0].x, points[0].y, -points[0].z);
-    this.vertex(points[0].x, points[0].y, -points[0].z);
-    this.vertex(points[0].x, -points[0].y, -points[0].z);
-    this.vertex(-points[0].x, -points[0].y, -points[0].z);
-    this.vertex(-points[0].x, points[0].y, -points[0].z);
+    this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
+    this.vertex(points[0].x, points[0].y, -points[0].z, 1, 0);
+    this.vertex(points[0].x, -points[0].y, -points[0].z, 0, 1);
+    this.vertex(-points[0].x, -points[0].y, -points[0].z, 1, 1);
+    this.endShape();
+
+    this.beginShape();
+    this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
+    this.vertex(points[1].x, points[1].y, -points[1].z, 1, 0);
+    this.vertex(points[1].x, -points[1].y, -points[1].z, 0, 1);
+    this.vertex(-points[1].x, -points[1].y, -points[1].z, 1, 1);
     this.endShape();
 
 
