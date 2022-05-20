@@ -714,36 +714,52 @@
   /**
    * Draws axes.
    */
-  p5.RendererGL.prototype.axes = function (size = 100) {
+  p5.RendererGL.prototype.axes = function ({
+    size = 100,
+    labels = true,
+    xneg = false,
+    yneg = false,
+    zneg = false,
+  } = {}) {
     this._rendererState = this.push();
-    const charWidth = size / 40.0;
-    const charHeight = size / 30.0;
-    const charShift = 1.04 * size;
-    this.strokeWeight(1);
-    // The X
-    this.stroke(200, 0, 0);
-    this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
-    this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
-    // The Y
-    this.stroke(0, 200, 0);
-    this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
-    this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
-    this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
-    this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
-    // The Z
-    this.stroke(0, 100, 200);
-    this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
-    this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
-    this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
+    if (labels) {
+      const charWidth = size / 40.0;
+      const charHeight = size / 30.0;
+      const charShift = 1.04 * size;
+      // The X
+      this.stroke(200, 0, 0);
+      this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
+      this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
+      // The Y
+      this.stroke(0, 200, 0);
+      this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+      this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
+      this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
+      this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
+      // The Z
+      this.stroke(0, 100, 200);
+      this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
+      this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
+      this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
+    }
     // X Axis
     this.stroke(200, 0, 0);
     this.line(0, 0, 0, size, 0, 0);
+    if (xneg) {
+      this.line(0, 0, 0, -size, 0, 0);
+    }
     // Y Axis
     this.stroke(0, 200, 0);
     this.line(0, 0, 0, 0, size, 0);
+    if (yneg) {
+      this.line(0, 0, 0, 0, -size, 0);
+    }
     // Z Axis
     this.stroke(0, 100, 200);
     this.line(0, 0, 0, 0, 0, size);
+    if (zneg) {
+      this.line(0, 0, 0, 0, 0, -size);
+    }
     this.pop(this._rendererState);
   };
 
