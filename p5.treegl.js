@@ -4,15 +4,107 @@
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
-(function () {
+
+/** @namespace  */
+var Tree = (function(ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
     VERSION: '0.1.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
+  
+  Object.freeze(INFO);
 
-  console.log(INFO);
+  // Axes consts
+  const X = 1 << 0;
+  const Y = 1 << 1;
+  const Z = 1 << 2;
+  const XNEG = 1 << 3;
+  const YNEG = 1 << 4;
+  const ZNEG = 1 << 5;
+  const LABELS = 1 << 6;
+
+  // Frustum consts
+  const NEAR = 1 << 0;
+  const FAR = 1 << 1;
+  const BODY = 1 << 2;
+  
+  ext = (ext !== undefined) ? ext : {};
+  
+  /**
+   * @memberof Tree
+   * @type {Object}
+   */
+  ext.INFO = INFO;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.X = X;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.Y = Y;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.Z = Z;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.XNEG = XNEG;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.YNEG = YNEG;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.ZNEG = ZNEG;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.LABELS = LABELS;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.NEAR = NEAR;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.FAR = FAR;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.BODY = BODY;
+  
+  return ext;
+  
+  })(Tree);
+
+
+(function () {
+  console.log(Tree.INFO);
 
   // 1. Matrix stuff
 
@@ -897,11 +989,7 @@
     this._renderer.viewFrustum(...arguments);
   };
 
-  p5.RendererGL.prototype.viewFrustum = function (renderer, {
-    sides = false,
-    near = false,
-    far = false
-  } = {}) {
+  p5.RendererGL.prototype.viewFrustum = function (renderer = _renderer, fill_mask = Tree.NEAR | Tree.FAR) {
     if (this === renderer) {
       console.error('displaying viewFrustum requires a renderer different than this');
       return;
@@ -914,18 +1002,14 @@
     this.pop(this._rendererState);
   };
 
-  p5.RendererGL.prototype._viewOrtho = function (renderer, {
-    sides = false,
-    near = false,
-    far = false
-  } = {}) {
+  p5.RendererGL.prototype._viewOrtho = function (renderer, fill_mask = tree.NEAR | tree.FAR) {
     let l = renderer.lPlane();
     let r = renderer.rPlane();
     let b = renderer.bPlane();
     let t = renderer.tPlane();
     let n = renderer.nPlane();
     let f = renderer.fPlane();
-    if (far) {
+    if (~(fill_mask | ~Tree.FAR) === 0) {
       this.beginShape();
       this.vertex(r, t, -f, 0, 0);
       this.vertex(l, t, -f, 1, 0);
@@ -939,7 +1023,7 @@
       this.line(l, b, -f, r, b, -f);
       this.line(r, b, -f, r, t, -f);
     }
-    if (sides) {
+    if (~(fill_mask | ~Tree.BODY) === 0) {
       this.beginShape();
       this.vertex(l, t, -f);
       this.vertex(l, t, -n);
@@ -971,7 +1055,7 @@
       this.line(l, b, -n, l, b, -f);
       this.line(r, b, -n, r, b, -f);
     }
-    if (near) {
+    if (~(fill_mask | ~Tree.NEAR) === 0) {
       this.beginShape();
       this.vertex(r, t, -n, 0, 0);
       this.vertex(l, t, -n, 1, 0);
@@ -989,11 +1073,7 @@
     this.axes(50);
   };
 
-  p5.RendererGL.prototype._viewPerspective = function (renderer, {
-    sides = false,
-    near = false,
-    far = false
-  } = {}) {
+  p5.RendererGL.prototype._viewPerspective = function (renderer, fill_mask = tree.NEAR | tree.FAR) {
     let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
     const points = [
@@ -1007,7 +1087,7 @@
     const ratio = points[1].z / points[0].z;
     points[1].y = ratio * points[0].y;
     points[1].x = ratio * points[0].x;
-    if (far) {
+    if (~(fill_mask | ~Tree.FAR) === 0) {
       this.beginShape();
       this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
       this.vertex(points[1].x, points[1].y, -points[1].z, 1, 0);
@@ -1021,7 +1101,7 @@
       this.line(points[1].x, -points[1].y, -points[1].z, -points[1].x, -points[1].y, -points[1].z);
       this.line(-points[1].x, -points[1].y, -points[1].z, -points[1].x, points[1].y, -points[1].z);
     }
-    if (sides) {
+    if (~(fill_mask | ~Tree.BODY) === 0) {
       this.beginShape();
       this.vertex(-points[1].x, points[1].y, -points[1].z);
       this.vertex(-points[0].x, points[0].y, -points[0].z);
@@ -1057,7 +1137,7 @@
       this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
       this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
     }
-    if (near) {
+    if (~(fill_mask | ~Tree.NEAR) === 0) {
       this.beginShape();
       this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
       this.vertex(points[0].x, points[0].y, -points[0].z, 1, 0);

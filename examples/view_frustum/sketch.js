@@ -56,10 +56,7 @@ function draw() {
   fbo2.strokeWeight(3);
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.3));
-  //fbo2.viewFrustum(fbo1);
-  fbo2.viewFrustum(fbo1, { sides: true, near: true, far: true });
-  //fbo2.viewFrustum(fbo1, {near: true});
-  //fbo2.viewFrustum(fbo1, {near: true, far: true});
+  fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY);
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);
