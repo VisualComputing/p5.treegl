@@ -997,7 +997,9 @@ var Tree = (function (ext) {
 
   /**
    * Display fbo view frustum.
-   * @param  {Number}  bits bitwise mask that may be composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
+   * @param  {p5.RendererGL | p5.Graphics} fbo renderer which viewing frustum is to be displayed.
+   * @param  {Number}   bits bitwise view-frustum mask that may be composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
+   * @param  {Function} viewer callback fbo visual representation.
    */
   p5.RendererGL.prototype.viewFrustum = function ({
     fbo = _renderer,

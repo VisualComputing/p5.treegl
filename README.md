@@ -161,7 +161,7 @@ function draw() {
 2. `grid({ size = 100, subdivisions = 10, dotted = true })`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
 3. `cross({ x = this.width / 2, y = this.height / 2, size = 50 })`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
 4. `bullsEye({ x = this.width / 2, y = this.height / 2, size = 50, circled = true })`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
-5. `viewFrustum({ fbo = _renderer, bits = Tree.NEAR | Tree.FAR, viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.NEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG }) } )`: Draws frame buffer object (`fbo`) view frustum representation according to bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
+5. `viewFrustum({ fbo = _renderer, bits = Tree.NEAR | Tree.FAR, viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.NEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG }) } )`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
 
 # Installation
 
