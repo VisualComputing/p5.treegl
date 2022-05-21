@@ -174,20 +174,28 @@ var Tree = (function (ext) {
     return new p5.Matrix();
   }
 
+  p5.prototype.lMatrix = function () {
+    return this._renderer.lMatrix(...arguments);
+  }
+
   // defaults: from: iMatrix, to: eMatrix
-  p5.prototype.lMatrix = function (
+  p5.RendererGL.prototype.lMatrix = function (
     {
       from = iMatrix(),
-      to = eMatrix()
+      to = this.eMatrix()
     } = {}) {
     return invMatrix(to).apply(from);
   }
 
+  p5.prototype.dMatrix = function () {
+    return this._renderer.dMatrix(...arguments);
+  }
+
   // defaults: from: iMatrix, to: eMatrix
-  p5.prototype.dMatrix = function (
+  p5.RendererGL.prototype.dMatrix = function (
     {
       from = iMatrix(),
-      to = eMatrix(),
+      to = this.eMatrix(),
       matrix = invMatrix(from).apply(to)
     } = {}) {
     // Note that this transposes mat4 into mat3
@@ -520,7 +528,7 @@ var Tree = (function (ext) {
       return (from == 'EYE' ? (eMatrix ?? this.eMatrix()) : from).mult4(vector);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return lMatrix({ from: from, to: to }).mult4(vector);
+      return this.lMatrix({ from: from, to: to }).mult4(vector);
     }
     if (from == 'SCREEN' && (to instanceof p5.Matrix || to == 'EYE')) {
       return (to == 'EYE' ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
@@ -650,47 +658,47 @@ var Tree = (function (ext) {
       return this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix);
     }
     if (from == 'NDC' && to == 'EYE') {
-      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix));
+      return this.dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(this._ndcToScreenDisplacement(vector), pMatrix));
     }
     if (from == 'EYE' && to == 'NDC') {
-      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix));
+      return this._screenToNDCDisplacement(this._worldToScreenDisplacement(this.dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix));
     }
     if (from == 'SCREEN' && to instanceof p5.Matrix) {
-      return dMatrix({ matrix: to }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
+      return this.dMatrix({ matrix: to }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
     }
     if (from instanceof p5.Matrix && to == 'SCREEN') {
-      return this._worldToScreenDisplacement(dMatrix({ matrix: invMatrix(from) }).mult3(vector), pMatrix);
+      return this._worldToScreenDisplacement(this.dMatrix({ matrix: invMatrix(from) }).mult3(vector), pMatrix);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
-      return dMatrix({ from: from, to: to }).mult3(vector);
+      return this.dMatrix({ from: from, to: to }).mult3(vector);
     }
     // all cases below kept for efficiency but they all may
     // be simply expressed in terms of the previous case, by:
     // 'EYE' -> eMatrix()
     // 'WORLD' -> iMatrix()
     if (from == 'EYE' && to == 'WORLD') {
-      return dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector);
+      return this.dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector);
     }
     if (from == 'WORLD' && to == 'EYE') {
-      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(vector);
+      return this.dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(vector);
     }
     if (from == 'EYE' && to == 'SCREEN') {
-      return this._worldToScreenDisplacement(dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix);
+      return this._worldToScreenDisplacement(this.dMatrix({ matrix: vMatrix ?? this.vMatrix() }).mult3(vector), pMatrix);
     }
     if (from == 'SCREEN' && to == 'EYE') {
-      return dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
+      return this.dMatrix({ matrix: eMatrix ?? this.eMatrix() }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
     }
     if (from == 'EYE' && to instanceof p5.Matrix) {
-      return dMatrix({ matrix: (vMatrix ?? this.vMatrix()).apply(to) }).mult3(vector);
+      return this.dMatrix({ matrix: (vMatrix ?? this.vMatrix()).apply(to) }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'EYE') {
-      return dMatrix({ matrix: invMatrix(from).apply(eMatrix ?? this.eMatrix()) }).mult3(vector);
+      return this.dMatrix({ matrix: invMatrix(from).apply(eMatrix ?? this.eMatrix()) }).mult3(vector);
     }
     if (from == 'WORLD' && to instanceof p5.Matrix) {
-      return dMatrix({ matrix: to }).mult3(vector);
+      return this.dMatrix({ matrix: to }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == 'WORLD') {
-      return dMatrix({ matrix: invMatrix(from) }).mult3(vector);
+      return this.dMatrix({ matrix: invMatrix(from) }).mult3(vector);
     }
     console.error('couldn\'t parse your treeDisplacement query!');
     return vector;
