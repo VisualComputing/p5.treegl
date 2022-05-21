@@ -989,6 +989,11 @@ var Tree = (function(ext) {
     this._renderer.viewFrustum(...arguments);
   };
 
+  /**
+   * Display renderer view frustum.
+   * 
+   * @param  {Number}  fill bitwise mask composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
+   */
   p5.RendererGL.prototype.viewFrustum = function (renderer = _renderer, fill_mask = Tree.NEAR | Tree.FAR) {
     if (this === renderer) {
       console.error('displaying viewFrustum requires a renderer different than this');
