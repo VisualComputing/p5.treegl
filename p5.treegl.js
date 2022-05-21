@@ -27,7 +27,12 @@ var Tree = (function (ext) {
   const NEAR = 1 << 0;
   const FAR = 1 << 1;
   const BODY = 1 << 2;
-  ext = (ext !== undefined) ? ext : {};
+  // visibility
+  const INVISIBLE = 0;
+  const VISIBLE = 1;
+  const SEMIVISIBLE = 2;
+
+  ext ??= {};
 
   /**
    * @memberof Tree
@@ -101,8 +106,25 @@ var Tree = (function (ext) {
    */
   ext.BODY = BODY;
 
-  return ext;
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+   ext.INVISIBLE = INVISIBLE;
 
+   /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.VISIBLE = VISIBLE;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+   ext.SEMIVISIBLE = SEMIVISIBLE;
+
+  return ext;
 })(Tree);
 
 
