@@ -53,7 +53,7 @@ function draw() {
   if (auto_rotate.checked()) {
     frames++;
   }
-  axes(30);
+  axes({ size: 30 });
   push();
   switch (mode.value()) {
     case 'Fill':
@@ -72,7 +72,7 @@ function draw() {
   translate(-50, 30);
   rotateY(frames * 0.01);
   sphere1 = mMatrix();
-  axes(30);
+  axes({ size: 30 });
   noStroke();
   fill(0, 255, 255, 125);
   sphere(10);
@@ -81,7 +81,7 @@ function draw() {
   translate(50, -30);
   rotateZ(frames * 0.01);
   sphere2 = mMatrix();
-  axes(30);
+  axes({ size: 30 });
   noStroke();
   fill(255, 0, 255, 125);
   sphere(10);

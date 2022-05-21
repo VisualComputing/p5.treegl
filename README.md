@@ -157,11 +157,11 @@ function draw() {
 
 # Drawing stuff
 
-1. `axes(size = 100)`: Draws axes with given `size` in world units.
+1. `axes({ size = 100, bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z })`: Draws axes with given `size` in world units, and bitwise mask `bits` that may be composed of `Tree.X`, `Tree.XNEG`, `Tree.Y`, `Tree.YNEG`, `Tree.Z`, `Tree.ZNEG` and `Tree.LABELS` `bits`.
 2. `grid({ size = 100, subdivisions = 10, dotted = true })`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
 3. `cross({ x = this.width / 2, y = this.height / 2, size = 50 })`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
 4. `bullsEye({ x = this.width / 2, y = this.height / 2, size = 50, circled = true })`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
-5. `hollowCylinder({ radius = 100, height = 200, detail = 32 })`: Draws a hollow cylinder with given `radius` and `height` in world units and given level of `detail`.
+5. `viewFrustum({ fbo = _renderer, bits = Tree.NEAR | Tree.FAR, viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.NEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG }) } )`: Draws frame buffer object (`fbo`) view frustum representation according to bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
 
 # Installation
 

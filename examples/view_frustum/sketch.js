@@ -1,3 +1,5 @@
+'use strict';
+
 let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
@@ -41,7 +43,7 @@ function setup() {
 function draw() {
   fbo1.background(175, 125, 115);
   fbo1.reset();
-  fbo1.axes(100, Tree.X | Tree.YNEG);
+  fbo1.axes({ size: 100, bits: Tree.X | Tree.YNEG });
   fbo1.grid();
   scene(fbo1);
   beginHUD();
@@ -56,9 +58,9 @@ function draw() {
   fbo2.strokeWeight(3);
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.3));
-  fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY);
-  //fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY /*, () => fbo2.axes(50, Tree.Y | Tree.X)*/);
-  //fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY, () => {});
+  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY });
+  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
+  //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);

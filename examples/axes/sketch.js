@@ -22,7 +22,7 @@ function draw() {
   }
   push();
   strokeWeight(5);
-  axes({ size: 100, labels: false });
+  axes({ size: 100, bits: Tree.LABELS });
   pop();
   push();
   stroke('red');
