@@ -6,14 +6,14 @@
 // https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md
 
 /** @namespace  */
-var Tree = (function(ext) {
+var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
     VERSION: '0.1.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
-  
+
   Object.freeze(INFO);
 
   // Axes consts
@@ -29,9 +29,9 @@ var Tree = (function(ext) {
   const NEAR = 1 << 0;
   const FAR = 1 << 1;
   const BODY = 1 << 2;
-  
+
   ext = (ext !== undefined) ? ext : {};
-  
+
   /**
    * @memberof Tree
    * @type {Object}
@@ -97,10 +97,10 @@ var Tree = (function(ext) {
    * @type {number}
    */
   ext.BODY = BODY;
-  
+
   return ext;
-  
-  })(Tree);
+
+})(Tree);
 
 
 (function () {
@@ -805,16 +805,12 @@ var Tree = (function(ext) {
 
   /**
    * Draws axes.
+   * param  {Number}  stroke_mask
+   * @param  {Number}  stroke_mask bitwise mask that may be composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
    */
-  p5.RendererGL.prototype.axes = function ({
-    size = 100,
-    labels = true,
-    xneg = false,
-    yneg = false,
-    zneg = false,
-  } = {}) {
+  p5.RendererGL.prototype.axes = function (size = 100, stroke_mask = Tree.LABELS | Tree.X | Tree.Y | Tree.Z) {
     this._rendererState = this.push();
-    if (labels) {
+    if (~(stroke_mask | ~Tree.LABELS) === 0) {
       const charWidth = size / 40.0;
       const charHeight = size / 30.0;
       const charShift = 1.04 * size;
@@ -836,20 +832,26 @@ var Tree = (function(ext) {
     }
     // X Axis
     this.stroke(200, 0, 0);
-    this.line(0, 0, 0, size, 0, 0);
-    if (xneg) {
+    if (~(stroke_mask | ~Tree.X) === 0) {
+      this.line(0, 0, 0, size, 0, 0);
+    }
+    if (~(stroke_mask | ~Tree.XNEG) === 0) {
       this.line(0, 0, 0, -size, 0, 0);
     }
     // Y Axis
     this.stroke(0, 200, 0);
-    this.line(0, 0, 0, 0, size, 0);
-    if (yneg) {
+    if (~(stroke_mask | ~Tree.Y) === 0) {
+      this.line(0, 0, 0, 0, size, 0);
+    }
+    if (~(stroke_mask | ~Tree.YNEG) === 0) {
       this.line(0, 0, 0, 0, -size, 0);
     }
     // Z Axis
     this.stroke(0, 100, 200);
-    this.line(0, 0, 0, 0, 0, size);
-    if (zneg) {
+    if (~(stroke_mask | ~Tree.Z) === 0) {
+      this.line(0, 0, 0, 0, 0, size);
+    }
+    if (~(stroke_mask | ~Tree.ZNEG) === 0) {
       this.line(0, 0, 0, 0, 0, -size);
     }
     this.pop(this._rendererState);
@@ -991,10 +993,9 @@ var Tree = (function(ext) {
 
   /**
    * Display renderer view frustum.
-   * 
-   * @param  {Number}  fill bitwise mask composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
+   * @param  {Number}  fill_mask bitwise mask that may be composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
    */
-  p5.RendererGL.prototype.viewFrustum = function (renderer = _renderer, fill_mask = Tree.NEAR | Tree.FAR) {
+  p5.RendererGL.prototype.viewFrustum = function (renderer = _renderer, fill_mask = Tree.NEAR | Tree.FAR, viewer) {
     if (this === renderer) {
       console.error('displaying viewFrustum requires a renderer different than this');
       return;
@@ -1007,7 +1008,9 @@ var Tree = (function(ext) {
     this.pop(this._rendererState);
   };
 
-  p5.RendererGL.prototype._viewOrtho = function (renderer, fill_mask = tree.NEAR | tree.FAR) {
+  p5.RendererGL.prototype._viewOrtho = function (renderer, fill_mask = tree.NEAR | tree.FAR,
+    viewer = () => this.axes(50, Tree.X | Tree.XNEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG)) {
+    viewer();
     let l = renderer.lPlane();
     let r = renderer.rPlane();
     let b = renderer.bPlane();
@@ -1060,6 +1063,7 @@ var Tree = (function(ext) {
       this.line(l, b, -n, l, b, -f);
       this.line(r, b, -n, r, b, -f);
     }
+    // TODO implement near plane texture
     if (~(fill_mask | ~Tree.NEAR) === 0) {
       this.beginShape();
       this.vertex(r, t, -n, 0, 0);
@@ -1074,11 +1078,11 @@ var Tree = (function(ext) {
       this.line(l, b, -n, r, b, -n);
       this.line(r, b, -n, r, t, -n);
     }
-    // TODO implement near plane texture
-    this.axes(50);
   };
 
-  p5.RendererGL.prototype._viewPerspective = function (renderer, fill_mask = tree.NEAR | tree.FAR) {
+  p5.RendererGL.prototype._viewPerspective = function (renderer, fill_mask = tree.NEAR | tree.FAR,
+    viewer = () => this.axes(50, Tree.X | Tree.XNEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG)) {
+    viewer();
     let magnitude = Math.tan(renderer.fov() / 2);
     let aspectRatio = renderer.width / renderer.height;
     const points = [
@@ -1142,6 +1146,12 @@ var Tree = (function(ext) {
       this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
       this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
     }
+    // TODO implement near plane texture
+    // Something along the lines
+    // this.textureMode(NORMAL);
+    // this.tint(255, 126); // Apply transparency without changing color
+    // this.texture(renderer);
+    // doesn't work since this.texture is not found
     if (~(fill_mask | ~Tree.NEAR) === 0) {
       this.beginShape();
       this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
@@ -1156,10 +1166,5 @@ var Tree = (function(ext) {
       this.line(points[0].x, -points[0].y, -points[0].z, -points[0].x, -points[0].y, -points[0].z);
       this.line(-points[0].x, -points[0].y, -points[0].z, -points[0].x, points[0].y, -points[0].z);
     }
-    // TODO implement near plane texture
-    // this.textureMode(NORMAL);
-    // this.tint(255, 126); // Apply transparency without changing color
-    // this.texture(renderer);
-    this.axes(50);
   };
 })();

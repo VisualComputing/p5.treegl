@@ -41,7 +41,7 @@ function setup() {
 function draw() {
   fbo1.background(175, 125, 115);
   fbo1.reset();
-  fbo1.axes();
+  fbo1.axes(100, Tree.X | Tree.YNEG);
   fbo1.grid();
   scene(fbo1);
   beginHUD();
@@ -57,6 +57,8 @@ function draw() {
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.3));
   fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY);
+  //fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY /*, () => fbo2.axes(50, Tree.Y | Tree.X)*/);
+  //fbo2.viewFrustum(fbo1, Tree.NEAR | Tree.BODY, () => {});
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);
