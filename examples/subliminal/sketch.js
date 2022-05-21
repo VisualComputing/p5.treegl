@@ -57,7 +57,10 @@ function draw() {
   fbo2.axes();
   fbo2.grid();
   scene2();
-  fbo2.viewFrustum(fbo1);
+  fbo2.push();
+  fbo2.fill(255, 0, 255, 100);
+  fbo2.viewFrustum({ fbo: fbo1 });
+  fbo2.push();
   beginHUD();
   image(fbo2, width / 2, 0);
   endHUD();
