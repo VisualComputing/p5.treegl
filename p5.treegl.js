@@ -860,8 +860,8 @@ var Tree = (function (ext) {
   }
 
   p5.RendererGL.prototype._pointVisibility = function (point, bounds = this.bounds()) {
-    for (let i = 0; i < 6; ++i) {
-      let d = this.distanceToBound(point, i, bounds);
+    for (const key in bounds) {
+      let d = this.distanceToBound(point, key, bounds);
       if (d > 0) {
         return Tree.INVISIBLE;
       }
@@ -874,8 +874,8 @@ var Tree = (function (ext) {
 
   p5.RendererGL.prototype._ballVisibility = function (center, radius, bounds = this.bounds()) {
     let allInForAllPlanes = true;
-    for (let i = 0; i < 6; ++i) {
-      let d = this.distanceToBound(center, i, bounds);
+    for (const key in bounds) {
+      let d = this.distanceToBound(center, key, bounds);
       if (d > radius) {
         return Tree.INVISIBLE;
       }
@@ -897,12 +897,12 @@ var Tree = (function (ext) {
       corner2 = createVector(corner2[0] ?? 0, corner2[1] ?? 0, corner2[2] ?? 0);
     }
     let allInForAllPlanes = true;
-    for (let i = 0; i < 6; ++i) {
+    for (const key in bounds) {
       let allOut = true;
       for (let c = 0; c < 8; ++c) {
         let pos = new p5.Vector(((c & 4) != 0) ? corner1.x : corner2.x, ((c & 2) != 0) ? corner1.y : corner2.y,
           ((c & 1) != 0) ? corner1.z : corner2.z);
-        if (this.distanceToBound(pos, i, bounds) > 0) {
+        if (this.distanceToBound(pos, key, bounds) > 0) {
           allInForAllPlanes = false;
         }
         else {
@@ -926,16 +926,15 @@ var Tree = (function (ext) {
   }
 
   /**
-   * Returns the 6 plane equations of the eye bounds defined
-   * in the world coordinate system.
-   * The six 4-component vectors, respectively correspond to the
-   * left, right, near, far, top and bottom frustum planes. Each
-   * vector holds a plane equation of the form:
+   * Returns the 6 plane equations of the eye frustum bounds defined
+   * in the world coordinate system encoded as an object literal
+   * having 'l' (left plane), 'r' (right plane), 'n' (near plane),
+   * 'f' (far plane) 't' (top plane) and 'b' (bottom plane) keys.
+   * Each 4-component array holds a plane equation of the form:
    * a*x + b*y + c*z + d = 0,  where a, b, c and d are the 4
    * components of each vector, in that order.
    */
   p5.RendererGL.prototype.bounds = function () {
-    let coefficients = Array(6).fill().map(() => Array(4).fill(0));
     let normals = Array(6);
     let distances = Array(6);
     // Computed once and for all
@@ -997,13 +996,14 @@ var Tree = (function (ext) {
     normals[3] = viewDir;
     distances[2] = -posViewDir - this.nPlane();
     distances[3] = posViewDir + this.fPlane();
-    for (let i = 0; i < 6; ++i) {
-      coefficients[i][0] = normals[i].x;
-      coefficients[i][1] = normals[i].y;
-      coefficients[i][2] = normals[i].z;
-      coefficients[i][3] = distances[i];
-    }
-    return coefficients;
+   return {
+     l: [normals[0].x, normals[0].y, normals[0].z, distances[0]],
+     r: [normals[1].x, normals[1].y, normals[1].z, distances[1]],
+     n: [normals[2].x, normals[2].y, normals[2].z, distances[2]],
+     f: [normals[3].x, normals[3].y, normals[3].z, distances[3]],
+     t: [normals[4].x, normals[4].y, normals[4].z, distances[4]],
+     b: [normals[5].x, normals[5].y, normals[5].z, distances[5]]
+   }
   }
 
   p5.prototype.distanceToBound = function () {
@@ -1017,11 +1017,11 @@ var Tree = (function (ext) {
    * The distance is negative if the point lies in the planes's
    * bounding halfspace, and positive otherwise.
    */
-  p5.RendererGL.prototype.distanceToBound = function (location, index, bounds = this.bounds()) {
+  p5.RendererGL.prototype.distanceToBound = function (location, key, bounds = this.bounds()) {
     if (Array.isArray(location)) {
       location = createVector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
     }
-    return p5.Vector.dot(location, new p5.Vector(bounds[index][0], bounds[index][1], bounds[index][2])) - bounds[index][3];
+    return p5.Vector.dot(location, new p5.Vector(bounds[key][0], bounds[key][1], bounds[key][2])) - bounds[key][3];
   }
 
   // 5. Drawing stuff
