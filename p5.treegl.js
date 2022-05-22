@@ -930,9 +930,9 @@ var Tree = (function (ext) {
    * in the world coordinate system encoded as an object literal
    * having 'l' (left plane), 'r' (right plane), 'n' (near plane),
    * 'f' (far plane) 't' (top plane) and 'b' (bottom plane) keys.
-   * Each 4-component array holds a plane equation of the form:
+   * Each key holds a plane equation of the form:
    * a*x + b*y + c*z + d = 0,  where a, b, c and d are the 4
-   * components of each vector, in that order.
+   * keys of each object literal.
    */
   p5.RendererGL.prototype.bounds = function () {
     let normals = Array(6);
@@ -997,12 +997,12 @@ var Tree = (function (ext) {
     distances[2] = -posViewDir - this.nPlane();
     distances[3] = posViewDir + this.fPlane();
    return {
-     l: [normals[0].x, normals[0].y, normals[0].z, distances[0]],
-     r: [normals[1].x, normals[1].y, normals[1].z, distances[1]],
-     n: [normals[2].x, normals[2].y, normals[2].z, distances[2]],
-     f: [normals[3].x, normals[3].y, normals[3].z, distances[3]],
-     t: [normals[4].x, normals[4].y, normals[4].z, distances[4]],
-     b: [normals[5].x, normals[5].y, normals[5].z, distances[5]]
+     l: {a: normals[0].x, b: normals[0].y, c: normals[0].z, d: distances[0]},
+     r: {a: normals[1].x, b: normals[1].y, c: normals[1].z, d: distances[1]},
+     n: {a: normals[2].x, b: normals[2].y, c: normals[2].z, d: distances[2]},
+     f: {a: normals[3].x, b: normals[3].y, c: normals[3].z, d: distances[3]},
+     t: {a: normals[4].x, b: normals[4].y, c: normals[4].z, d: distances[4]},
+     b: {a: normals[5].x, b: normals[5].y, c: normals[5].z, d: distances[5]}
    }
   }
 
@@ -1021,7 +1021,7 @@ var Tree = (function (ext) {
     if (Array.isArray(location)) {
       location = createVector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
     }
-    return p5.Vector.dot(location, new p5.Vector(bounds[key][0], bounds[key][1], bounds[key][2])) - bounds[key][3];
+    return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
   // 5. Drawing stuff
