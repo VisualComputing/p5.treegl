@@ -38,6 +38,7 @@ function setup() {
       }
     );
   }
+  print(fbo1.bounds());
 }
 
 function draw() {

@@ -110,19 +110,19 @@ var Tree = (function (ext) {
    * @memberof Tree
    * @type {number}
    */
-   ext.INVISIBLE = INVISIBLE;
+  ext.INVISIBLE = INVISIBLE;
 
-   /**
-   * @memberof Tree
-   * @type {number}
-   */
+  /**
+  * @memberof Tree
+  * @type {number}
+  */
   ext.VISIBLE = VISIBLE;
 
   /**
    * @memberof Tree
    * @type {number}
    */
-   ext.SEMIVISIBLE = SEMIVISIBLE;
+  ext.SEMIVISIBLE = SEMIVISIBLE;
 
   return ext;
 })(Tree);
@@ -828,6 +828,194 @@ var Tree = (function (ext) {
   p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
       2 * Math.abs((this.treeLocation(location, { from: 'WORLD', to: 'EYE' })).y) * Math.tan(this.fov() / 2) / this.height;
+  }
+
+  p5.prototype.isPointVisible = function () {
+    return this._renderer.isPointVisible(...arguments);
+  }
+
+  /**
+   * Returns true if point is visible (i.e, lies within the eye bounds)
+   * and false otherwise.
+   */
+  p5.RendererGL.prototype.isPointVisible = function (point, bounds = this.bounds()) {
+    for (let i = 0; i < 6; ++i)
+      if (this.distanceToBound(i, point, bounds) > 0)
+        return false;
+    return true;
+  }
+
+  p5.prototype.ballVisibility = function () {
+    return this._renderer.ballVisibility(...arguments);
+  }
+
+  /**
+   * Returns Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE,
+   * depending whether the ball of given radius and center
+   * is visible, invisible, or semi-visible, respectively.
+   */
+  p5.RendererGL.prototype.ballVisibility = function (center, radius, bounds = this.bounds()) {
+    let allInForAllPlanes = true;
+    for (let i = 0; i < 6; ++i) {
+      let d = this.distanceToBound(i, center, bounds);
+      if (d > radius) {
+        return Tree.INVISIBLE;
+      }
+      if ((d > 0) || (-d < radius)) {
+        allInForAllPlanes = false;
+      }
+    }
+    if (allInForAllPlanes) {
+      return Tree.VISIBLE;
+    }
+    return Tree.SEMIVISIBLE;
+  }
+
+  p5.prototype.boxVisibility = function () {
+    return this._renderer.boxVisibility(...arguments);
+  }
+
+  /**
+   * Returns Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE,
+   * depending whether the box of given corners
+   * is visible, invisible, or semi-visible, respectively.
+   */
+  p5.RendererGL.prototype.boxVisibility = function (corner1, corner2, bounds = this.bounds()) {
+    if (Array.isArray(corner1)) {
+      corner1 = createVector(corner1[0] ?? 0, corner1[1] ?? 0, corner1[2] ?? 0);
+    }
+    if (Array.isArray(corner2)) {
+      corner2 = createVector(corner2[0] ?? 0, corner2[1] ?? 0, corner2[2] ?? 0);
+    }
+    let allInForAllPlanes = true;
+    for (let i = 0; i < 6; ++i) {
+      let allOut = true;
+      for (let c = 0; c < 8; ++c) {
+        let pos = new p5.Vector(((c & 4) != 0) ? corner1.x : corner2.x, ((c & 2) != 0) ? corner1.y : corner2.y,
+          ((c & 1) != 0) ? corner1.z : corner2.z);
+        if (this.distanceToBound(i, pos, bounds) > 0) {
+          allInForAllPlanes = false;
+        }
+        else {
+          allOut = false;
+        }
+      }
+      // The eight points are on the outside side of this plane
+      if (allOut) {
+        return Tree.INVISIBLE;
+      }
+    }
+    if (allInForAllPlanes) {
+      return Tree.VISIBLE;
+    }
+    // Too conservative, but tangent cases are too expensive to detect
+    return Tree.SEMIVISIBLE;
+  }
+
+  p5.prototype.bounds = function () {
+    return this._renderer.bounds(...arguments);
+  }
+
+  /**
+   * Returns the 6 plane equations of the eye bounds.
+   * The six 4-component vectors, respectively correspond to the
+   * left, right, near, far, top and bottom frustum planes. Each
+   * vector holds a plane equation of the form:
+   * a*x + b*y + c*z + d = 0,  where a, b, c and d are the 4
+   * components of each vector, in that order.
+   */
+  p5.RendererGL.prototype.bounds = function () {
+    // TODO simplify instantiation
+    let coefficients = Array(6).fill().map(() => Array(4).fill(0));
+    let normals = Array(6).fill(new p5.Vector());
+    let distances = Array(6).fill(0);
+    // Computed once and for all
+    let pos = this.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
+    let viewDir = this.treeDisplacement([0, 0, -1], { from: 'EYE', to: 'WORLD' }).normalize();
+    let up = this.treeDisplacement([0, 1, 0], { from: 'EYE', to: 'WORLD' }).normalize();
+    let right = this.treeDisplacement([1, 0, 0], { from: 'EYE', to: 'WORLD' }).normalize();
+    let posViewDir = p5.Vector.dot(pos, viewDir);
+    if (this._isOrtho()) {
+      normals[0] = p5.Vector.mult(right, -1);
+      normals[1] = right;
+      normals[4] = up;
+      normals[5] = p5.Vector.mult(up, -1);
+      let wh0 = Math.abs(this.rPlane() - this.lPlane()) / 2;
+      let wh1 = Math.abs(this.tPlane() - this.bPlane()) / 2;
+      distances[0] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(right, wh0)), normals[0]);
+      distances[1] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(right, wh0)), normals[1]);
+      distances[4] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(up, wh1)), normals[4]);
+      distances[5] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(up, wh1)), normals[5]);
+    }
+    else {
+      let hhfov = this.hfov() / 2;
+      let chhfov = Math.cos(hhfov);
+      let shhfov = Math.sin(hhfov);
+      normals[0] = p5.Vector.mult(viewDir, -shhfov);
+      normals[1] = p5.Vector.add(normals[0], p5.Vector.mult(right, chhfov));
+      normals[0] = p5.Vector.add(normals[0], p5.Vector.mult(right, -chhfov));
+      normals[2] = p5.Vector.mult(viewDir, -1);
+      normals[3] = viewDir;
+      let hfov = this.fov() / 2;
+      let chfov = Math.cos(hfov);
+      let shfov = Math.sin(hfov);
+      normals[4] = p5.Vector.mult(viewDir, -shfov);
+      normals[5] = p5.Vector.add(normals[4], p5.Vector.mult(up, -chfov));
+      normals[4] = p5.Vector.add(normals[4], p5.Vector.mult(up, chfov));
+      for (let i = 0; i < 2; ++i) {
+        distances[i] = p5.Vector.dot(pos, normals[i]);
+      }
+      for (let j = 4; j < 6; ++j) {
+        distances[j] = p5.Vector.dot(pos, normals[j]);
+      }
+      // Natural equations are:
+      // dist[0,1,4,5] = pos * normal[0,1,4,5];
+      // dist[2] = (pos + zNear() * viewDir) * normal[2];
+      // dist[3] = (pos + zFar() * viewDir) * normal[3];
+      // 2 times less computations using expanded/merged equations. Dir vectors
+      // are normalized.
+      let posRightCosHH = chhfov * p5.Vector.dot(pos, right);
+      distances[0] = -shhfov * posViewDir;
+      distances[1] = distances[0] + posRightCosHH;
+      distances[0] = distances[0] - posRightCosHH;
+      let posUpCosH = chfov * p5.Vector.dot(pos, up);
+      distances[4] = -shfov * posViewDir;
+      distances[5] = distances[4] - posUpCosH;
+      distances[4] = distances[4] + posUpCosH;
+    }
+    // Front and far planes are identical for both camera types.
+    normals[2] = p5.Vector.mult(viewDir, -1);
+    normals[3] = viewDir;
+    distances[2] = -posViewDir - this.nPlane();
+    distances[3] = posViewDir + this.fPlane();
+    for (let i = 0; i < 6; ++i) {
+      coefficients[i][0] = normals[i].x;
+      coefficients[i][1] = normals[i].y;
+      coefficients[i][2] = normals[i].z;
+      coefficients[i][3] = distances[i];
+    }
+    return coefficients;
+  }
+
+  p5.prototype.distanceToBound = function () {
+    return this._renderer.distanceToBound(...arguments);
+  }
+
+  /**
+   * Returns the signed distance between point {@code position} and plane {@code index}
+   * in world units. The distance is negative if the point lies in the planes's bounding
+   * halfspace, and positive otherwise.
+   * In 2D {@code index} is a value between {@code 0} and {@code 3} which respectively
+   * correspond to the left, right, top and bottom eye bounding planes.
+   * In 3D {@code index} is a value between {@code 0} and {@code 5} which respectively
+   * correspond to the left, right, near, far, top and bottom eye bounding planes.
+   */
+  p5.RendererGL.prototype.distanceToBound = function (index, location, bounds = this.bounds()) {
+    if (Array.isArray(location)) {
+      location = createVector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
+    }
+    let v = new p5.Vector(bounds[index][0], bounds[index][1], bounds[index][2]);
+    return p5.Vector.dot(location, v) - bounds[index][3];
   }
 
   // 5. Drawing stuff
