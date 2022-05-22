@@ -835,8 +835,14 @@ var Tree = (function (ext) {
   }
 
   /**
-   * Returns true if point is visible (i.e, lies within the eye bounds)
-   * and false otherwise.
+   * Returns object visibility (i.e, lies within the eye bounds)
+   * either Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE.
+   * Object may be either a point, a sphere or an axis-aligned box.
+   * @param  {p5.Vector | Array} corner1 box corner1, use it with corner2.
+   * @param  {p5.Vector | Array} corner2 box corner2, use it with corner1.
+   * @param  {p5.Vector | Array} center sphere (or point) center.
+   * @param  {Number}            radius sphere radius.
+   * @param  {Array}             bounds frustum equations 6x4 matrix.
    */
   p5.RendererGL.prototype.visibility = function ({
     corner1,
@@ -853,10 +859,6 @@ var Tree = (function (ext) {
     }
   }
 
-  /**
-   * Returns true if point is visible (i.e, lies within the eye bounds)
-   * and false otherwise.
-   */
   p5.RendererGL.prototype._pointVisibility = function (point, bounds = this.bounds()) {
     for (let i = 0; i < 6; ++i) {
       let d = this.distanceToBound(point, i, bounds);
@@ -870,11 +872,6 @@ var Tree = (function (ext) {
     return Tree.VISIBLE;
   }
 
-  /**
-   * Returns Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE,
-   * depending whether the ball of given radius and center
-   * is visible, invisible, or semi-visible, respectively.
-   */
   p5.RendererGL.prototype._ballVisibility = function (center, radius, bounds = this.bounds()) {
     let allInForAllPlanes = true;
     for (let i = 0; i < 6; ++i) {
@@ -892,11 +889,6 @@ var Tree = (function (ext) {
     return Tree.SEMIVISIBLE;
   }
 
-  /**
-   * Returns Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE,
-   * depending whether the box of given corners
-   * is visible, invisible, or semi-visible, respectively.
-   */
   p5.RendererGL.prototype._boxVisibility = function (corner1, corner2, bounds = this.bounds()) {
     if (Array.isArray(corner1)) {
       corner1 = createVector(corner1[0] ?? 0, corner1[1] ?? 0, corner1[2] ?? 0);
@@ -934,7 +926,8 @@ var Tree = (function (ext) {
   }
 
   /**
-   * Returns the 6 plane equations of the eye bounds.
+   * Returns the 6 plane equations of the eye bounds defined
+   * in the world coordinate system.
    * The six 4-component vectors, respectively correspond to the
    * left, right, near, far, top and bottom frustum planes. Each
    * vector holds a plane equation of the form:
@@ -942,10 +935,9 @@ var Tree = (function (ext) {
    * components of each vector, in that order.
    */
   p5.RendererGL.prototype.bounds = function () {
-    // TODO simplify instantiation
     let coefficients = Array(6).fill().map(() => Array(4).fill(0));
-    let normals = Array(6).fill(new p5.Vector());
-    let distances = Array(6).fill(0);
+    let normals = Array(6);
+    let distances = Array(6);
     // Computed once and for all
     let pos = this.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
     let viewDir = this.treeDisplacement([0, 0, -1], { from: 'EYE', to: 'WORLD' }).normalize();
@@ -1019,13 +1011,11 @@ var Tree = (function (ext) {
   }
 
   /**
-   * Returns the signed distance between point {@code position} and plane {@code index}
-   * in world units. The distance is negative if the point lies in the planes's bounding
-   * halfspace, and positive otherwise.
-   * In 2D {@code index} is a value between {@code 0} and {@code 3} which respectively
-   * correspond to the left, right, top and bottom eye bounding planes.
-   * In 3D {@code index} is a value between {@code 0} and {@code 5} which respectively
-   * correspond to the left, right, near, far, top and bottom eye bounding planes.
+   * Returns the signed distance between location and the frustum plane defined
+   * by bounds and index: a value between in [0..5] which respectively correspond
+   * to the left, right, near, far, top and bottom eye bounding planes. 
+   * The distance is negative if the point lies in the planes's
+   * bounding halfspace, and positive otherwise.
    */
   p5.RendererGL.prototype.distanceToBound = function (location, index, bounds = this.bounds()) {
     if (Array.isArray(location)) {
