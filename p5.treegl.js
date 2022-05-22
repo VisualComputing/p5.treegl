@@ -830,23 +830,44 @@ var Tree = (function (ext) {
       2 * Math.abs((this.treeLocation(location, { from: 'WORLD', to: 'EYE' })).y) * Math.tan(this.fov() / 2) / this.height;
   }
 
-  p5.prototype.isPointVisible = function () {
-    return this._renderer.isPointVisible(...arguments);
+  p5.prototype.visibility = function () {
+    return this._renderer.visibility(...arguments);
   }
 
   /**
    * Returns true if point is visible (i.e, lies within the eye bounds)
    * and false otherwise.
    */
-  p5.RendererGL.prototype.isPointVisible = function (point, bounds = this.bounds()) {
-    for (let i = 0; i < 6; ++i)
-      if (this.distanceToBound(i, point, bounds) > 0)
-        return false;
-    return true;
+  p5.RendererGL.prototype.visibility = function ({
+    corner1,
+    corner2,
+    center,
+    radius,
+    bounds = this.bounds()
+  } = {}) {
+    if (center) {
+      return radius ? this._ballVisibility(center, radius, bounds) : this._pointVisibility(center, bounds);
+    }
+    if (corner1 && corner2) {
+      return this._boxVisibility(corner1, corner2, bounds);
+    }
   }
 
-  p5.prototype.ballVisibility = function () {
-    return this._renderer.ballVisibility(...arguments);
+  /**
+   * Returns true if point is visible (i.e, lies within the eye bounds)
+   * and false otherwise.
+   */
+  p5.RendererGL.prototype._pointVisibility = function (point, bounds = this.bounds()) {
+    for (let i = 0; i < 6; ++i) {
+      let d = this.distanceToBound(point, i, bounds);
+      if (d > 0) {
+        return Tree.INVISIBLE;
+      }
+      if (d === 0) {
+        return Tree.SEMIVISIBLE;
+      }
+    }
+    return Tree.VISIBLE;
   }
 
   /**
@@ -854,10 +875,10 @@ var Tree = (function (ext) {
    * depending whether the ball of given radius and center
    * is visible, invisible, or semi-visible, respectively.
    */
-  p5.RendererGL.prototype.ballVisibility = function (center, radius, bounds = this.bounds()) {
+  p5.RendererGL.prototype._ballVisibility = function (center, radius, bounds = this.bounds()) {
     let allInForAllPlanes = true;
     for (let i = 0; i < 6; ++i) {
-      let d = this.distanceToBound(i, center, bounds);
+      let d = this.distanceToBound(center, i, bounds);
       if (d > radius) {
         return Tree.INVISIBLE;
       }
@@ -871,16 +892,12 @@ var Tree = (function (ext) {
     return Tree.SEMIVISIBLE;
   }
 
-  p5.prototype.boxVisibility = function () {
-    return this._renderer.boxVisibility(...arguments);
-  }
-
   /**
    * Returns Tree.VISIBLE, Tree.INVISIBLE, or Tree.SEMIVISIBLE,
    * depending whether the box of given corners
    * is visible, invisible, or semi-visible, respectively.
    */
-  p5.RendererGL.prototype.boxVisibility = function (corner1, corner2, bounds = this.bounds()) {
+  p5.RendererGL.prototype._boxVisibility = function (corner1, corner2, bounds = this.bounds()) {
     if (Array.isArray(corner1)) {
       corner1 = createVector(corner1[0] ?? 0, corner1[1] ?? 0, corner1[2] ?? 0);
     }
@@ -893,7 +910,7 @@ var Tree = (function (ext) {
       for (let c = 0; c < 8; ++c) {
         let pos = new p5.Vector(((c & 4) != 0) ? corner1.x : corner2.x, ((c & 2) != 0) ? corner1.y : corner2.y,
           ((c & 1) != 0) ? corner1.z : corner2.z);
-        if (this.distanceToBound(i, pos, bounds) > 0) {
+        if (this.distanceToBound(pos, i, bounds) > 0) {
           allInForAllPlanes = false;
         }
         else {
@@ -1010,12 +1027,11 @@ var Tree = (function (ext) {
    * In 3D {@code index} is a value between {@code 0} and {@code 5} which respectively
    * correspond to the left, right, near, far, top and bottom eye bounding planes.
    */
-  p5.RendererGL.prototype.distanceToBound = function (index, location, bounds = this.bounds()) {
+  p5.RendererGL.prototype.distanceToBound = function (location, index, bounds = this.bounds()) {
     if (Array.isArray(location)) {
       location = createVector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
     }
-    let v = new p5.Vector(bounds[index][0], bounds[index][1], bounds[index][2]);
-    return p5.Vector.dot(location, v) - bounds[index][3];
+    return p5.Vector.dot(location, new p5.Vector(bounds[index][0], bounds[index][1], bounds[index][2])) - bounds[index][3];
   }
 
   // 5. Drawing stuff

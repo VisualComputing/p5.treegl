@@ -60,7 +60,8 @@ function draw() {
 }
 
 function scene1() {
-  let vis = box ? fbo1.boxVisibility([-r/2, -r/2, -r/2], [r/2, r/2, r/2]) : fbo1.ballVisibility([0, 0, 0], r);
+  let vis = box ? fbo1.visibility({ corner1: [-r / 2, -r / 2, -r / 2], corner2: [r / 2, r / 2, r / 2] }) :
+    fbo1.visibility({ center: [0, 0, 0], radius: r });
   hue = vis === Tree.VISIBLE ? 'green' : vis === Tree.SEMIVISIBLE ? 'blue' : 'red';
   fbo1.fill(hue);
   fbo1.noStroke();
