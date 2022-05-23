@@ -26,7 +26,11 @@ var Tree = (function (ext) {
   // Frustum consts
   const NEAR = 1 << 0;
   const FAR = 1 << 1;
-  const BODY = 1 << 2;
+  const LEFT = 1 << 2;
+  const RIGHT = 1 << 3;
+  const BOTTOM = 1 << 4;
+  const TOP = 1 << 5;
+  const BODY = 1 << 6;
   // visibility
   const INVISIBLE = 0;
   const VISIBLE = 1;
@@ -99,6 +103,30 @@ var Tree = (function (ext) {
    * @type {number}
    */
   ext.FAR = FAR;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.LEFT = LEFT;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.RIGHT = RIGHT;
+
+  /**
+  * @memberof Tree
+  * @type {number}
+  */
+  ext.BOTTOM = BOTTOM;
+
+  /**
+   * @memberof Tree
+   * @type {number}
+   */
+  ext.TOP = TOP;
 
   /**
    * @memberof Tree
@@ -996,14 +1024,14 @@ var Tree = (function (ext) {
     normals[3] = viewDir;
     distances[2] = -posViewDir - this.nPlane();
     distances[3] = posViewDir + this.fPlane();
-   return {
-     l: {a: normals[0].x, b: normals[0].y, c: normals[0].z, d: distances[0]},
-     r: {a: normals[1].x, b: normals[1].y, c: normals[1].z, d: distances[1]},
-     n: {a: normals[2].x, b: normals[2].y, c: normals[2].z, d: distances[2]},
-     f: {a: normals[3].x, b: normals[3].y, c: normals[3].z, d: distances[3]},
-     t: {a: normals[4].x, b: normals[4].y, c: normals[4].z, d: distances[4]},
-     b: {a: normals[5].x, b: normals[5].y, c: normals[5].z, d: distances[5]}
-   }
+    let bounds = {};
+    bounds[Tree.LEFT] = { a: normals[0].x, b: normals[0].y, c: normals[0].z, d: distances[0] };
+    bounds[Tree.RIGHT] = { a: normals[1].x, b: normals[1].y, c: normals[1].z, d: distances[1] };
+    bounds[Tree.NEAR] = { a: normals[2].x, b: normals[2].y, c: normals[2].z, d: distances[2] };
+    bounds[Tree.FAR] = { a: normals[3].x, b: normals[3].y, c: normals[3].z, d: distances[3] };
+    bounds[Tree.TOP] = { a: normals[4].x, b: normals[4].y, c: normals[4].z, d: distances[4] };
+    bounds[Tree.BOTTOM] = { a: normals[5].x, b: normals[5].y, c: normals[5].z, d: distances[5] };
+    return bounds;
   }
 
   p5.prototype.distanceToBound = function () {

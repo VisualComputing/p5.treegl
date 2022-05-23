@@ -28,8 +28,7 @@ function setup() {
   cam2.setViewport([width / 2, 0, width / 2, height]);
   document.oncontextmenu = function () { return false; }
   // scene
-  colorMode(RGB, 1);
-  let trange = 100;
+  print(fbo1.distanceToBound([], Tree.NEAR));
 }
 
 function draw() {
