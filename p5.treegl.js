@@ -1403,4 +1403,46 @@ var Tree = (function (ext) {
       this.line(-points[0].x, -points[0].y, -points[0].z, -points[0].x, points[0].y, -points[0].z);
     }
   };
+
+  p5.prototype.drawHollowCylinder = function () {
+    this._renderer.drawHollowCylinder(...arguments);
+  };
+
+  /**
+   * Draws a hollow cylinder whose faces can be rotated with a given normal vector
+   * @param  {Number}  detail Cylinder's detail.
+   * @param  {Number}  radius Cylinder's radius.
+   * @param  {Number}  height Cylinder's height.
+   * @param  {Vector}  normal1 Top face's normal vector.
+   * @param  {Vector}  normal2 Bottom face's normal vector.
+   */
+  p5.RendererGL.prototype.drawHollowCylinder = function ({detail = 16, radius = 10, height= 50, normal1 = createVector(0, 0, 10), normal2 = createVector(0, 0, -10)} = {}) {
+    this._rendererState = this.push();
+    let pm0 = createVector(0, 0, 0);
+    let pn0 = createVector(0, 0, height);
+    let l = createVector(0, 0, 1);
+
+    this.beginShape(TRIANGLE_STRIP);
+
+    for (let t = 0; t <= detail; t++) {
+      const x = radius * cos(t * TWO_PI / detail);
+      const y = radius * sin(t * TWO_PI / detail);
+      const l0 = createVector(x, y, 0);
+
+      const u = float(t) / detail;
+
+      const d0 = (normal1.dot(p5.Vector.sub(pm0, l0))) / (l.dot(normal1));
+      const p0 = p5.Vector.add(p5.Vector.mult(l, d0), l0);
+      this.vertex(p0.x, p0.y, p0.z, u, 0);
+
+      l0.set(l0.x, l0.y, height);
+      const d1 = (normal2.dot(p5.Vector.sub(pn0, l0))) / (l.dot(normal2));
+      const p1 = p5.Vector.add(p5.Vector.mult(l, d1), l0);
+      this.vertex(p1.x, p1.y, p1.z, u, 1);
+    }
+    this.endShape();
+
+    this.pop(this._rendererState);
+  };
+  
 })();
