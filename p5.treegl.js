@@ -40,6 +40,15 @@ var Tree = (function (ext) {
   const EYE = 'EYE';
   const NDC = 'NDC';
   const SCREEN = 'SCREEN';
+  // points
+  const ORIGIN = [0, 0, 0];
+  // vectors
+  const i = [1, 0, 0];
+  const j = [0, 1, 0];
+  const k = [0, 0, 1];
+  const iNEG = [-1, 0, 0];
+  const jNEG = [0, -1, 0];
+  const kNEG = [0, 0, -1];
 
   ext ??= {};
 
@@ -180,6 +189,48 @@ var Tree = (function (ext) {
    * @type {string}
    */
   ext.SCREEN = SCREEN;
+
+  /**
+   * @memberof Tree
+   * @type {array}
+   */
+   ext.ORIGIN = ORIGIN;
+
+   /**
+   * @memberof Tree
+   * @type {array}
+   */
+    ext.i = i;
+
+    /**
+   * @memberof Tree
+   * @type {array}
+   */
+   ext.j = j;
+
+   /**
+   * @memberof Tree
+   * @type {array}
+   */
+    ext.k = k;
+
+    /**
+   * @memberof Tree
+   * @type {array}
+   */
+   ext.iNEG = iNEG;
+
+   /**
+   * @memberof Tree
+   * @type {array}
+   */
+    ext.jNEG = jNEG;
+
+    /**
+   * @memberof Tree
+   * @type {array}
+   */
+   ext.kNEG = kNEG;
 
   return ext;
 })(Tree);
