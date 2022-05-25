@@ -108,8 +108,8 @@ functon draw() {
   pvInv = pvInvMatrix();
   // ...
   // speedup treeLocation
-  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
-  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
   // ... many more treeLocation calls....
   // ... all the above treeLocation calls used the (only computed once) cached pvInv matrix
 }
@@ -128,7 +128,7 @@ function draw() {
   // continue drawing your tree...
   // let's draw a bulls eye at the model origin screen projection
   push();
-  let screenProjection = treeLocation([0, 0, 0], { from: model, to: 'SCREEN' });
+  let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
   bullsEye({ x: screenProjection.x, y: screenProjection.y });
   pop();
 }
@@ -137,7 +137,7 @@ function draw() {
 **Observations**
 
 1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
-2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN` or `Tree.NDC`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
 
 # Heads Up Display

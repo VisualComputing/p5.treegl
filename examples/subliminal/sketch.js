@@ -73,11 +73,11 @@ function scene1() {
     fbo1.translate(box.position);
     if (boxes[box_key] === box) {
       if (keyIsPressed && !mouseIsPressed) {
-        let boxLocation = fbo1.treeLocation([0, 0, 0], { from: fbo1.mMatrix(), to: 'WORLD' });
+        let boxLocation = fbo1.treeLocation([0, 0, 0], { from: fbo1.mMatrix(), to: Tree.WORLD });
         let pixelRatio = fbo1.pixelRatio(boxLocation);
         box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
-        let eyeLocation = fbo1.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
+        let eyeLocation = fbo1.treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
         box.position.add(p5.Vector.sub(boxLocation, eyeLocation).normalize().mult(key === 'w' ? SPEED : -SPEED));
       }
       else {

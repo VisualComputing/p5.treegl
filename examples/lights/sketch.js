@@ -98,7 +98,7 @@ function draw() {
   ambientLight(ambient);
   directLights.forEach(light => directionalLight(light.col,
     // transform to camera-space
-    treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ })));
+    treeDisplacement(light.dir, { from: Tree.WORLD, to: Tree.EYE /*, eMatrix: e*/ })));
   pointLights.forEach(light => {
     pointLight(light.col, light.pos);
     push();
