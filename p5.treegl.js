@@ -879,12 +879,8 @@ var Tree = (function (ext) {
     radius,
     bounds = this.bounds()
   } = {}) {
-    if (center) {
-      return radius ? this._ballVisibility(center, radius, bounds) : this._pointVisibility(center, bounds);
-    }
-    if (corner1 && corner2) {
-      return this._boxVisibility(corner1, corner2, bounds);
-    }
+    return center ? radius ? this._ballVisibility(center, radius, bounds) : this._pointVisibility(center, bounds)
+    : corner1 && corner2 ? this._boxVisibility(corner1, corner2, bounds) : console.error('couldn\'t parse your visibility query!');
   }
 
   p5.RendererGL.prototype._pointVisibility = function (point, bounds = this.bounds()) {

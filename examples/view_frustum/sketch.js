@@ -59,7 +59,7 @@ function draw() {
   fbo2.strokeWeight(3);
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.3));
-  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY });
+  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.FAR });
   //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
   //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
   fbo2.pop();
