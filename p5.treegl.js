@@ -170,67 +170,67 @@ var Tree = (function (ext) {
    * @memberof Tree
    * @type {string}
    */
-   ext.WORLD = WORLD;
+  ext.WORLD = WORLD;
 
-   /**
-   * @memberof Tree
-   * @type {string}
-   */
+  /**
+  * @memberof Tree
+  * @type {string}
+  */
   ext.EYE = EYE;
 
   /**
    * @memberof Tree
    * @type {string}
    */
-   ext.NDC = NDC;
+  ext.NDC = NDC;
 
-   /**
-   * @memberof Tree
-   * @type {string}
-   */
+  /**
+  * @memberof Tree
+  * @type {string}
+  */
   ext.SCREEN = SCREEN;
 
   /**
    * @memberof Tree
    * @type {array}
    */
-   ext.ORIGIN = ORIGIN;
+  ext.ORIGIN = ORIGIN;
 
-   /**
-   * @memberof Tree
-   * @type {array}
-   */
-    ext.i = i;
+  /**
+  * @memberof Tree
+  * @type {array}
+  */
+  ext.i = i;
 
-    /**
-   * @memberof Tree
-   * @type {array}
-   */
-   ext.j = j;
+  /**
+ * @memberof Tree
+ * @type {array}
+ */
+  ext.j = j;
 
-   /**
-   * @memberof Tree
-   * @type {array}
-   */
-    ext.k = k;
+  /**
+  * @memberof Tree
+  * @type {array}
+  */
+  ext.k = k;
 
-    /**
-   * @memberof Tree
-   * @type {array}
-   */
-   ext.iNEG = iNEG;
+  /**
+ * @memberof Tree
+ * @type {array}
+ */
+  ext.iNEG = iNEG;
 
-   /**
-   * @memberof Tree
-   * @type {array}
-   */
-    ext.jNEG = jNEG;
+  /**
+  * @memberof Tree
+  * @type {array}
+  */
+  ext.jNEG = jNEG;
 
-    /**
-   * @memberof Tree
-   * @type {array}
-   */
-   ext.kNEG = kNEG;
+  /**
+ * @memberof Tree
+ * @type {array}
+ */
+  ext.kNEG = kNEG;
 
   return ext;
 })(Tree);
@@ -593,15 +593,24 @@ var Tree = (function (ext) {
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
-  p5.RendererGL.prototype.treeLocation = function (vector, {
-    from = Tree.SCREEN,
-    to = Tree.WORLD,
-    pMatrix,
-    vMatrix,
-    eMatrix,
-    pvMatrix,
-    pvInvMatrix
-  } = {}) {
+  p5.RendererGL.prototype.treeLocation = function () {
+    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeLocation(Tree.ORIGIN, arguments[0]) :
+      this._treeLocation(...arguments);
+  }
+
+  p5.prototype._treeLocation = function () {
+    return this._renderer._treeLocation(...arguments);
+  }
+  p5.RendererGL.prototype._treeLocation = function (vector = Tree.ORIGIN,
+    {
+      from = Tree.EYE,
+      to = Tree.WORLD,
+      pMatrix,
+      vMatrix,
+      eMatrix,
+      pvMatrix,
+      pvInvMatrix
+    } = {}) {
     if (Array.isArray(vector)) {
       vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
@@ -737,13 +746,23 @@ var Tree = (function (ext) {
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
-  p5.RendererGL.prototype.treeDisplacement = function (vector, {
-    from = Tree.EYE,
-    to = Tree.WORLD,
-    vMatrix,
-    eMatrix,
-    pMatrix
-  } = {}) {
+  p5.RendererGL.prototype.treeDisplacement = function () {
+    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeDisplacement(Tree.kNEG, arguments[0]) :
+      this._treeDisplacement(...arguments);
+  }
+
+  p5.prototype._treeDisplacement = function () {
+    return this._renderer._treeDisplacement(...arguments);
+  }
+
+  p5.RendererGL.prototype._treeDisplacement = function (vector = Tree.kNEG,
+    {
+      from = Tree.EYE,
+      to = Tree.WORLD,
+      vMatrix,
+      eMatrix,
+      pMatrix
+    } = {}) {
     if (Array.isArray(vector)) {
       vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
@@ -813,13 +832,13 @@ var Tree = (function (ext) {
   }
 
   p5.RendererGL.prototype._worldToScreenDisplacement = function (vector, pMatrix = this.uPMatrix) {
-    let eyeVector = this.treeDisplacement(vector, { from: Tree.WORLD, to: Tree.EYE });
+    let eyeVector = this._treeDisplacement(vector, { from: Tree.WORLD, to: Tree.EYE });
     let dx = eyeVector.x;
     let dy = eyeVector.y;
     let perspective = pMatrix.mat4[15] == 0;
     if (perspective) {
       let position = createVector();
-      let k = Math.abs(this.treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
+      let k = Math.abs(this._treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
       dx /= 2 * k / this.height;
       dy /= 2 * k / this.height;
     }
@@ -836,14 +855,14 @@ var Tree = (function (ext) {
     let perspective = pMatrix.mat4[15] == 0;
     if (perspective) {
       let position = createVector();
-      let k = Math.abs(this.treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
+      let k = Math.abs(this._treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
       dx *= 2 * k / this.height;
       dy *= 2 * k / this.height;
     }
     let dz = vector.z;
     dz *= (pMatrix.nPlane() - pMatrix.fPlane()) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(pMatrix.rPlane() - pMatrix.lPlane()) / this.width);
     let eyeVector = createVector(dx, dy, dz);
-    return this.treeDisplacement(eyeVector, { from: Tree.EYE, to: Tree.WORLD });
+    return this._treeDisplacement(eyeVector, { from: Tree.EYE, to: Tree.WORLD });
   }
 
   p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
@@ -935,7 +954,7 @@ var Tree = (function (ext) {
    */
   p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
-      2 * Math.abs((this.treeLocation(location, { from: Tree.WORLD, to: Tree.EYE })).y) * Math.tan(this.fov() / 2) / this.height;
+      2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE })).y) * Math.tan(this.fov() / 2) / this.height;
   }
 
   p5.prototype.visibility = function () {
@@ -960,7 +979,7 @@ var Tree = (function (ext) {
     bounds = this.bounds()
   } = {}) {
     return center ? radius ? this._ballVisibility(center, radius, bounds) : this._pointVisibility(center, bounds)
-    : corner1 && corner2 ? this._boxVisibility(corner1, corner2, bounds) : console.error('couldn\'t parse your visibility query!');
+      : corner1 && corner2 ? this._boxVisibility(corner1, corner2, bounds) : console.error('couldn\'t parse your visibility query!');
   }
 
   p5.RendererGL.prototype._pointVisibility = function (point, bounds = this.bounds()) {
@@ -1042,10 +1061,11 @@ var Tree = (function (ext) {
     let normals = Array(6);
     let distances = Array(6);
     // Computed once and for all
-    let pos = this.treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
-    let viewDir = this.treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD }).normalize();
-    let up = this.treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
-    let right = this.treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
+    let pos = this._treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
+    let viewDir = this._treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD }).normalize();
+    // same as: let viewDir = this.treeDisplacement().normalize();
+    let up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
+    let right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
     let posViewDir = p5.Vector.dot(pos, viewDir);
     if (this._isOrtho()) {
       normals[0] = p5.Vector.mult(right, -1);
