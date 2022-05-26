@@ -140,7 +140,7 @@ function draw() {
 2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN` or `Tree.NDC`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
 4. The default `treeLocation` call (i.e., `treeLocation(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
-5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree.kNeg, {from: Tree.EYE, to: Tree.WORLD)`) returns the (non-normalized) [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
+5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree.kNeg, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
 6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree.kNeg` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree.iNEG` (i.e., `[-1, 0, 0]`) and `Tree.jNEG` (i.e., `[0, -1, 0]`).
 
 # Heads Up Display

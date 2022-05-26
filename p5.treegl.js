@@ -1061,11 +1061,12 @@ var Tree = (function (ext) {
     let normals = Array(6);
     let distances = Array(6);
     // Computed once and for all
+    // TODO experimental: no need to normalize
     let pos = this._treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
-    let viewDir = this._treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD }).normalize();
-    // same as: let viewDir = this.treeDisplacement().normalize();
-    let up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
-    let right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD }).normalize();
+    let viewDir = this._treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD });
+    // same as: let viewDir = this.treeDisplacement();
+    let up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD });
+    let right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
     let posViewDir = p5.Vector.dot(pos, viewDir);
     if (this._isOrtho()) {
       normals[0] = p5.Vector.mult(right, -1);
