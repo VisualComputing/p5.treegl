@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.1.0',
+    VERSION: '0.0.6',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1051,8 +1051,9 @@ var Tree = (function (ext) {
   /**
    * Returns the 6 plane equations of the eye frustum bounds defined
    * in the world coordinate system encoded as an object literal
-   * having 'l' (left plane), 'r' (right plane), 'n' (near plane),
-   * 'f' (far plane) 't' (top plane) and 'b' (bottom plane) keys.
+   * having 'Tree.LEFT' (left plane), 'Tree.RIGHT' (right plane),
+   * 'Tree.NEAR' (near plane), 'Tree.FAR' (far plane) 'Tree.TOP'
+   * (top plane) and 'Tree.BOTTOM' (bottom plane) keys.
    * Each key holds a plane equation of the form:
    * a*x + b*y + c*z + d = 0,  where a, b, c and d are the 4
    * keys of each object literal.
