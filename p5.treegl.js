@@ -1023,8 +1023,9 @@ var Tree = (function (ext) {
 
   p5.Shader.prototype._setMatrixUniforms = function () {
     if (this._renderer._tree) {
+      let p, v;
       if (~(this._renderer._tree | ~Tree.pmvMatrix) === 0) {
-        ///*
+        /*
         const projectionMatrix = this._renderer.uPMatrix;
         const modelViewMatrix = this._renderer.uMVMatrix;
         const modelViewProjectionMatrix = modelViewMatrix.copy();
@@ -1032,11 +1033,43 @@ var Tree = (function (ext) {
         this.setUniform('pmvMatrix', modelViewProjectionMatrix.mat4);
         //*/
         //
-        //this.setUniform('pmvMatrix', this._renderer.pmvMatrix().mat4);
+        this.setUniform('pmvMatrix', this._renderer.pmvMatrix().mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.pMatrix) === 0) {
+        this.setUniform('pMatrix', this._renderer.uPMatrix.mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.vMatrix) === 0) {
+        this.setUniform('vMatrix', this._renderer._curCamera.cameraMatrix.mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.eMatrix) === 0) {
+        this.setUniform('eMatrix', this._renderer.eMatrix().mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.mvMatrix) === 0) {
+        this.setUniform('mvMatrix', this._renderer.uMVMatrix.mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.mMatrix) === 0) {
+        this.setUniform('mMatrix', this._renderer.mMatrix().mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.nMatrix) === 0) {
+        this.setUniform('nMatrix', this._renderer.nMatrix().mat3);
+        // TODO uncomment once __setMatrixUniforms is applied first
+        //this.setUniform('nMatrix', this._renderer.uNMatrix.mat3);
+      }
+      if (~(this._renderer._tree | ~Tree.nMatrix) === 0) {
+        this.setUniform('nMatrix', this._renderer.nMatrix().mat3);
+        // TODO uncomment once __setMatrixUniforms is applied first
+        //this.setUniform('nMatrix', this._renderer.uNMatrix.mat3);
+      }
+      if (~(this._renderer._tree | ~Tree.pvMatrix) === 0) {
+        this.setUniform('pvMatrix', this._renderer.pvMatrix().mat4);
+      }
+      if (~(this._renderer._tree | ~Tree.pvInvMatrix) === 0) {
+        this.setUniform('pvInvMatrix', this._renderer.pvInvMatrix().mat4);
       }
     }
     // https://stackoverflow.com/questions/10427708/override-function-e-g-alert-and-call-the-original-function
     //console.log('_setMatrixUniforms overridden');
+    // TODO move up as firt line to speed up nMatrix
     return __setMatrixUniforms.apply(this, arguments);
   };
 
@@ -1056,13 +1089,6 @@ var Tree = (function (ext) {
     uniforms = Tree.pmvMatrix,
     varyings
   } = {}) {
-    // TODO test to parse varying names aspectRatio
-    // (reflecting that on the Tree.constants)
-    // vcolor -> color4 (vVertexColor currently)
-    // vtex -> texCoords2 (vTexCoord currently)
-    // normal3 -> normal3 (already done)
-    // position2 -> position2 (already done)
-    // position3 -> position3 (already done)
     let color4 = ~(varyings | ~Tree.color4) === 0;
     let texCoords2 = ~(varyings | ~Tree.texCoords2) === 0;
     let normal3 = ~(varyings | ~Tree.normal3) === 0;
@@ -1096,14 +1122,14 @@ var Tree = (function (ext) {
     ${n ? 'uniform mat3 nMatrix;' : ''}
     ${pv ? 'uniform mat4 pvMatrix;' : ''}
     ${pvInv ? 'uniform mat4 pvInvMatrix;' : ''}
-    ${color4 ? 'varying vec4 vVertexColor;' : ''}
-    ${texCoords2 ? 'varying vec2 vTexCoord;' : ''}
+    ${color4 ? 'varying vec4 color4;' : ''}
+    ${texCoords2 ? 'varying vec2 texCoords2;' : ''}
     ${normal3 ? 'varying vec3 normal3;' : ''}
     ${position2 ? 'varying vec2 position2;' : ''}
     ${position3 ? 'varying vec3 position3;' : ''}
     void main() {
-      ${color4 ? 'vVertexColor = aVertexColor;' : ''}
-      ${texCoords2 ? 'vTexCoord = aTexCoord;' : ''}
+      ${color4 ? 'color4 = aVertexColor;' : ''}
+      ${texCoords2 ? 'texCoords2 = aTexCoord;' : ''}
       ${normal3 ? 'normal3 = normalize(nMatrix * aNormal);' : ''}
       ${position2 ? 'position2 = vec4(aPosition, 1.0).xy;' : ''}
       ${position3 ? 'position3 = vec4(aPosition, 1.0).xyz;' : ''}
@@ -1116,8 +1142,8 @@ var Tree = (function (ext) {
   }
 
   p5.prototype.readShader = function (fragFilename,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
+    { color = 'color4',
+      texcoord = 'texCoords2'
     } = {}) {
     let shader = new p5.Shader();
     shader._vertSrc = _vertexShader(color, texcoord);
@@ -1131,8 +1157,8 @@ var Tree = (function (ext) {
   }
 
   p5.prototype.makeShader = function (fragSrc,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
+    { color = 'color4',
+      texcoord = 'texCoords2'
     } = {}) {
     let shader = new p5.Shader();
     shader._vertSrc = _vertexShader(color, texcoord);

@@ -18,7 +18,7 @@ let str;
 
 function preload() {
   img = loadImage('img.jpg');
-  //treeShader = loadShader('basic.vert', 'texture.frag');
+  treeShader = loadShader('basic.vert', 'texture.frag');
 }
 
 function setup() {
@@ -44,16 +44,17 @@ function setup() {
     //rotation : [1, 1, 1, 0],  // quaternion
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second
-  //bindTree();
-  //shader(treeShader);
+  bindTree();
+  shader(treeShader);
   //treeShader.setUniform('texture', img);
 
   //str = vertexShader({ uniforms: Tree.NONE });
   //str = vertexShader({ uniforms: Tree.pmvMatrix });
   //str = vertexShader({ uniforms: Tree.nMatrix | Tree.pMatrix | Tree.mMatrix | Tree.vMatrix, varyings: Tree.color4 | Tree.normal3 });
-  str = vertexShader({ uniforms: Tree.mvMatrix | Tree.pMatrix, varyings: Tree.color4 | Tree.normal3 });
+  //str = vertexShader({ uniforms: Tree.mvMatrix | Tree.pMatrix, varyings: Tree.color4 | Tree.normal3 });
+  str = vertexShader({ uniforms: Tree.pmvMatrix, varyings: Tree.color4 | Tree.texCoords2 });
   //str = vertexShader();
-  console.log(str.trim());
+  console.log(str);
 }
 
 function draw() {
@@ -77,8 +78,8 @@ function draw() {
       stroke(0, 255, 255);
       break;
     default:
-      //treeShader.setUniform('texture', img)
-      texture(img);
+      treeShader.setUniform('texture', img)
+      //texture(img);
   }
   cylinder(40);
   pop();
