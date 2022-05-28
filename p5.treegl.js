@@ -49,6 +49,9 @@ var Tree = (function (ext) {
   const iNEG = [-1, 0, 0];
   const jNEG = [0, -1, 0];
   const kNEG = [0, 0, -1];
+  // matrices
+  const pmvMatrix = 1 << 0;
+  //const pMatrix = 'pMatrix';
 
   ext ??= {};
 
@@ -131,9 +134,9 @@ var Tree = (function (ext) {
   ext.RIGHT = RIGHT;
 
   /**
-  * @memberof Tree
-  * @type {number}
-  */
+   * @memberof Tree
+   * @type {number}
+   */
   ext.BOTTOM = BOTTOM;
 
   /**
@@ -155,9 +158,9 @@ var Tree = (function (ext) {
   ext.INVISIBLE = INVISIBLE;
 
   /**
-  * @memberof Tree
-  * @type {number}
-  */
+   * @memberof Tree
+   * @type {number}
+   */
   ext.VISIBLE = VISIBLE;
 
   /**
@@ -173,9 +176,9 @@ var Tree = (function (ext) {
   ext.WORLD = WORLD;
 
   /**
-  * @memberof Tree
-  * @type {string}
-  */
+   * @memberof Tree
+   * @type {string}
+   */
   ext.EYE = EYE;
 
   /**
@@ -185,9 +188,9 @@ var Tree = (function (ext) {
   ext.NDC = NDC;
 
   /**
-  * @memberof Tree
-  * @type {string}
-  */
+   * @memberof Tree
+   * @type {string}
+   */
   ext.SCREEN = SCREEN;
 
   /**
@@ -197,44 +200,49 @@ var Tree = (function (ext) {
   ext.ORIGIN = ORIGIN;
 
   /**
-  * @memberof Tree
-  * @type {array}
-  */
+   * @memberof Tree
+   * @type {array}
+   */
   ext.i = i;
 
   /**
- * @memberof Tree
- * @type {array}
- */
+  * @memberof Tree
+  * @type {array}
+  */
   ext.j = j;
 
   /**
-  * @memberof Tree
-  * @type {array}
-  */
+   * @memberof Tree
+   * @type {array}
+   */
   ext.k = k;
 
   /**
- * @memberof Tree
- * @type {array}
- */
+   * @memberof Tree
+   * @type {array}
+   */
   ext.iNEG = iNEG;
 
   /**
-  * @memberof Tree
-  * @type {array}
-  */
+   * @memberof Tree
+   * @type {array}
+   */
   ext.jNEG = jNEG;
 
   /**
- * @memberof Tree
- * @type {array}
- */
+   * @memberof Tree
+   * @type {array}
+   */
   ext.kNEG = kNEG;
+
+  /**
+   * @memberof Tree
+   * @type {array}
+   */
+  ext.pmvMatrix = pmvMatrix;
 
   return ext;
 })(Tree);
-
 
 (function () {
   console.log(Tree.INFO);
@@ -381,6 +389,21 @@ var Tree = (function (ext) {
 
   p5.Camera.prototype.eMatrix = function () {
     return invMatrix(this.cameraMatrix);
+  }
+
+  p5.prototype.pmvMatrix = function () {
+    return this._renderer.pmvMatrix(...arguments);
+  }
+
+  // defaults: pMatrix: this.pMatrix, vMatrix: this.vMatrix
+  p5.RendererGL.prototype.pmvMatrix = function (
+    {
+      pMatrix = this.uPMatrix,
+      vMatrix,
+      mMatrix,
+      mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
+    } = {}) {
+    return axbMatrix(pMatrix, mvMatrix);
   }
 
   p5.prototype.pvMatrix = function () {
@@ -875,6 +898,67 @@ var Tree = (function (ext) {
 
   // 3. Shader utilities
 
+  /*
+  p5.Shader.prototype._setMatrixUniforms = function() {
+  const viewMatrix = this._renderer._curCamera.cameraMatrix;
+  const projectionMatrix = this._renderer.uPMatrix;
+  const modelViewMatrix = this._renderer.uMVMatrix;
+
+  const modelViewProjectionMatrix = modelViewMatrix.copy();
+  modelViewProjectionMatrix.mult(projectionMatrix);
+
+  if (this.isStrokeShader()) {
+    if (this._renderer._curCamera.cameraType === 'default') {
+      // strokes scale up as they approach camera, default
+      this.setUniform('uPerspective', 1);
+    } else {
+      // strokes have uniform scale regardless of distance from camera
+      this.setUniform('uPerspective', 0);
+    }
+  }
+  this.setUniform('uViewMatrix', viewMatrix.mat4);
+  this.setUniform('uProjectionMatrix', projectionMatrix.mat4);
+  this.setUniform('uModelViewMatrix', modelViewMatrix.mat4);
+  this.setUniform('uModelViewProjectionMatrix', modelViewProjectionMatrix.mat4);
+  if (this.uniforms.uNormalMatrix) {
+    this._renderer.uNMatrix.inverseTranspose(this._renderer.uMVMatrix);
+    this.setUniform('uNormalMatrix', this._renderer.uNMatrix.mat3);
+  }
+  };
+  */
+
+  var __setMatrixUniforms = p5.Shader.prototype._setMatrixUniforms;
+
+  p5.Shader.prototype._setMatrixUniforms = function () {
+    if (this._renderer._tree) {
+      if (~(this._renderer._tree | ~Tree.pmvMatrix) === 0) {
+        ///*
+        const projectionMatrix = this._renderer.uPMatrix;
+        const modelViewMatrix = this._renderer.uMVMatrix;
+        const modelViewProjectionMatrix = modelViewMatrix.copy();
+        modelViewProjectionMatrix.mult(projectionMatrix);
+        this.setUniform('pmvMatrix', modelViewProjectionMatrix.mat4);
+        //*/
+        //
+        //this.setUniform('pmvMatrix', this._renderer.pmvMatrix().mat4);
+      }
+    }
+    // https://stackoverflow.com/questions/10427708/override-function-e-g-alert-and-call-the-original-function
+    console.log('_setMatrixUniforms overridden');
+    return __setMatrixUniforms.apply(this, arguments);
+  };
+
+  p5.prototype.bindTree = function () {
+    this._renderer.bindTree(...arguments);
+  }
+
+  p5.RendererGL.prototype.bindTree = function (bits = Tree.pmvMatrix) {
+    this._tree = bits;
+  }
+
+  p5.prototype.parseShader = function () {
+  }
+
   p5.prototype.readShader = function (fragFilename,
     { color = 'vVertexColor',
       texcoord = 'vTexCoord'
@@ -900,6 +984,22 @@ var Tree = (function (ext) {
     return shader;
   }
 
+  function _vertexShader(color, texcoord) {
+    return `precision highp float;
+          attribute vec3 aPosition;
+          attribute vec2 aTexCoord;
+          attribute vec4 aVertexColor;
+          uniform mat4 uProjectionMatrix;
+          uniform mat4 uModelViewMatrix;
+          varying vec4 ${color};
+          varying vec2 ${texcoord};
+          void main() {
+            ${color} = aVertexColor;
+            ${texcoord} = aTexCoord;
+            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+          }`;
+  }
+
   p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
     shader.setUniform(uniform, [this.mouseX * pixelDensity(), (this.height - this.mouseY) * pixelDensity()]);
   }
@@ -922,22 +1022,6 @@ var Tree = (function (ext) {
 
   p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {
     shader.setUniform(uniform, [1 / image.width, 1 / image.height]);
-  }
-
-  function _vertexShader(color, texcoord) {
-    return `precision highp float;
-          attribute vec3 aPosition;
-          attribute vec2 aTexCoord;
-          attribute vec4 aVertexColor;
-          uniform mat4 uProjectionMatrix;
-          uniform mat4 uModelViewMatrix;
-          varying vec4 ${color};
-          varying vec2 ${texcoord};
-          void main() {
-            ${color} = aVertexColor;
-            ${texcoord} = aTexCoord;
-            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
-          }`;
   }
 
   // 4. Utility functions
