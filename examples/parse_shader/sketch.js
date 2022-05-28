@@ -14,10 +14,11 @@ let sphere2;
 let screenProjection;
 let modelProjection;
 let treeShader;
+let str;
 
 function preload() {
   img = loadImage('img.jpg');
-  treeShader = loadShader('basic.vert', 'texture.frag');
+  //treeShader = loadShader('basic.vert', 'texture.frag');
 }
 
 function setup() {
@@ -43,9 +44,14 @@ function setup() {
     //rotation : [1, 1, 1, 0],  // quaternion
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second
-  bindTree();
-  shader(treeShader);
-  treeShader.setUniform('texture', img);
+  //bindTree();
+  //shader(treeShader);
+  //treeShader.setUniform('texture', img);
+
+  //str = vShader({ uniforms: Tree.pmvMatrix });
+  str = vertexShader({ uniforms: Tree.nMatrix | Tree.pMatrix | Tree.mMatrix | Tree.vMatrix, varyings: Tree.vColor });
+  //str = vertexShader();
+  console.log(str.trim());
 }
 
 function draw() {
@@ -70,7 +76,7 @@ function draw() {
       break;
     default:
       //treeShader.setUniform('texture', img)
-      //texture(img);
+      texture(img);
   }
   cylinder(40);
   pop();
