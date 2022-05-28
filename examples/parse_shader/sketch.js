@@ -48,8 +48,10 @@ function setup() {
   //shader(treeShader);
   //treeShader.setUniform('texture', img);
 
-  //str = vShader({ uniforms: Tree.pmvMatrix });
-  str = vertexShader({ uniforms: Tree.nMatrix | Tree.pMatrix | Tree.mMatrix | Tree.vMatrix, varyings: Tree.vColor });
+  //str = vertexShader({ uniforms: Tree.NONE });
+  //str = vertexShader({ uniforms: Tree.pmvMatrix });
+  //str = vertexShader({ uniforms: Tree.nMatrix | Tree.pMatrix | Tree.mMatrix | Tree.vMatrix, varyings: Tree.color4 | Tree.normal3 });
+  str = vertexShader({ uniforms: Tree.mvMatrix | Tree.pMatrix, varyings: Tree.color4 | Tree.normal3 });
   //str = vertexShader();
   console.log(str.trim());
 }
