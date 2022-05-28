@@ -66,7 +66,7 @@ function draw() {
     default:
       texture(img);
   }
-  hollowCylinder({ radius: 15, height: 40, detail: details.value() });
+  cylinder(40);
   pop();
   push();
   translate(-50, 30);
