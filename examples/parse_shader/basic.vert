@@ -3,11 +3,12 @@
     attribute vec3 aPosition;
     attribute vec4 aVertexColor;
     attribute vec2 aTexCoord;
-    uniform mat4 pmvMatrix;
-    varying vec4 color4;
-    varying vec2 texCoords2;
+    uniform mat4 uProjectionMatrix;
+    uniform mat4 uModelViewMatrix;
+    varying vec4 vVertexColor;
+    varying vec2 vTexCoord;
     void main() {
-      color4 = aVertexColor;
-      texCoords2 = aTexCoord;
-      gl_Position = pmvMatrix * vec4(aPosition, 1.0);
+      vVertexColor = aVertexColor;
+      vTexCoord = aTexCoord;
+      gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
     }

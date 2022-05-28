@@ -44,7 +44,7 @@ function setup() {
     //rotation : [1, 1, 1, 0],  // quaternion
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second
-  bindTree();
+  //bindTree();
   shader(treeShader);
   //treeShader.setUniform('texture', img);
 
@@ -54,8 +54,9 @@ function setup() {
   //str = vertexShader({ uniforms: Tree.mvMatrix | Tree.pMatrix, varyings: Tree.color4 | Tree.normal3 });
   //str = vertexShader({ uniforms: Tree.pmvMatrix, varyings: Tree.color4 | Tree.texCoords2 });
   //str = vertexShader({ uniforms: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 | Tree.texCoords2, bind: false });
-  str = vertexShader({ uniforms: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 | Tree.texCoords2 });
+  //str = vertexShader({ uniforms: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 | Tree.texCoords2 });
   //str = vertexShader();
+  str = vertexShader({ uniforms: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 | Tree.texCoords2, bind: false });
   console.log(str);
 }
 
