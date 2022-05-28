@@ -1022,6 +1022,9 @@ var Tree = (function (ext) {
   var __setMatrixUniforms = p5.Shader.prototype._setMatrixUniforms;
 
   p5.Shader.prototype._setMatrixUniforms = function () {
+    // https://stackoverflow.com/questions/10427708/override-function-e-g-alert-and-call-the-original-function
+    //console.log('_setMatrixUniforms overridden');
+    __setMatrixUniforms.apply(this, arguments);
     if (this._renderer._tree) {
       if (~(this._renderer._tree | ~Tree.pmvMatrix) === 0) {
         /*
@@ -1054,11 +1057,6 @@ var Tree = (function (ext) {
         // TODO uncomment once __setMatrixUniforms is applied first
         //this.setUniform('nMatrix', this._renderer.uNMatrix.mat3);
       }
-      if (~(this._renderer._tree | ~Tree.nMatrix) === 0) {
-        this.setUniform('nMatrix', this._renderer.nMatrix().mat3);
-        // TODO uncomment once __setMatrixUniforms is applied first
-        //this.setUniform('nMatrix', this._renderer.uNMatrix.mat3);
-      }
       if (~(this._renderer._tree | ~Tree.pvMatrix) === 0) {
         this.setUniform('pvMatrix', this._renderer.pvMatrix().mat4);
       }
@@ -1066,10 +1064,6 @@ var Tree = (function (ext) {
         this.setUniform('pvInvMatrix', this._renderer.pvInvMatrix().mat4);
       }
     }
-    // https://stackoverflow.com/questions/10427708/override-function-e-g-alert-and-call-the-original-function
-    //console.log('_setMatrixUniforms overridden');
-    // TODO move up as firt line to speed up nMatrix
-    __setMatrixUniforms.apply(this, arguments);
   };
 
   p5.prototype.bindTree = function () {
