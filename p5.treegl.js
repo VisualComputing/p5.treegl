@@ -1053,9 +1053,8 @@ var Tree = (function (ext) {
         this.setUniform('mMatrix', this._renderer.mMatrix().mat4);
       }
       if (~(this._renderer._tree | ~Tree.nMatrix) === 0) {
-        this.setUniform('nMatrix', this._renderer.nMatrix().mat3);
-        // TODO uncomment once __setMatrixUniforms is applied first
-        //this.setUniform('nMatrix', this._renderer.uNMatrix.mat3);
+        this.setUniform('nMatrix', this.uniforms.uNormalMatrix ? this._renderer.uNMatrix.mat3 :
+          this._renderer.nMatrix().mat3);
       }
       if (~(this._renderer._tree | ~Tree.pvMatrix) === 0) {
         this.setUniform('pvMatrix', this._renderer.pvMatrix().mat4);
