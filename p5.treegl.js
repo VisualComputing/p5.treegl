@@ -49,189 +49,56 @@ var Tree = (function (ext) {
   const iNEG = [-1, 0, 0];
   const jNEG = [0, -1, 0];
   const kNEG = [0, 0, -1];
-
+  // vertex shader
+  // in
+  const pmvMatrix = 1 << 0;
+  const pMatrix = 1 << 1;
+  const mvMatrix = 1 << 2;
+  // out
+  const color4 = 1 << 0;
+  const texCoords2 = 1 << 1;
+  const normal3 = 1 << 2;
+  const position2 = 1 << 3;
+  const position3 = 1 << 4;
   ext ??= {};
-
-  /**
-   * @memberof Tree
-   * @type {Object}
-   */
   ext.INFO = INFO;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.NONE = NONE;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.X = X;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.Y = Y;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.Z = Z;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.XNEG = XNEG;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.YNEG = YNEG;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.ZNEG = ZNEG;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.LABELS = LABELS;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.NEAR = NEAR;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.FAR = FAR;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.LEFT = LEFT;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.RIGHT = RIGHT;
-
-  /**
-  * @memberof Tree
-  * @type {number}
-  */
   ext.BOTTOM = BOTTOM;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.TOP = TOP;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.BODY = BODY;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.INVISIBLE = INVISIBLE;
-
-  /**
-  * @memberof Tree
-  * @type {number}
-  */
   ext.VISIBLE = VISIBLE;
-
-  /**
-   * @memberof Tree
-   * @type {number}
-   */
   ext.SEMIVISIBLE = SEMIVISIBLE;
-
-  /**
-   * @memberof Tree
-   * @type {string}
-   */
   ext.WORLD = WORLD;
-
-  /**
-  * @memberof Tree
-  * @type {string}
-  */
   ext.EYE = EYE;
-
-  /**
-   * @memberof Tree
-   * @type {string}
-   */
   ext.NDC = NDC;
-
-  /**
-  * @memberof Tree
-  * @type {string}
-  */
   ext.SCREEN = SCREEN;
-
-  /**
-   * @memberof Tree
-   * @type {array}
-   */
   ext.ORIGIN = ORIGIN;
-
-  /**
-  * @memberof Tree
-  * @type {array}
-  */
   ext.i = i;
-
-  /**
- * @memberof Tree
- * @type {array}
- */
   ext.j = j;
-
-  /**
-  * @memberof Tree
-  * @type {array}
-  */
   ext.k = k;
-
-  /**
- * @memberof Tree
- * @type {array}
- */
   ext.iNEG = iNEG;
-
-  /**
-  * @memberof Tree
-  * @type {array}
-  */
   ext.jNEG = jNEG;
-
-  /**
- * @memberof Tree
- * @type {array}
- */
   ext.kNEG = kNEG;
-
+  ext.pmvMatrix = pmvMatrix;
+  ext.pMatrix = pMatrix;
+  ext.mvMatrix = mvMatrix;
+  ext.color4 = color4;
+  ext.texCoords2 = texCoords2;
+  ext.normal3 = normal3;
+  ext.position2 = position2;
+  ext.position3 = position3;
   return ext;
 })(Tree);
 
