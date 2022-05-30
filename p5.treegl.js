@@ -61,7 +61,7 @@ var Tree = (function (ext) {
   const nMatrix = 1 << 3;
   // out
   const color4 = 1 << 0;
-  const texCoords2 = 1 << 1;
+  const texcoords2 = 1 << 1;
   const normal3 = 1 << 2;
   const position2 = 1 << 3;
   const position3 = 1 << 4;
@@ -104,7 +104,7 @@ var Tree = (function (ext) {
   ext.mvMatrix = mvMatrix;
   ext.nMatrix = nMatrix;
   ext.color4 = color4;
-  ext.texCoords2 = texCoords2;
+  ext.texcoords2 = texcoords2;
   ext.normal3 = normal3;
   ext.position2 = position2;
   ext.position3 = position3;
@@ -799,15 +799,15 @@ var Tree = (function (ext) {
   }
 
   p5.RendererGL.prototype.parseVertexShader = function ({
-    precision = Tree.highp,
+    precision = Tree.mediump,
     //matrices = Tree.pmvMatrix,
     matrices = Tree.pMatrix | Tree.mvMatrix,
-    varyings = Tree.color4 | Tree.texCoords2,
+    varyings = Tree.color4 | Tree.texcoords2,
     log = true
   } = {}) {
-    let floatPrecision = `precision ${precision = Tree.highp ? 'highp' : `${precision = Tree.mediump ? 'mediump' : 'lowp'}`} float;`
+    let floatPrecision = `precision ${precision === Tree.highp ? 'highp' : `${precision === Tree.mediump ? 'mediump' : 'lowp'}`} float;`
     let color4 = ~(varyings | ~Tree.color4) === 0;
-    let texCoords2 = ~(varyings | ~Tree.texCoords2) === 0;
+    let texcoords2 = ~(varyings | ~Tree.texcoords2) === 0;
     let normal3 = ~(varyings | ~Tree.normal3) === 0;
     let position2 = ~(varyings | ~Tree.position2) === 0;
     let position3 = ~(varyings | ~Tree.position3) === 0;
@@ -820,20 +820,20 @@ var Tree = (function (ext) {
 ${floatPrecision}
 attribute vec3 aPosition;
 ${color4 ? 'attribute vec4 aVertexColor;' : ''}
-${texCoords2 ? 'attribute vec2 aTexCoord;' : ''}
+${texcoords2 ? 'attribute vec2 aTexCoord;' : ''}
 ${normal3 ? 'attribute vec3 aNormal;' : ''}
 ${pmv ? 'uniform mat4 uModelViewProjectionMatrix;' : ''}
 ${p ? 'uniform mat4 uProjectionMatrix;' : ''}
 ${mv ? 'uniform mat4 uModelViewMatrix;' : ''}
 ${n ? 'uniform mat3 uNormalMatrix;' : ''}
 ${color4 ? 'varying vec4 color4;' : ''}
-${texCoords2 ? 'varying vec2 texCoords2;' : ''}
+${texcoords2 ? 'varying vec2 texcoords2;' : ''}
 ${normal3 ? 'varying vec3 normal3;' : ''}
 ${position2 ? 'varying vec2 position2;' : ''}
 ${position3 ? 'varying vec3 position3;' : ''}
 void main() {
   ${color4 ? 'color4 = aVertexColor;' : ''}
-  ${texCoords2 ? 'texCoords2 = aTexCoord;' : ''}
+  ${texcoords2 ? 'texcoords2 = aTexCoord;' : ''}
   ${normal3 ? 'normal3 = normalize(uNormalMatrix * aNormal);' : ''}
   ${position2 ? 'position2 = vec4(aPosition, 1.0).xy;' : ''}
   ${position3 ? 'position3 = vec4(aPosition, 1.0).xyz;' : ''}
