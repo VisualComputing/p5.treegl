@@ -72,7 +72,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    ```glsl
    // color4 and texcoords2 names match those of
    // Tree.color4 and Tree.texcoords2, resp.
-   precision mediump float;
+   // float precision
    attribute vec4 aVertexColor;
    attribute vec2 aTexCoord;
    // matrix uniforms...
