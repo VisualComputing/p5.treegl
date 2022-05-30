@@ -55,7 +55,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 **Observations:**
 
 1. The `precision` param defines the vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may be either `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
-2. The `matrices` param defines the [vertex shader uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix` or `Tree.NONE` (i.e., to not emit any matrix) bits, e.g., calling `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return something like:
+2. The `matrices` param defines the [vertex shader uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix` or `Tree.NONE` (i.e., to not emit any matrix) bits, e.g., calling `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return (and also log onto the console) something like:
    ```glsl
    // float precision
    // attributes ...
@@ -68,7 +68,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    Matrix uniform variables are automatically emit by the [p5 api](https://p5js.org/reference/), such as when issuing a [camera](https://p5js.org/reference/#/p5/camera) or a [translate](https://p5js.org/reference/#/p5/translate) command. Keep in mind the matrix uniform variables naming convention as defined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters), since you should also follow it within your fragment shader.
-3. The `varyings` param defines the [vertex shader attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2` ([texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.normal3`, `Tree.position2`, `Tree.position3` or `Tree.NONE` (i.e., to not emit any varying) bits, e.g., calling `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would return something like:
+3. The `varyings` param defines the [vertex shader attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2` ([texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.normal3`, `Tree.position2`, `Tree.position3` or `Tree.NONE` (i.e., to not emit any varying) bits, e.g., calling `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would return (and also log onto the console) something like:
    ```glsl
    // color4 and texcoords2 names match those of
    // Tree.color4 and Tree.texcoords2, resp.
