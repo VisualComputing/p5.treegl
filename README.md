@@ -54,7 +54,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 **Observations:**
 
-1. The `precision` param defines the vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may either be `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
+1. The `precision` param defines the vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may be either `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
 2. The `matrices` param defines the [vertex shader uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix` or `Tree.NONE` (i.e., to not emit any matrix) bits, e.g., `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return:
    ```glsl
    // float precision
