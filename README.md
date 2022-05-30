@@ -34,7 +34,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 ## Handling
 
 1. `parseVertexShader([{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: parses `precision`, `matrices` and `varyings` params into a vertex shader which is returned as a string. For example:
-   calling `parseVertexShader()` without any arguments will return the following string:
+   calling `parseVertexShader()` without any arguments will return (and also log onto the console) the following string:
    ```glsl
    precision mediump float;
    attribute vec3 aPosition;
