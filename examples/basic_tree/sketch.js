@@ -64,9 +64,10 @@ function draw() {
       stroke(0, 255, 255);
       break;
     default:
+      noStroke();
       texture(img);
   }
-  hollowCylinder({ radius: 15, height: 40, detail: details.value() });
+  cylinder(30, 60);
   pop();
   push();
   translate(-50, 30);
