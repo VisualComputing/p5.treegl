@@ -84,7 +84,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
      // gl_Position
    }
    ```
-   which produces the default case output. Keep in mind the `varying` naming convention used within the vertex shader, since *it should* be the same you employ withing your fragment shader.
+   which produces the default case output. Keep in mind the `varying` naming convention used within the vertex shader, since *it should* be the same you employ within your fragment shader.
 Feel free to test the `parseVertexShader` function described above, trying out different `precision`, `matrices` and `varyings` params and see what output best suit your particular needs.
 
 ## Macros
