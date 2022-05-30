@@ -42,9 +42,10 @@ function setup() {
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second
   //parseVertexShader({ precision: Tree.mediump, matrices: Tree.pmvMatrix, varyings: Tree.color4 });
-  parseVertexShader({ precision: Tree.mediump, matrices: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 });
+  //parseVertexShader({ precision: Tree.mediump, matrices: Tree.pMatrix | Tree.mvMatrix, varyings: Tree.color4 });
   //parseVertexShader({ precision: Tree.lowp, varyings: Tree.color4 });
   //parseVertexShader();
+  parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix });
   //parseVertexShader({ precision: Tree.highp, matrices: Tree.NONE, varyings: Tree.color4 | Tree.normal3 | Tree.texcoords2 | Tree.position2 });
 }
 

@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.0.6',
+    VERSION: '0.1.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -792,11 +792,7 @@ var Tree = (function (ext) {
     return shader;
   }
 
-  p5.prototype.parseVertexShader = function () {
-    return this._renderer.parseVertexShader(...arguments);
-  }
-
-  p5.RendererGL.prototype.parseVertexShader = function ({
+  p5.prototype.parseVertexShader = function ({
     precision = Tree.mediump,
     matrices = Tree.pmvMatrix,
     varyings = Tree.color4 | Tree.texcoords2,

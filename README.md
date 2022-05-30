@@ -33,28 +33,59 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-`readShader` and `makeShader` take only a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. The behind the scenes vertex shader is actually generated from the following [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals):
+1. `parseVertexShader([{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: parses `precision`, `matrices` and `varyings` params into a vertex shader which is returned as a string. For example:
+   calling `parseVertexShader()` without any arguments will return the following string:
+   ```glsl
+   precision mediump float;
+   attribute vec3 aPosition;
+   attribute vec4 aVertexColor;
+   attribute vec2 aTexCoord;
+   uniform mat4 uModelViewProjectionMatrix;
+   varying vec4 color4;
+   varying vec2 texcoords2;
+   void main() {
+     color4 = aVertexColor;
+     texcoords2 = aTexCoord;
+     gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
+   }
+   ```
+2. `readShader(fragFilename, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The vertex shader is generated from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+3. `makeShader(fragSrc, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The vertex shader is generated from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 
-```js
-`precision highp float;
- attribute vec3 aPosition;
- attribute vec2 aTexCoord;
- attribute vec4 aVertexColor;
- uniform mat4 uProjectionMatrix;
- uniform mat4 uModelViewMatrix;
- varying vec4 ${color};
- varying vec2 ${texcoord};
- void main() {
-   ${color} = aVertexColor;
-   ${texcoord} = aTexCoord;
-   gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
- }`
-```
+**Specs:**
 
-observe in the code above (and in the function signatures below) that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
-
-1. `readShader(fragFilename, [{[color = 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
-2. `makeShader(fragSrc, [{[color= 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
+1. `precision` defines vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may either be `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
+2. `matrices` defines the vertex shader matrices from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix` and `Tree.nMatrix` bits, e.g., `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return:
+   ```glsl
+   // float precision
+   // attributes ...
+   uniform mat4 uProjectionMatrix;
+   uniform mat4 uModelViewMatrix;
+   // varyings ...
+   void main() {
+     // processed varyings
+     gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+   }
+   ```
+   you may guess what other combinations would produce or to actually testing them by issuing the `parseVertexShader` function yourself.
+3. `varyings` defines the vertex shader attributes to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2`, `Tree.normal3`, `Tree.position2` and `Tree.position3` bits, e.g., `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would produce a similar output as in the default case (see above). Keep in mind the `varying` naming convention used within the vertex shader:
+   ```glsl
+   // color4 and texcoords2 names match those of
+   // Tree.color4 and Tree.texcoords2, resp.
+   precision mediump float;
+   attribute vec4 aVertexColor;
+   attribute vec2 aTexCoord;
+   // matrix uniforms...
+   varying vec4 color4;
+   varying vec2 texcoords2;
+   void main() {
+     color4 = aVertexColor;
+     texcoords2 = aTexCoord;
+     // gl_Position
+   }
+   ```
+   since *it should* be the same you employ withing your fragment shader.
+Feel free to try different combinations of the `precision`, `matrices` and `varyings` params above and see what best suit your particular needs.
 
 ## Macros
 
