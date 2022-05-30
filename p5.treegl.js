@@ -768,11 +768,10 @@ var Tree = (function (ext) {
   p5.prototype.readShader = function (fragFilename, {
     precision,
     matrices,
-    varyings,
-    log = false
+    varyings
   } = {}) {
     let shader = new p5.Shader();
-    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, log: log });
+    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
     this.loadStrings(
       fragFilename,
       result => {
@@ -785,11 +784,10 @@ var Tree = (function (ext) {
   p5.prototype.makeShader = function (fragSrc, {
     precision,
     matrices,
-    varyings,
-    log = false
+    varyings
   } = {}) {
     let shader = new p5.Shader();
-    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, log: log });
+    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
     shader._fragSrc = fragSrc;
     return shader;
   }
@@ -802,7 +800,7 @@ var Tree = (function (ext) {
     precision = Tree.mediump,
     matrices = Tree.pmvMatrix,
     varyings = Tree.color4 | Tree.texcoords2,
-    log = true
+    specs = true
   } = {}) {
     let floatPrecision = `precision ${precision === Tree.highp ? 'highp' : `${precision === Tree.mediump ? 'mediump' : 'lowp'}`} float;`
     let color4 = ~(varyings | ~Tree.color4) === 0;
@@ -839,12 +837,22 @@ void main() {
   ${target};
 }
 `;
-    let result = vertexShader.split(/\r?\n/) // Split input text into an array of lines
+    let advice = `
+/*
+vertex shader code generated with treegl version ${Tree.INFO.VERSION}
+${specs ? `
+Feel free to copy, paste, edit and save it.
+Refer to createShader (https://p5js.org/reference/#/p5/createShader),
+loadShader (https://p5js.org/reference/#/p5/loadShader), readShader
+and makeShader (https://github.com/VisualComputing/p5.treegl#handling),
+for details.` : ''}
+*/
+`;
+    let result = advice + vertexShader;
+    result = result.split(/\r?\n/) // Split input text into an array of lines
       .filter(line => line.trim() !== '') // Filter out lines that are empty or contain only whitespace
       .join("\n"); // Join line array into a string
-    if (log) {
-      console.log(result);
-    }
+    console.log(result);
     return result;
   }
 
