@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.1.0',
+    VERSION: '0.1.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -771,7 +771,9 @@ var Tree = (function (ext) {
     varyings
   } = {}) {
     let shader = new p5.Shader();
+    this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
     shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
+    this._coupledWith = undefined;
     this.loadStrings(
       fragFilename,
       result => {
@@ -787,7 +789,9 @@ var Tree = (function (ext) {
     varyings
   } = {}) {
     let shader = new p5.Shader();
+    this._coupledWith = 'the fragment shader provided as param in makeShader()';
     shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
+    this._coupledWith = undefined;
     shader._fragSrc = fragSrc;
     return shader;
   }
@@ -835,7 +839,8 @@ void main() {
 `;
     let advice = `
 /*
-vertex shader code generated with treegl version ${Tree.INFO.VERSION}
+${this._coupledWith ? 'Vertex shader code to be coupled with ' + this._coupledWith : ''} 
+Generated with treegl version ${Tree.INFO.VERSION}
 ${specs ? `
 Feel free to copy, paste, edit and save it.
 Refer to createShader (https://p5js.org/reference/#/p5/createShader),
