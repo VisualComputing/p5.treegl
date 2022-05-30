@@ -41,6 +41,8 @@ function setup() {
     //rotation : [1, 1, 1, 0],  // quaternion
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second
+  //parseVertexShader({ precision: Tree.mediump, matrices: Tree.pmvMatrix, varyings: Tree.color4 });
+  parseVertexShader({ precision: Tree.mediump, matrices: Tree.NONE, varyings: Tree.color4 });
 }
 
 function draw() {

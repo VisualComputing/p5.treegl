@@ -49,11 +49,16 @@ var Tree = (function (ext) {
   const iNEG = [-1, 0, 0];
   const jNEG = [0, -1, 0];
   const kNEG = [0, 0, -1];
-  // vertex shader
+  // shaders
+  // precision
+  const lowp = 0;
+  const mediump = 1;
+  const highp = 2;
   // in
   const pmvMatrix = 1 << 0;
   const pMatrix = 1 << 1;
   const mvMatrix = 1 << 2;
+  const nMatrix = 1 << 3;
   // out
   const color4 = 1 << 0;
   const texCoords2 = 1 << 1;
@@ -91,9 +96,13 @@ var Tree = (function (ext) {
   ext.iNEG = iNEG;
   ext.jNEG = jNEG;
   ext.kNEG = kNEG;
+  ext.lowp = lowp;
+  ext.mediump = mediump;
+  ext.highp = highp;
   ext.pmvMatrix = pmvMatrix;
   ext.pMatrix = pMatrix;
   ext.mvMatrix = mvMatrix;
+  ext.nMatrix = nMatrix;
   ext.color4 = color4;
   ext.texCoords2 = texCoords2;
   ext.normal3 = normal3;
@@ -756,12 +765,14 @@ var Tree = (function (ext) {
 
   // 3. Shader utilities
 
-  p5.prototype.readShader = function (fragFilename,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
-    } = {}) {
+  p5.prototype.readShader = function (fragFilename, {
+    precision,
+    matrices,
+    varyings,
+    log = false
+  } = {}) {
     let shader = new p5.Shader();
-    shader._vertSrc = _vertexShader(color, texcoord);
+    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, log: log });
     this.loadStrings(
       fragFilename,
       result => {
@@ -771,14 +782,71 @@ var Tree = (function (ext) {
     return shader;
   }
 
-  p5.prototype.makeShader = function (fragSrc,
-    { color = 'vVertexColor',
-      texcoord = 'vTexCoord'
-    } = {}) {
+  p5.prototype.makeShader = function (fragSrc, {
+    precision,
+    matrices,
+    varyings,
+    log = false
+  } = {}) {
     let shader = new p5.Shader();
-    shader._vertSrc = _vertexShader(color, texcoord);
+    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, log: log });
     shader._fragSrc = fragSrc;
     return shader;
+  }
+
+  p5.prototype.parseVertexShader = function () {
+    return this._renderer.parseVertexShader(...arguments);
+  }
+
+  p5.RendererGL.prototype.parseVertexShader = function ({
+    precision = Tree.highp,
+    //matrices = Tree.pmvMatrix,
+    matrices = Tree.pMatrix | Tree.mvMatrix,
+    varyings = Tree.color4 | Tree.texCoords2,
+    log = true
+  } = {}) {
+    let floatPrecision = `precision ${precision = Tree.highp ? 'highp' : `${precision = Tree.mediump ? 'mediump' : 'lowp'}`} float;`
+    let color4 = ~(varyings | ~Tree.color4) === 0;
+    let texCoords2 = ~(varyings | ~Tree.texCoords2) === 0;
+    let normal3 = ~(varyings | ~Tree.normal3) === 0;
+    let position2 = ~(varyings | ~Tree.position2) === 0;
+    let position3 = ~(varyings | ~Tree.position3) === 0;
+    let pmv = ~(matrices | ~Tree.pmvMatrix) === 0;
+    let p = ~(matrices | ~Tree.pMatrix) === 0;
+    let mv = ~(matrices | ~Tree.mvMatrix) === 0;
+    let n = (~(matrices | ~Tree.nMatrix) === 0) || normal3;
+    const target = `gl_Position =${pmv ? ' uModelViewProjectionMatrix * ' : `${p && mv ? ' uProjectionMatrix * uModelViewMatrix *' : ''} `}vec4(aPosition, 1.0)`;
+    let vertexShader = `
+${floatPrecision}
+attribute vec3 aPosition;
+${color4 ? 'attribute vec4 aVertexColor;' : ''}
+${texCoords2 ? 'attribute vec2 aTexCoord;' : ''}
+${normal3 ? 'attribute vec3 aNormal;' : ''}
+${pmv ? 'uniform mat4 uModelViewProjectionMatrix;' : ''}
+${p ? 'uniform mat4 uProjectionMatrix;' : ''}
+${mv ? 'uniform mat4 uModelViewMatrix;' : ''}
+${n ? 'uniform mat3 uNormalMatrix;' : ''}
+${color4 ? 'varying vec4 color4;' : ''}
+${texCoords2 ? 'varying vec2 texCoords2;' : ''}
+${normal3 ? 'varying vec3 normal3;' : ''}
+${position2 ? 'varying vec2 position2;' : ''}
+${position3 ? 'varying vec3 position3;' : ''}
+void main() {
+  ${color4 ? 'color4 = aVertexColor;' : ''}
+  ${texCoords2 ? 'texCoords2 = aTexCoord;' : ''}
+  ${normal3 ? 'normal3 = normalize(uNormalMatrix * aNormal);' : ''}
+  ${position2 ? 'position2 = vec4(aPosition, 1.0).xy;' : ''}
+  ${position3 ? 'position3 = vec4(aPosition, 1.0).xyz;' : ''}
+  ${target};
+}
+`;
+    let result = vertexShader.split(/\r?\n/) // Split input text into an array of lines
+      .filter(line => line.trim() !== '') // Filter out lines that are empty or contain only whitespace
+      .join("\n"); // Join line array into a string
+    if (log) {
+      console.log(result);
+    }
+    return result;
   }
 
   p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
@@ -803,22 +871,6 @@ var Tree = (function (ext) {
 
   p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {
     shader.setUniform(uniform, [1 / image.width, 1 / image.height]);
-  }
-
-  function _vertexShader(color, texcoord) {
-    return `precision highp float;
-          attribute vec3 aPosition;
-          attribute vec2 aTexCoord;
-          attribute vec4 aVertexColor;
-          uniform mat4 uProjectionMatrix;
-          uniform mat4 uModelViewMatrix;
-          varying vec4 ${color};
-          varying vec2 ${texcoord};
-          void main() {
-            ${color} = aVertexColor;
-            ${texcoord} = aTexCoord;
-            gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
-          }`;
   }
 
   // 4. Utility functions
