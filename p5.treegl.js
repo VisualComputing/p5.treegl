@@ -800,8 +800,7 @@ var Tree = (function (ext) {
 
   p5.RendererGL.prototype.parseVertexShader = function ({
     precision = Tree.mediump,
-    //matrices = Tree.pmvMatrix,
-    matrices = Tree.pMatrix | Tree.mvMatrix,
+    matrices = Tree.pmvMatrix,
     varyings = Tree.color4 | Tree.texcoords2,
     log = true
   } = {}) {
