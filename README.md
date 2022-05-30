@@ -52,7 +52,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 2. `readShader(fragFilename, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The vertex shader is generated from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 3. `makeShader(fragSrc, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). The vertex shader is generated from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 
-**Observations:**
+**Observations**
 
 1. The `precision` param defines the vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may be either `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
 2. The `matrices` param defines the [vertex shader uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix` or `Tree.NONE` (i.e., to not emit any matrix) bits, e.g., calling `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return (and also log onto the console) something like:
@@ -85,6 +85,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    which produces the default case output. Keep in mind the `varying` naming convention used within the vertex shader, since *it should* be the same you employ within your custom fragment shader.
+
 Feel free to test the `parseVertexShader` function described above, trying out different `precision`, `matrices` and `varyings` params and see what output best suit your particular needs.
 
 ## Macros
