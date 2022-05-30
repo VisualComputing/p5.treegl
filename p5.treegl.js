@@ -383,6 +383,20 @@ var Tree = (function (ext) {
     return invMatrix(this.cameraMatrix);
   }
 
+  p5.prototype.pmvMatrix = function () {
+    return this._renderer.pmvMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.pmvMatrix = function (
+    {
+      pMatrix = this.uPMatrix,
+      vMatrix,
+      mMatrix,
+      mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
+    } = {}) {
+    return axbMatrix(pMatrix, mvMatrix);
+  }
+
   p5.prototype.pvMatrix = function () {
     return this._renderer.pvMatrix(...arguments);
   }
