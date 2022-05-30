@@ -68,7 +68,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    Matrix uniform variables are automatically emit by the [p5 api](https://p5js.org/reference/), such as when issuing a [camera](https://p5js.org/reference/#/p5/camera) or a [translate](https://p5js.org/reference/#/p5/translate) command. Keep in mind the matrix uniform variables naming convention as defined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters), since you should also follow it within your fragment shader.
-3. `varyings` defines the vertex shader attributes to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2`, `Tree.normal3`, `Tree.position2` and `Tree.position3` bits, e.g., `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would produce a similar output as in the default case (see above). Keep in mind the `varying` naming convention used within the vertex shader:
+3. `varyings` defines the vertex shader attributes to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2`, `Tree.normal3`, `Tree.position2` and `Tree.position3` bits, e.g., `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would lead to . :
    ```glsl
    // color4 and texcoords2 names match those of
    // Tree.color4 and Tree.texcoords2, resp.
@@ -84,7 +84,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
      // gl_Position
    }
    ```
-   since *it should* be the same you employ withing your fragment shader.
+   which produces the default case output. Keep in mind the `varying` naming convention used within the vertex shader, since *it should* be the same you employ withing your fragment shader.
 Feel free to test the `parseVertexShader` function described above, trying out different `precision`, `matrices` and `varyings` params and see what output best suit your particular needs.
 
 ## Macros
