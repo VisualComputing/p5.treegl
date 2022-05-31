@@ -850,9 +850,9 @@ for details.` : ''}
 */
 `;
     let result = advice + vertexShader;
-    result = result.split(/\r?\n/) // Split input text into an array of lines
-      .filter(line => line.trim() !== '') // Filter out lines that are empty or contain only whitespace
-      .join("\n"); // Join line array into a string
+    result = result.split(/\r?\n/)
+      .filter(line => line.trim() !== '')
+      .join("\n");
     console.log(result);
     return result;
   }
