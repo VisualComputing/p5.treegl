@@ -1079,10 +1079,9 @@ for details.` : ''}
 
   /**
    * Returns the signed distance between location and the frustum plane defined
-   * by bounds and index: a value between in [0..5] which respectively correspond
-   * to the left, right, near, far, top and bottom eye bounding planes. 
-   * The distance is negative if the point lies in the planes's
-   * bounding halfspace, and positive otherwise.
+   * by bounds and key which may be either Tree.LEFT, Tree.RIGHT, Tree.BOTTOM,
+   * Tree.TOP, Tree.NEAR or Tree.FAR. The distance is negative if the point lies
+   * in the planes's bounding halfspace, and positive otherwise.
    */
   p5.RendererGL.prototype.distanceToBound = function (location, key, bounds = this.bounds()) {
     if (Array.isArray(location)) {
