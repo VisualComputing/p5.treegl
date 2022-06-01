@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.1.1',
+    VERSION: '0.1.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -772,7 +772,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
-    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
     this._coupledWith = undefined;
     this.loadStrings(
       fragFilename,
@@ -790,7 +790,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = 'the fragment shader provided as param in makeShader()';
-    shader._vertSrc = parseVertexShader({ precision: precision, uniforms: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
     this._coupledWith = undefined;
     shader._fragSrc = fragSrc;
     return shader;
