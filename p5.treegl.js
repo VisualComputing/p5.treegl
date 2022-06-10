@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.1.2',
+    VERSION: '0.1.3',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -122,13 +122,13 @@ var Tree = (function (ext) {
       console.error('mult3 only works with mat3');
       return;
     }
-    return createVector(this.mat3[0] * vector.x + this.mat3[3] * vector.y + this.mat3[6] * vector.z,
+    return new p5.Vector(this.mat3[0] * vector.x + this.mat3[3] * vector.y + this.mat3[6] * vector.z,
       this.mat3[1] * vector.x + this.mat3[4] * vector.y + this.mat3[7] * vector.z,
       this.mat3[2] * vector.x + this.mat3[5] * vector.y + this.mat3[8] * vector.z);
   };
 
   p5.Matrix.prototype.mult4 = function (vector) {
-    return createVector(...this._mult4([vector.x, vector.y, vector.z, 1]));
+    return new p5.Vector(...this._mult4([vector.x, vector.y, vector.z, 1]));
   };
 
   p5.Matrix.prototype._mult4 = function (vec4) {
@@ -165,10 +165,10 @@ var Tree = (function (ext) {
   // defaults: from: iMatrix, to: eMatrix
   p5.RendererGL.prototype.lMatrix = function (
     {
-      from = iMatrix(),
+      from = new p5.Matrix(),
       to = this.eMatrix()
     } = {}) {
-    return invMatrix(to).apply(from);
+    return to.copy().invert(to).apply(from);
   }
 
   p5.prototype.dMatrix = function () {
@@ -178,9 +178,9 @@ var Tree = (function (ext) {
   // defaults: from: iMatrix, to: eMatrix
   p5.RendererGL.prototype.dMatrix = function (
     {
-      from = iMatrix(),
+      from = new p5.Matrix(),
       to = this.eMatrix(),
-      matrix = invMatrix(from).apply(to)
+      matrix = from.copy().invert(from).apply(to)
     } = {}) {
     // Note that this transposes mat4 into mat3
     return new p5.Matrix('mat3', [matrix.mat4[0], matrix.mat4[4], matrix.mat4[8],
@@ -207,7 +207,7 @@ var Tree = (function (ext) {
       vMatrix,
       mMatrix
     } = {}) {
-    return mMatrix ? axbMatrix(vMatrix ?? this.vMatrix(), mMatrix) : this.uMVMatrix.copy();
+    return mMatrix ? (vMatrix ?? this.vMatrix()).copy().apply(mMatrix) : this.uMVMatrix.copy();
   }
 
   p5.prototype.mMatrix = function () {
@@ -220,7 +220,7 @@ var Tree = (function (ext) {
       eMatrix = this.eMatrix(),
       mvMatrix = this.mvMatrix()
     } = {}) {
-    return axbMatrix(eMatrix, mvMatrix);
+    return eMatrix.copy().apply(mvMatrix);
   }
 
   p5.prototype.nMatrix = function () {
@@ -256,7 +256,7 @@ var Tree = (function (ext) {
   }
 
   p5.Camera.prototype.eMatrix = function () {
-    return invMatrix(this.cameraMatrix);
+    return this.cameraMatrix.copy().invert(this.cameraMatrix);
   }
 
   p5.prototype.pmvMatrix = function () {
@@ -270,7 +270,7 @@ var Tree = (function (ext) {
       mMatrix,
       mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
     } = {}) {
-    return axbMatrix(pMatrix, mvMatrix);
+    return pMatrix.copy().apply(mvMatrix);
   }
 
   p5.prototype.pvMatrix = function () {
@@ -283,7 +283,7 @@ var Tree = (function (ext) {
       pMatrix = this.uPMatrix,
       vMatrix = this._curCamera.cameraMatrix
     } = {}) {
-    return axbMatrix(pMatrix, vMatrix);
+    return pMatrix.copy().apply(vMatrix);
   }
 
   p5.prototype.pvInvMatrix = function () {
@@ -491,6 +491,7 @@ var Tree = (function (ext) {
   p5.prototype._treeLocation = function () {
     return this._renderer._treeLocation(...arguments);
   }
+
   p5.RendererGL.prototype._treeLocation = function (vector = Tree.ORIGIN,
     {
       from = Tree.EYE,
@@ -502,7 +503,7 @@ var Tree = (function (ext) {
       pvInvMatrix
     } = {}) {
     if (Array.isArray(vector)) {
-      vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+      vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
@@ -523,13 +524,13 @@ var Tree = (function (ext) {
       return this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix });
     }
     if (from == Tree.NDC && (to instanceof p5.Matrix || to == Tree.EYE)) {
-      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
+      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : to.copy().invert(to)).mult4(this._location({ vector: this._ndcToScreenLocation(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
     }
     if ((from instanceof p5.Matrix || from == Tree.EYE) && to == Tree.NDC) {
       return this._screenToNDCLocation(this._screenLocation({ vector: (from == Tree.EYE ? (eMatrix ?? this.eMatrix()) : from).mult4(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix }));
     }
     if (from == Tree.WORLD && (to instanceof p5.Matrix || to == Tree.EYE)) {
-      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(vector);
+      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : to.copy().invert(to)).mult4(vector);
     }
     if ((from instanceof p5.Matrix || from == Tree.EYE) && to == Tree.WORLD) {
       return (from == Tree.EYE ? (eMatrix ?? this.eMatrix()) : from).mult4(vector);
@@ -538,7 +539,7 @@ var Tree = (function (ext) {
       return this.lMatrix({ from: from, to: to }).mult4(vector);
     }
     if (from == Tree.SCREEN && (to instanceof p5.Matrix || to == Tree.EYE)) {
-      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : invMatrix(to)).mult4(this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
+      return (to == Tree.EYE ? (vMatrix ?? this.vMatrix()) : to.copy().invert(to)).mult4(this._location({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix, pvInvMatrix: pvInvMatrix }));
     }
     if ((from instanceof p5.Matrix || from == Tree.EYE) && to == Tree.SCREEN) {
       return this._screenLocation({ vector: (from == Tree.EYE ? (eMatrix ?? this.eMatrix()) : from).mult4(vector), pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
@@ -548,20 +549,20 @@ var Tree = (function (ext) {
   }
 
   p5.RendererGL.prototype._ndcToScreenLocation = function (vector) {
-    return createVector(map(vector.x, -1, 1, 0, this.width),
+    return new p5.Vector(map(vector.x, -1, 1, 0, this.width),
       map(vector.y, -1, 1, 0, this.height),
       map(vector.z, -1, 1, 0, 1));
   }
 
   p5.RendererGL.prototype._screenToNDCLocation = function (vector) {
-    return createVector(map(vector.x, 0, this.width, -1, 1),
+    return new p5.Vector(map(vector.x, 0, this.width, -1, 1),
       map(vector.y, 0, this.height, -1, 1),
       map(vector.z, 0, 1, -1, 1));
   }
 
   p5.RendererGL.prototype._screenLocation = function (
     {
-      vector = createVector(0, 0, 0.5),
+      vector = new p5.Vector(0, 0, 0.5),
       pMatrix,
       vMatrix,
       pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
@@ -583,12 +584,12 @@ var Tree = (function (ext) {
     // Map x,y to viewport
     target[0] = target[0] * viewport[2] + viewport[0];
     target[1] = target[1] * viewport[3] + viewport[1];
-    return createVector(target[0], target[1], target[2]);
+    return new p5.Vector(target[0], target[1], target[2]);
   }
 
   p5.RendererGL.prototype._location = function (
     {
-      vector = createVector(this.width / 2, this.height / 2, 0.5),
+      vector = new p5.Vector(this.width / 2, this.height / 2, 0.5),
       pMatrix,
       vMatrix,
       pvMatrix,
@@ -611,7 +612,7 @@ var Tree = (function (ext) {
     target[0] /= target[3];
     target[1] /= target[3];
     target[2] /= target[3];
-    return createVector(target[0], target[1], target[2]);
+    return new p5.Vector(target[0], target[1], target[2]);
   }
 
   // 2.2. Vectors
@@ -654,7 +655,7 @@ var Tree = (function (ext) {
       pMatrix
     } = {}) {
     if (Array.isArray(vector)) {
-      vector = createVector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+      vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._worldToScreenDisplacement(vector, pMatrix);
@@ -684,7 +685,7 @@ var Tree = (function (ext) {
       return this.dMatrix({ matrix: to }).mult3(this._screenToWorldDisplacement(vector, pMatrix));
     }
     if (from instanceof p5.Matrix && to == Tree.SCREEN) {
-      return this._worldToScreenDisplacement(this.dMatrix({ matrix: invMatrix(from) }).mult3(vector), pMatrix);
+      return this._worldToScreenDisplacement(this.dMatrix({ matrix: from.copy().invert(from) }).mult3(vector), pMatrix);
     }
     if (from instanceof p5.Matrix && to instanceof p5.Matrix) {
       return this.dMatrix({ from: from, to: to }).mult3(vector);
@@ -709,13 +710,13 @@ var Tree = (function (ext) {
       return this.dMatrix({ matrix: (vMatrix ?? this.vMatrix()).apply(to) }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == Tree.EYE) {
-      return this.dMatrix({ matrix: invMatrix(from).apply(eMatrix ?? this.eMatrix()) }).mult3(vector);
+      return this.dMatrix({ matrix: from.copy().invert(from).apply(eMatrix ?? this.eMatrix()) }).mult3(vector);
     }
     if (from == Tree.WORLD && to instanceof p5.Matrix) {
       return this.dMatrix({ matrix: to }).mult3(vector);
     }
     if (from instanceof p5.Matrix && to == Tree.WORLD) {
-      return this.dMatrix({ matrix: invMatrix(from) }).mult3(vector);
+      return this.dMatrix({ matrix: from.copy().invert(from) }).mult3(vector);
     }
     console.error('couldn\'t parse your treeDisplacement query!');
     return vector;
@@ -727,7 +728,7 @@ var Tree = (function (ext) {
     let dy = eyeVector.y;
     let perspective = pMatrix.mat4[15] == 0;
     if (perspective) {
-      let position = createVector();
+      let position = new p5.Vector();
       let k = Math.abs(this._treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
       dx /= 2 * k / this.height;
       dy /= 2 * k / this.height;
@@ -735,7 +736,7 @@ var Tree = (function (ext) {
     let dz = eyeVector.z;
     // sign is inverted
     dz /= (pMatrix.nPlane() - pMatrix.fPlane()) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(pMatrix.rPlane() - pMatrix.lPlane()) / this.width);
-    return createVector(dx, dy, dz);
+    return new p5.Vector(dx, dy, dz);
   }
 
   p5.RendererGL.prototype._screenToWorldDisplacement = function (vector, pMatrix = this.uPMatrix) {
@@ -744,23 +745,23 @@ var Tree = (function (ext) {
     // Scale to fit the screen relative vector displacement
     let perspective = pMatrix.mat4[15] == 0;
     if (perspective) {
-      let position = createVector();
+      let position = new p5.Vector();
       let k = Math.abs(this._treeLocation(position, { from: Tree.WORLD, to: Tree.EYE }).z * Math.tan(this.fov(pMatrix) / 2));
       dx *= 2 * k / this.height;
       dy *= 2 * k / this.height;
     }
     let dz = vector.z;
     dz *= (pMatrix.nPlane() - pMatrix.fPlane()) / (perspective ? Math.tan(this.fov(pMatrix) / 2) : Math.abs(pMatrix.rPlane() - pMatrix.lPlane()) / this.width);
-    let eyeVector = createVector(dx, dy, dz);
+    let eyeVector = new p5.Vector(dx, dy, dz);
     return this._treeDisplacement(eyeVector, { from: Tree.EYE, to: Tree.WORLD });
   }
 
   p5.RendererGL.prototype._ndcToScreenDisplacement = function (vector) {
-    return createVector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
+    return new p5.Vector(this.width * vector.x / 2, this.height * vector.y / 2, vector.z / 2);
   }
 
   p5.RendererGL.prototype._screenToNDCDisplacement = function (vector) {
-    return createVector(2 * vector.x / this.width, 2 * vector.y / this.height, 2 * vector.z);
+    return new p5.Vector(2 * vector.x / this.width, 2 * vector.y / this.height, 2 * vector.z);
   }
 
   // 3. Shader utilities
@@ -772,7 +773,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
-    shader._vertSrc = parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
     this._coupledWith = undefined;
     this.loadStrings(
       fragFilename,
@@ -790,7 +791,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = 'the fragment shader provided as param in makeShader()';
-    shader._vertSrc = parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
     this._coupledWith = undefined;
     shader._fragSrc = fragSrc;
     return shader;
@@ -955,10 +956,10 @@ for details.` : ''}
 
   p5.RendererGL.prototype._boxVisibility = function (corner1, corner2, bounds = this.bounds()) {
     if (Array.isArray(corner1)) {
-      corner1 = createVector(corner1[0] ?? 0, corner1[1] ?? 0, corner1[2] ?? 0);
+      corner1 = new p5.Vector(corner1[0] ?? 0, corner1[1] ?? 0, corner1[2] ?? 0);
     }
     if (Array.isArray(corner2)) {
-      corner2 = createVector(corner2[0] ?? 0, corner2[1] ?? 0, corner2[2] ?? 0);
+      corner2 = new p5.Vector(corner2[0] ?? 0, corner2[1] ?? 0, corner2[2] ?? 0);
     }
     let allInForAllPlanes = true;
     for (const key in bounds) {
@@ -1085,7 +1086,7 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.distanceToBound = function (location, key, bounds = this.bounds()) {
     if (Array.isArray(location)) {
-      location = createVector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
+      location = new p5.Vector(location[0] ?? 0, location[1] ?? 0, location[2] ?? 0);
     }
     return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
@@ -1169,7 +1170,7 @@ for details.` : ''}
       let posi = 0;
       let posj = 0;
       this.strokeWeight(weight * 2);
-      this.beginShape(POINTS);
+      this.beginShape(0x0000);
       for (let i = 0; i <= subdivisions; ++i) {
         posi = size * (2.0 * i / subdivisions - 1.0);
         for (let j = 0; j <= subdivisions; ++j) {
@@ -1181,7 +1182,7 @@ for details.` : ''}
       const internalSub = 5;
       const subSubdivisions = subdivisions * internalSub;
       this.strokeWeight(weight);
-      this.beginShape(POINTS);
+      this.beginShape(0x0000);
       for (let i = 0; i <= subSubdivisions; ++i) {
         posi = size * (2.0 * i / subSubdivisions - 1.0);
         for (let j = 0; j <= subSubdivisions; ++j) {
