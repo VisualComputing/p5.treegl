@@ -126,8 +126,8 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Space transformations
 
-1. `treeLocation(vector = Tree.ORIGIN, [{[from = EYE], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
-2. `treeDisplacement(vector = Tree.kNeg, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
+1. `treeLocation(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
+2. `treeDisplacement(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
 
 Pass matrix params when you *cached* those matrices (see the [previous section](#matrix-queries)), either to speedup computations, e.g.,
 
@@ -160,7 +160,13 @@ function draw() {
   // continue drawing your tree...
   // let's draw a bulls eye at the model origin screen projection
   push();
-  let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
+  let screenProjection = treeLocation(Tree.ORIGIN, { from: model, to: Tree.SCREEN });
+  // which is the same as:
+  // let screenProjection = treeLocation(createVector(0, 0, 0), { from: model, to: Tree.SCREEN });
+  // or,
+  // let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
+  // or, more simply:
+  // let screenProjection = treeLocation({ from: model, to: Tree.SCREEN });
   bullsEye({ x: screenProjection.x, y: screenProjection.y });
   pop();
 }
@@ -172,8 +178,8 @@ function draw() {
 2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN` or `Tree.NDC`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
 4. The default `treeLocation` call (i.e., `treeLocation(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
-5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree.kNeg, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
-6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree.kNeg` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree.iNEG` (i.e., `[-1, 0, 0]`) and `Tree.jNEG` (i.e., `[0, -1, 0]`).
+5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
+6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree._k` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree._i` (i.e., `[-1, 0, 0]`) and `Tree._j` (i.e., `[0, -1, 0]`).
 
 # Heads Up Display
 
@@ -203,11 +209,11 @@ function draw() {
 
 # Drawing stuff
 
-1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree.XNEG`, `Tree.Y`, `Tree.YNEG`, `Tree.Z`, `Tree.ZNEG` and `Tree.LABELS` `bits`.
+1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [dotted = true] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
 3. `cross([{ [x = this.width / 2], [y = this.height / 2], [size = 50] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
 4. `bullsEye([{ [x = this.width / 2], [y = this.height / 2], [size = 50], [circled = true] }])`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
-5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.NEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
+5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
 
 # Installation
 

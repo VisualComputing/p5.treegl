@@ -19,9 +19,9 @@ var Tree = (function (ext) {
   const X = 1 << 0;
   const Y = 1 << 1;
   const Z = 1 << 2;
-  const XNEG = 1 << 3;
-  const YNEG = 1 << 4;
-  const ZNEG = 1 << 5;
+  const _X = 1 << 3;
+  const _Y = 1 << 4;
+  const _Z = 1 << 5;
   const LABELS = 1 << 6;
   // Frustum consts
   const NEAR = 1 << 0;
@@ -46,9 +46,9 @@ var Tree = (function (ext) {
   const i = [1, 0, 0];
   const j = [0, 1, 0];
   const k = [0, 0, 1];
-  const iNEG = [-1, 0, 0];
-  const jNEG = [0, -1, 0];
-  const kNEG = [0, 0, -1];
+  const _i = [-1, 0, 0];
+  const _j = [0, -1, 0];
+  const _k = [0, 0, -1];
   // shaders
   // precision
   const lowp = 0;
@@ -71,9 +71,9 @@ var Tree = (function (ext) {
   ext.X = X;
   ext.Y = Y;
   ext.Z = Z;
-  ext.XNEG = XNEG;
-  ext.YNEG = YNEG;
-  ext.ZNEG = ZNEG;
+  ext._X = _X;
+  ext._Y = _Y;
+  ext._Z = _Z;
   ext.LABELS = LABELS;
   ext.NEAR = NEAR;
   ext.FAR = FAR;
@@ -93,9 +93,9 @@ var Tree = (function (ext) {
   ext.i = i;
   ext.j = j;
   ext.k = k;
-  ext.iNEG = iNEG;
-  ext.jNEG = jNEG;
-  ext.kNEG = kNEG;
+  ext._i = _i;
+  ext._j = _j;
+  ext._k = _k;
   ext.lowp = lowp;
   ext.mediump = mediump;
   ext.highp = highp;
@@ -638,7 +638,7 @@ var Tree = (function (ext) {
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
   p5.RendererGL.prototype.treeDisplacement = function () {
-    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeDisplacement(Tree.kNEG, arguments[0]) :
+    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeDisplacement(Tree._k, arguments[0]) :
       this._treeDisplacement(...arguments);
   }
 
@@ -646,7 +646,7 @@ var Tree = (function (ext) {
     return this._renderer._treeDisplacement(...arguments);
   }
 
-  p5.RendererGL.prototype._treeDisplacement = function (vector = Tree.kNEG,
+  p5.RendererGL.prototype._treeDisplacement = function (vector = Tree._k,
     {
       from = Tree.EYE,
       to = Tree.WORLD,
@@ -1100,8 +1100,8 @@ for details.` : ''}
   /**
    * Draws axes.
    * @param  {Number}  size size in world units.
-   * @param  {Number}  bits bitwise mask that may be composed of Tree.X, Tree.XNEG,
-   *                        Tree.Y, Tree.YNEG, Tree.Z, Tree.ZNEG and Tree.LABELS bits.
+   * @param  {Number}  bits bitwise mask that may be composed of Tree.X, Tree._X,
+   *                        Tree.Y, Tree._Y, Tree.Z, Tree._Z and Tree.LABELS bits.
    */
   p5.RendererGL.prototype.axes = function ({ size = 100, bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z } = {}) {
     this._rendererState = this.push();
@@ -1130,7 +1130,7 @@ for details.` : ''}
     if (~(bits | ~Tree.X) === 0) {
       this.line(0, 0, 0, size, 0, 0);
     }
-    if (~(bits | ~Tree.XNEG) === 0) {
+    if (~(bits | ~Tree._X) === 0) {
       this.line(0, 0, 0, -size, 0, 0);
     }
     // Y Axis
@@ -1138,7 +1138,7 @@ for details.` : ''}
     if (~(bits | ~Tree.Y) === 0) {
       this.line(0, 0, 0, 0, size, 0);
     }
-    if (~(bits | ~Tree.YNEG) === 0) {
+    if (~(bits | ~Tree._Y) === 0) {
       this.line(0, 0, 0, 0, -size, 0);
     }
     // Z Axis
@@ -1146,7 +1146,7 @@ for details.` : ''}
     if (~(bits | ~Tree.Z) === 0) {
       this.line(0, 0, 0, 0, 0, size);
     }
-    if (~(bits | ~Tree.ZNEG) === 0) {
+    if (~(bits | ~Tree._Z) === 0) {
       this.line(0, 0, 0, 0, 0, -size);
     }
     this.pop(this._rendererState);
@@ -1295,7 +1295,7 @@ for details.` : ''}
   p5.RendererGL.prototype.viewFrustum = function ({
     fbo = _renderer,
     bits = Tree.NEAR | Tree.FAR,
-    viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.XNEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG })
+    viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })
   } = {}) {
     if (this === fbo) {
       console.error('displaying viewFrustum requires an fbo different than this');
