@@ -59,8 +59,8 @@ function draw() {
   scene2();
   fbo2.push();
   fbo2.fill(255, 0, 255, 100);
-  fbo2.viewFrustum({ fbo: fbo1 });
-  fbo2.push();
+  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.BODY });
+  fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);
   endHUD();
@@ -73,11 +73,16 @@ function scene1() {
     fbo1.translate(box.position);
     if (boxes[box_key] === box) {
       if (keyIsPressed && !mouseIsPressed) {
-        let boxLocation = fbo1.treeLocation([0, 0, 0], { from: fbo1.mMatrix(), to: 'WORLD' });
+        //let boxLocation = fbo1.treeLocation(Tree.ORIGIN, { from: fbo1.mMatrix(), to: Tree.WORLD });
+        let boxLocation = fbo1.treeLocation({ from: fbo1.mMatrix(), to: Tree.WORLD });
         let pixelRatio = fbo1.pixelRatio(boxLocation);
         box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
-        let eyeLocation = fbo1.treeLocation([0, 0, 0], { from: 'EYE', to: 'WORLD' });
+        //let eyeLocation = fbo1.treeLocation(Tree.ORIGIN, { from: Tree.EYE, to: Tree.WORLD });
+        // same as:
+        //let eyeLocation = fbo1.treeLocation({ from: Tree.EYE, to: Tree.WORLD });
+        // same as:
+        let eyeLocation = fbo1.treeLocation();
         box.position.add(p5.Vector.sub(boxLocation, eyeLocation).normalize().mult(key === 'w' ? SPEED : -SPEED));
       }
       else {

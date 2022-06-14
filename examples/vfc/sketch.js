@@ -28,8 +28,7 @@ function setup() {
   cam2.setViewport([width / 2, 0, width / 2, height]);
   document.oncontextmenu = function () { return false; }
   // scene
-  colorMode(RGB, 1);
-  let trange = 100;
+  print(fbo1.distanceToBound([], Tree.NEAR));
 }
 
 function draw() {
@@ -48,11 +47,11 @@ function draw() {
   scene2();
   fbo2.push();
   fbo2.strokeWeight(3);
-  fbo2.stroke('magenta');
-  fbo2.fill(color(1, 0, 1, 0.3));
-  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY });
-  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
+  fbo2.stroke(255, 0, 255);
+  fbo2.fill(255, 0, 255, 100);
+  fbo2.viewFrustum({ fbo: fbo1, bits: Tree.BODY });
   //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
+  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);

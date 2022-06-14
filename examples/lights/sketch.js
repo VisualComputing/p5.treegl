@@ -10,6 +10,7 @@ let boxes;
 function setup() {
   //pixelDensity(1);
   createCanvas(400, 400, WEBGL);
+  axes();
   noStroke();
   setAttributes('antialias', true);
 
@@ -39,11 +40,24 @@ function setup() {
     );
   }
 
-  ambient = color(0.0002, 0.0004, 0.0006);
+  //ambient = color(0.0002, 0.0004, 0.0006);
+  ambient = color(0.12, 0.14, 0.1);
   directLights = [
     {
-      dir: createVector(-1, -1, -2).normalize(),
-      col: color(0.0010, 0.0005, 0.00025),
+      dir: Tree.i,
+      col: color(0.9, 0, 0),
+    },
+    {
+      dir: Tree._i,
+      col: color(0, 0.9, 0),
+    },
+    {
+      dir: Tree.j,
+      col: color(0, 0, 0.9),
+    },
+    {
+      dir: Tree._j,
+      col: color(0.9, 0.9, 0),
     },
   ];
 }
@@ -95,10 +109,15 @@ function draw() {
     },
   ];
 
-  ambientLight(ambient);
-  directLights.forEach(light => directionalLight(light.col,
+  //ambientLight(ambient);
+  
+  directLights.forEach(light => directionalLight(
+    light.col,
     // transform to camera-space
-    treeDisplacement(light.dir, { from: 'WORLD', to: 'EYE' /*, eMatrix: e*/ })));
+    // treeDisplacement(light.dir, { from: Tree.WORLD, to: Tree.EYE, eMatrix: e })
+    treeDisplacement(light.dir, { from: Tree.EYE, to: Tree.WORLD })
+    ));
+    /*
   pointLights.forEach(light => {
     pointLight(light.col, light.pos);
     push();
@@ -108,6 +127,7 @@ function draw() {
     sphere(3);
     pop();
   });
+  // */
 
   boxes.forEach(element => {
     push();

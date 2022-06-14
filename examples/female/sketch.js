@@ -113,13 +113,13 @@ function draw() {
     point(pnt.x, pnt.y, pnt.z);
   }
   else {
-    toScreen = cacheInit ? treeLocation(pnt, { from: 'WORLD', to: 'SCREEN', pvMatrix: pv }) : treeLocation(pnt, { from: 'WORLD', to: 'SCREEN' });
+    toScreen = cacheInit ? treeLocation(pnt, { from: Tree.WORLD, to: Tree.SCREEN, pvMatrix: pv }) : treeLocation(pnt, { from: Tree.WORLD, to: Tree.SCREEN });
     beginHUD();
     stroke(cacheInit ? 'yellow' : 'white');
     //stroke('white');
     point(toScreen.x, toScreen.y);
     endHUD();
-    fromScreen = cacheInit ? treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD', pvInvMatrix: pvInv }) : treeLocation(toScreen, { from: 'SCREEN', to: 'WORLD' });
+    fromScreen = cacheInit ? treeLocation(toScreen, { from: Tree.SCREEN, to: Tree.WORLD, pvInvMatrix: pvInv }) : treeLocation(toScreen, { from: Tree.SCREEN, to: Tree.WORLD });
     /*
     if (log === frameCount) {
       console.log('pnt', pnt, 'toScreen', toScreen, 'fromScreen', fromScreen);
@@ -169,15 +169,15 @@ function keyPressed() {
     let i = iMatrix();
     let e = eMatrix();
     let v = createVector(15, -25, 70);
-    let r = treeLocation(v, { from: 'WORLD', to: 'EYE' });
+    let r = treeLocation(v, { from: Tree.WORLD, to: Tree.EYE });
     console.log('*', treeLocation(v, { from: i, to: e }));
     console.log('?', lMatrix({ from: i, to: e }).mult4(v));
     console.log('/', r);
     console.log('@', nMatrix().mult3(v));
-    console.log(treeLocation(v, { from: i, to: 'EYE' }));
-    let r_ = treeLocation(r, { from: 'EYE', to: 'WORLD' });
+    console.log(treeLocation(v, { from: i, to: Tree.EYE }));
+    let r_ = treeLocation(r, { from: Tree.EYE, to: Tree.WORLD });
     console.log(r_);
-    console.log(treeLocation(r, { from: 'EYE', to: i }));
+    console.log(treeLocation(r, { from: Tree.EYE, to: i }));
     console.log('+', treeLocation(r, { from: e, to: i }));
     console.log(lMatrix({ from: e, to: i }).mult4(r));
   }
@@ -185,23 +185,23 @@ function keyPressed() {
     let i = iMatrix();
     let e = eMatrix();
     let v = createVector(15, -25, 70);
-    let r = treeDisplacement(v, { from: 'WORLD', to: 'EYE' });
+    let r = treeDisplacement(v, { from: Tree.WORLD, to: Tree.EYE });
     console.log('*', treeDisplacement(v, { from: i, to: e }));
     console.log('?', dMatrix({ from: i, to: e }).mult3(v));
     console.log('/', r);
     console.log('@', nMatrix().mult3(v));
-    console.log(treeDisplacement(v, { from: i, to: 'EYE' }));
-    let r_ = treeDisplacement(r, { from: 'EYE', to: 'WORLD' });
+    console.log(treeDisplacement(v, { from: i, to: Tree.EYE }));
+    let r_ = treeDisplacement(r, { from: Tree.EYE, to: Tree.WORLD });
     console.log(r_);
-    console.log(treeDisplacement(r, { from: 'EYE', to: i }));
+    console.log(treeDisplacement(r, { from: Tree.EYE, to: i }));
     console.log('+', treeDisplacement(r, { from: e, to: i }));
     console.log(dMatrix({ from: e, to: i }).mult3(r));
   }
   if (key === 'u') {
     let v = createVector(35, -55, 0.7);
-    let d = treeDisplacement(v, { from: 'SCREEN', to: 'WORLD' });
+    let d = treeDisplacement(v, { from: Tree.SCREEN, to: Tree.WORLD });
     console.log(d);
-    let w = treeDisplacement(d, { from: 'WORLD', to: 'SCREEN' });
+    let w = treeDisplacement(d, { from: Tree.WORLD, to: Tree.SCREEN });
     console.log(w);
   }
 }

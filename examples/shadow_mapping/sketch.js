@@ -73,7 +73,7 @@ function draw() {
     shadowShader.setUniform('shadowTransform', st.mat4);
     let worldLightDirection = lightPosition.copy();
     worldLightDirection.mult(-1).normalize();
-    let lightDirection = treeDisplacement(worldLightDirection, { from: 'WORLD', to: 'EYE' });
+    let lightDirection = treeDisplacement(worldLightDirection, { from: Tree.WORLD, to: Tree.EYE });
     shadowShader.setUniform('lightDirection', [lightDirection.x, lightDirection.y, lightDirection.z]);
     shadowShader.setUniform('shadowMap', depthMap);
     if (frameCount <= 10) {

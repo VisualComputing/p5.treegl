@@ -33,28 +33,60 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-`readShader` and `makeShader` take only a fragment shader and return a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. The behind the scenes vertex shader is actually generated from the following [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals):
+1. `parseVertexShader([{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: parses `precision`, `matrices` and `varyings` params into a vertex shader which is returned as a string. For example:
+   calling `parseVertexShader()` without any arguments will return (and also log onto the console) the following string:
+   ```glsl
+   precision mediump float;
+   attribute vec3 aPosition;
+   attribute vec4 aVertexColor;
+   attribute vec2 aTexCoord;
+   uniform mat4 uModelViewProjectionMatrix;
+   varying vec4 color4;
+   varying vec2 texcoords2;
+   void main() {
+     color4 = aVertexColor;
+     texcoords2 = aTexCoord;
+     gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
+   }
+   ```
+2. `readShader(fragFilename, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+3. `makeShader(fragSrc, [{[precision = Tree.mediump], [matrices = Tree.pmvMatrix], [varyings = Tree.color4 | Tree.texcoords2]}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 
-```js
-`precision highp float;
- attribute vec3 aPosition;
- attribute vec2 aTexCoord;
- attribute vec4 aVertexColor;
- uniform mat4 uProjectionMatrix;
- uniform mat4 uModelViewMatrix;
- varying vec4 ${color};
- varying vec2 ${texcoord};
- void main() {
-   ${color} = aVertexColor;
-   ${texcoord} = aTexCoord;
-   gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
- }`
-```
+**Observations**
 
-observe in the code above (and in the function signatures below) that the varying `color` and `texcoord` names (of the color and texture coordinates vertex attributes to be interpolated, resp.) are customizable.
+1. The `precision` param defines the vertex shader [float precision](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers). It may be either `Tree.lowp`, `Tree.mediump` or `Tree.highp`.
+2. The `matrices` param defines the [vertex shader uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) from `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix` or `Tree.NONE` (i.e., to not emit any matrix) bits, e.g., calling `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` would return (and also log onto the console) something like:
+   ```glsl
+   // float precision
+   // attributes ...
+   uniform mat4 uProjectionMatrix;
+   uniform mat4 uModelViewMatrix;
+   // varyings ...
+   void main() {
+     // processed varyings
+     gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+   }
+   ```
+   Matrix uniform variables are automatically emit by the [p5 api](https://p5js.org/reference/), such as when issuing a [camera](https://p5js.org/reference/#/p5/camera) or a [translate](https://p5js.org/reference/#/p5/translate) command. Keep in mind the matrix uniform variables naming convention as defined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters), since you should also follow it within your fragment shader.
+3. The `varyings` param defines the [vertex shader attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) to be interpolated to the fragment shader from `Tree.color4`, `Tree.texcoords2` ([texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.normal3`, `Tree.position2`, `Tree.position3` or `Tree.NONE` (i.e., to not emit any varying) bits, e.g., calling `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` would return (and also log onto the console) something like:
+   ```glsl
+   // color4 and texcoords2 names match those of
+   // Tree.color4 and Tree.texcoords2, resp.
+   // float precision
+   attribute vec4 aVertexColor;
+   attribute vec2 aTexCoord;
+   // matrix uniforms...
+   varying vec4 color4;
+   varying vec2 texcoords2;
+   void main() {
+     color4 = aVertexColor;
+     texcoords2 = aTexCoord;
+     // gl_Position
+   }
+   ```
+   which produces the default case output. Keep in mind the `varying` naming convention used within the vertex shader, since *it should* be the same you employ within your custom fragment shader.
 
-1. `readShader(fragFilename, [{[color = 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
-2. `makeShader(fragSrc, [{[color= 'vVertexColor'], [texcoord = 'vTexCoord']}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader).
+Feel free to test the `parseVertexShader` function described above, trying out different `precision`, `matrices` and `varyings` params and see what output best suit your particular needs.
 
 ## Macros
 
@@ -94,8 +126,8 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Space transformations
 
-1. `treeLocation(vector, [{[from = SCREEN], [to = WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
-2. `treeDisplacement(vector, [{[from = EYE], [to = WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
+1. `treeLocation(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
+2. `treeDisplacement(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
 
 Pass matrix params when you *cached* those matrices (see the [previous section](#matrix-queries)), either to speedup computations, e.g.,
 
@@ -108,8 +140,8 @@ functon draw() {
   pvInv = pvInvMatrix();
   // ...
   // speedup treeLocation
-  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
-  treeLocation(vector, { from: 'WORLD', to: 'SCREEN', pvInvMatrix: pvInv });
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
   // ... many more treeLocation calls....
   // ... all the above treeLocation calls used the (only computed once) cached pvInv matrix
 }
@@ -128,7 +160,13 @@ function draw() {
   // continue drawing your tree...
   // let's draw a bulls eye at the model origin screen projection
   push();
-  let screenProjection = treeLocation([0, 0, 0], { from: model, to: 'SCREEN' });
+  let screenProjection = treeLocation(Tree.ORIGIN, { from: model, to: Tree.SCREEN });
+  // which is the same as:
+  // let screenProjection = treeLocation(createVector(0, 0, 0), { from: model, to: Tree.SCREEN });
+  // or,
+  // let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
+  // or, more simply:
+  // let screenProjection = treeLocation({ from: model, to: Tree.SCREEN });
   bullsEye({ x: screenProjection.x, y: screenProjection.y });
   pop();
 }
@@ -137,8 +175,11 @@ function draw() {
 **Observations**
 
 1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
-2. `from` and `to` may also be specified as either: `'WORLD'`, `'EYE'`, `'SCREEN'` or `'NDC'`.
+2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN` or `Tree.NDC`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
+4. The default `treeLocation` call (i.e., `treeLocation(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
+5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
+6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree._k` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree._i` (i.e., `[-1, 0, 0]`) and `Tree._j` (i.e., `[0, -1, 0]`).
 
 # Heads Up Display
 
@@ -160,15 +201,19 @@ function draw() {
 
 1. `pixelRatio(location)`: Returns the world to pixel ratio units at given world location, i.e., a line of `n * pixelRatio(location)` world units will be projected with a length of `n` pixels on screen.
 2. `visibility`: Returns object visibility, either as `Tree.VISIBLE`, `Tree.INVISIBLE`, or `Tree.SEMIVISIBLE`. Object may be either a _point_: `visibility({ center, [bounds = this.bounds()]})`, a _ball_: `visibility({ center, radius, [bounds = this.bounds()]})` or an _axis-aligned box_: `visibility({ corner1, corner2, [bounds = this.bounds()]})`.
-3. `bounds()`: Returns the current frustum six plane equation coefficients formatted as the above `visibility` functions need them.
+3. `bounds()`: Returns the [general form](http://www.songho.ca/math/plane/plane.html) of the current frustum six plane equations, i.e., _ax + by + cz + d = 0_, formatted as an object literal having keys: `Tree.LEFT`, `Tree.RIGHT`, `Tree.BOTTOM`, `Tree.TOP`, `Tree.NEAR` and `Tree.FAR`, e.g., access the near plane coefficients as:
+   ```js
+   let bounds = bounds();
+   let near = bounds[Tree.NEAR];// near.a, near.b, near.c and near.d
+   ```
 
 # Drawing stuff
 
-1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree.XNEG`, `Tree.Y`, `Tree.YNEG`, `Tree.Z`, `Tree.ZNEG` and `Tree.LABELS` `bits`.
+1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [dotted = true] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
 3. `cross([{ [x = this.width / 2], [y = this.height / 2], [size = 50] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
 4. `bullsEye([{ [x = this.width / 2], [y = this.height / 2], [size = 50], [circled = true] }])`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
-5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree.NEG | Tree.Y | Tree.YNEG | Tree.Z | Tree.ZNEG })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
+5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
 
 # Installation
 
