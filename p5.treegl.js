@@ -1091,6 +1091,25 @@ for details.` : ''}
     return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
+  p5.prototype.mousePicking = function (mMatrix, { size = 50, circled = true } = {}) {
+    return this.pointerPicking(mMatrix, this.mouseX, this.mouseY, { size: size, circled: circled });
+  }
+
+  p5.prototype.pointerPicking = function () {
+    return this._renderer.pointerPicking(...arguments);
+  }
+
+  /**
+   * Returns the model picked at pointerX, pointerY screen location.
+   */
+  p5.RendererGL.prototype.pointerPicking = function (mMatrix, pointerX, pointerY, { size = 50, circled = true } = {}) {
+    let radius = size / 2;
+    let projection = this.treeLocation({ from: mMatrix, to: Tree.SCREEN });
+    return circled ?
+      Math.sqrt(Math.pow((projection.x - pointerX), 2.0) + Math.pow((projection.y - pointerY), 2.0)) < radius :
+      ((Math.abs(pointerX - projection.x) < radius) && (Math.abs(pointerY - projection.y) < radius));
+  }
+
   // 5. Drawing stuff
 
   p5.prototype.axes = function () {
@@ -1215,7 +1234,7 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.cross = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
     if (mMatrix) {
-      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;
       y = screenLocation.y;
     }
@@ -1233,25 +1252,23 @@ for details.` : ''}
   };
 
   /**
-   * Draws a circled-shape bulls-eye on the screen.
-   * @param  {Number} x screen x coordinate. Default is width / 2
-   * @param  {Number} y screen y coordinate. Default is height / 2
-   * @param  {Number} size bullseye diameter in pixels. Default is 50
-   */
-
-  /**
    * Draws a bulls-eye on the screen.
    * @param  {Number}  x screen x coordinate. Default is width / 2.
    * @param  {Number}  y screen y coordinate. Default is height / 2.
    * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
-  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, /*radius,*/ size = 50, circled = true } = {}) {
     if (mMatrix) {
-      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;
       y = screenLocation.y;
     }
+    /*
+    if (radius) {
+      size = Math.min(this.width, this.height) * radius * 1 / this.pixelRatio(mMatrix ? this.treeLocation({ from: mMatrix, to: Tree.WORLD }) : Tree.ORIGIN) * 2;
+    }
+    // */
     this._rendererState = this.push();
     if (circled) {
       this.beginHUD();
@@ -1281,7 +1298,7 @@ for details.` : ''}
 
   p5.RendererGL.prototype._circle = function ({ mMatrix, x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
     if (mMatrix) {
-      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;
       y = screenLocation.y;
     }
