@@ -1213,7 +1213,12 @@ for details.` : ''}
    * @param  {Number} y screen y coordinate. Default is height / 2.
    * @param  {Number} size cross size in pixels. Default is 50.
    */
-  p5.RendererGL.prototype.cross = function ({ x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
+  p5.RendererGL.prototype.cross = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50 } = {}) {
+    if (mMatrix) {
+      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      x = screenLocation.x;
+      y = screenLocation.y;
+    }
     const half_size = size / 2.0;
     this._rendererState = this.push();
     this.beginHUD();
@@ -1241,7 +1246,12 @@ for details.` : ''}
    * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
-  p5.RendererGL.prototype.bullsEye = function ({ x = this.width / 2, y = this.height / 2, size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50, circled = true } = {}) {
+    if (mMatrix) {
+      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      x = screenLocation.x;
+      y = screenLocation.y;
+    }
     this._rendererState = this.push();
     if (circled) {
       this.beginHUD();
@@ -1269,7 +1279,12 @@ for details.` : ''}
     this._renderer._circle(...arguments);
   };
 
-  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
+  p5.RendererGL.prototype._circle = function ({ mMatrix, x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
+    if (mMatrix) {
+      let screenLocation = treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      x = screenLocation.x;
+      y = screenLocation.y;
+    }
     this._rendererState = this.push();
     this.translate(x, y);
     const angle = TWO_PI / detail;
