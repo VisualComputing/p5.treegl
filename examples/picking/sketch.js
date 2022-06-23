@@ -46,10 +46,11 @@ function draw() {
     box(element.size);
     //stroke(pointerPicking(mat, mouseX, mouseY) ? 'red' : 'purple');
     //stroke(mousePicking(mat) ? 'red' : 'purple');
-    stroke(mousePicking(mat, { circled: false }) ? 'red' : 'purple');
+    //stroke(mousePicking(mat, { circled: false }) ? 'red' : 'purple');
     strokeWeight(3);
-    //bullsEye({ mMatrix: mat });
-    bullsEye({ mMatrix: mat, circled: false });
+    stroke('purple');
+    bullsEye({ mMatrix: mat, radius: 0.05 });
+    //bullsEye({ mMatrix: mat, circled: false });
     pop();
   }
   );

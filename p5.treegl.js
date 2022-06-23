@@ -896,7 +896,7 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
-      2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE })).y) * Math.tan(this.fov() / 2) / this.height;
+      2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE })).z) * Math.tan(this.fov() / 2) / this.height;
   }
 
   p5.prototype.visibility = function () {
@@ -1258,17 +1258,15 @@ for details.` : ''}
    * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
-  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, /*radius,*/ size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, radius, size = 50, circled = true } = {}) {
     if (mMatrix) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;
       y = screenLocation.y;
     }
-    /*
     if (radius) {
-      size = Math.min(this.width, this.height) * radius * 1 / this.pixelRatio(mMatrix ? this.treeLocation({ from: mMatrix, to: Tree.WORLD }) : Tree.ORIGIN) * 2;
+      size = Math.min(this.width, this.height) * radius / this.pixelRatio(mMatrix ? this.treeLocation({ from: mMatrix, to: Tree.WORLD }) : Tree.ORIGIN);
     }
-    // */
     this._rendererState = this.push();
     if (circled) {
       this.beginHUD();
