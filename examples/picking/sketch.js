@@ -23,7 +23,7 @@ function setup() {
   colorMode(RGB, 1);
   let trange = 100;
   boxes = [];
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 1; i++) {
     boxes.push(
       {
         position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
@@ -43,13 +43,13 @@ function draw() {
     translate(element.position);
     let mat = mMatrix();
     fill(element.color);
-    box(element.size);
-    //stroke(pointerPicking(mat, mouseX, mouseY) ? 'red' : 'purple');
-    //stroke(mousePicking(mat) ? 'red' : 'purple');
-    //stroke(mousePicking(mat, { circled: false }) ? 'red' : 'purple');
+    //box(element.size);
+    noStroke();
+    sphere(element.size);
     strokeWeight(3);
-    stroke('purple');
-    bullsEye({ mMatrix: mat, radius: 0.05 });
+    //stroke('purple');
+    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false }) ? 'white' : 'red');
+    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false });
     //bullsEye({ mMatrix: mat, circled: false });
     pop();
   }
