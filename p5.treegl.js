@@ -1091,16 +1091,16 @@ for details.` : ''}
     return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
-  p5.prototype.mousePicking = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.SCREEN, size = 50, circled = true } = {}) {
+  p5.prototype.mousePicking = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50, circled = true } = {}) {
     return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, ref: ref, size: size, circled: circled });
   }
 
   p5.prototype.pointerPicking = function () {
     return this._renderer.pointerPicking(...arguments);
   }
-    
+
   /**
-   * Returns the model picked at pointerX, pointerY screen location.
+   * Returns true if pointer is close enough to pointerX, pointerY screen location.
    */
   p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, { mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.SCREEN, size = 50, circled = true } = {}) {
     if (mMatrix) {
@@ -1239,7 +1239,7 @@ for details.` : ''}
    * @param  {Number} y screen y coordinate. Default is height / 2.
    * @param  {Number} size cross size in pixels. Default is 50.
    */
-  p5.RendererGL.prototype.cross = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.SCREEN, size = 50 } = {}) {
+  p5.RendererGL.prototype.cross = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50 } = {}) {
     if (mMatrix) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;
@@ -1268,7 +1268,7 @@ for details.` : ''}
    * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
-  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.SCREEN, size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50, circled = true } = {}) {
     if (mMatrix) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
       x = screenLocation.x;

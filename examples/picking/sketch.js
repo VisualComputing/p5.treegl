@@ -47,11 +47,13 @@ function draw() {
     noStroke();
     sphere(element.size);
     strokeWeight(3);
-    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD }) ? 'white' : 'red');
-    //cross({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD });
-    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD });
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false }) ? 'white' : 'red');
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5 }) ? 'white' : 'red');
+    //cross({ mMatrix: mat, size: element.size * 2.5 });
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5 });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, circled: false }) ? 'white' : 'red');
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5, circled: false });
+    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN }) ? 'white' : 'red');
+    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN });
     pop();
   }
   );
