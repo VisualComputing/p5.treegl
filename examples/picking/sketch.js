@@ -47,10 +47,11 @@ function draw() {
     noStroke();
     sphere(element.size);
     strokeWeight(3);
-    //stroke('purple');
-    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false }) ? 'white' : 'red');
-    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false });
-    //bullsEye({ mMatrix: mat, circled: false });
+    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD }) ? 'white' : 'red');
+    //cross({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD });
+    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false }) ? 'white' : 'red');
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.WORLD, circled: false });
     pop();
   }
   );
