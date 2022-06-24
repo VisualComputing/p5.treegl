@@ -235,6 +235,9 @@ var Tree = (function (ext) {
     return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
 
+  // TODO check where to replace vMatrix for:
+  // this._curCamera.cameraMatrix
+
   p5.prototype.vMatrix = function () {
     return this._renderer.vMatrix(...arguments);
   }
@@ -896,7 +899,7 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.pixelRatio = function (location) {
     return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
-      2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE })).z) * Math.tan(this.fov() / 2) / this.height;
+      2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE, vMatrix: this._curCamera.cameraMatrix })).z) * Math.tan(this.fov() / 2) / this.height;
   }
 
   p5.prototype.visibility = function () {
@@ -1102,13 +1105,24 @@ for details.` : ''}
   /**
    * Returns true if pointer is close enough to pointerX, pointerY screen location.
    */
-  p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, { mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.SCREEN, size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, {
+    mMatrix,
+    x = this.width / 2,
+    y = this.height / 2,
+    ref = Tree.SCREEN,
+    size = 50,
+    circled = true,
+    eMatrix,
+    pMatrix,
+    vMatrix,
+    pvMatrix
+  } = {}) {
     if (mMatrix) {
-      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
       if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD }));
+        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
       }
     }
     let radius = size / 2;
@@ -1239,13 +1253,23 @@ for details.` : ''}
    * @param  {Number} y screen y coordinate. Default is height / 2.
    * @param  {Number} size cross size in pixels. Default is 50.
    */
-  p5.RendererGL.prototype.cross = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50 } = {}) {
+  p5.RendererGL.prototype.cross = function ({
+    mMatrix,
+    x = this.width / 2,
+    y = this.height / 2,
+    ref = Tree.WORLD,
+    size = 50,
+    eMatrix,
+    pMatrix,
+    vMatrix,
+    pvMatrix
+  } = {}) {
     if (mMatrix) {
-      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
       if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD }));
+        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
       }
     }
     const half_size = size / 2.0;
@@ -1268,13 +1292,24 @@ for details.` : ''}
    * @param  {Number}  size bullseye diameter in pixels. Default is 50.
    * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
    */
-  p5.RendererGL.prototype.bullsEye = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50, circled = true } = {}) {
+  p5.RendererGL.prototype.bullsEye = function ({
+    mMatrix,
+    x = this.width / 2,
+    y = this.height / 2,
+    ref = Tree.WORLD,
+    size = 50,
+    circled = true,
+    eMatrix,
+    pMatrix,
+    vMatrix,
+    pvMatrix
+  } = {}) {
     if (mMatrix) {
-      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: this.p });
+      let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
       if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD }));
+        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
       }
     }
     this._rendererState = this.push();

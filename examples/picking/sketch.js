@@ -23,7 +23,7 @@ function setup() {
   colorMode(RGB, 1);
   let trange = 100;
   boxes = [];
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 25; i++) {
     boxes.push(
       {
         position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
@@ -34,26 +34,30 @@ function setup() {
   }
 }
 
+let p, v, pv, e, mat;
+
 function draw() {
+  pv = pvMatrix();
+  e = eMatrix();
   background(0.5);
   axes();
   grid();
   boxes.forEach(element => {
     push();
     translate(element.position);
-    let mat = mMatrix();
+    mat = mMatrix();
     fill(element.color);
     //box(element.size);
     noStroke();
     sphere(element.size);
     strokeWeight(3);
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5 }) ? 'white' : 'red');
-    //cross({ mMatrix: mat, size: element.size * 2.5 });
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5 });
+    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
+    //cross({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
+    bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, circled: false }) ? 'white' : 'red');
     //bullsEye({ mMatrix: mat, size: element.size * 2.5, circled: false });
-    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN }) ? 'white' : 'red');
-    bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN, pvMatrix: pv, eMatrix: e });
     pop();
   }
   );
