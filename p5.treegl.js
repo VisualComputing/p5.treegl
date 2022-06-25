@@ -14,7 +14,7 @@ i. Ideas lacking design & implementation
 - More shader parsing means...
 ii. Ideas lacking only implementation
 - webgl picking: https://webglfundamentals.org/webgl/lessons/webgl-picking.html
-- To be implemented within the current picking function (hello-world example in the picking folder)
+  To be implemented within the current picking function (hello-world example in the picking folder)
   as the { shape: Tree.PROJECTION } property.
 iii. Demo series missed:
 - shapes (Daniel)
