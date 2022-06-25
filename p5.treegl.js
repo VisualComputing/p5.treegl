@@ -776,7 +776,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
-    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, _specs: false });
     this._coupledWith = undefined;
     this.loadStrings(
       fragFilename,
@@ -794,7 +794,7 @@ var Tree = (function (ext) {
   } = {}) {
     let shader = new p5.Shader();
     this._coupledWith = 'the fragment shader provided as param in makeShader()';
-    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, specs: false });
+    shader._vertSrc = this.parseVertexShader({ precision: precision, matrices: matrices, varyings: varyings, _specs: false });
     this._coupledWith = undefined;
     shader._fragSrc = fragSrc;
     return shader;
@@ -804,7 +804,7 @@ var Tree = (function (ext) {
     precision = Tree.mediump,
     matrices = Tree.pmvMatrix,
     varyings = Tree.color4 | Tree.texcoords2,
-    specs = true
+    _specs = true
   } = {}) {
     let floatPrecision = `precision ${precision === Tree.highp ? 'highp' : `${precision === Tree.mediump ? 'mediump' : 'lowp'}`} float;`
     let color4 = ~(varyings | ~Tree.color4) === 0;
@@ -845,7 +845,7 @@ void main() {
 /*
 ${this._coupledWith ? 'Vertex shader code to be coupled with ' + this._coupledWith : ''} 
 Generated with treegl version ${Tree.INFO.VERSION}
-${specs ? `
+${_specs ? `
 Feel free to copy, paste, edit and save it.
 Refer to createShader (https://p5js.org/reference/#/p5/createShader),
 loadShader (https://p5js.org/reference/#/p5/loadShader), readShader
