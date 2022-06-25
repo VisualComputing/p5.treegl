@@ -1163,8 +1163,8 @@ for details.` : ''}
       y = screenLocation.y;
       size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
     }
-    let radius = size / 2;
     // TODO implement webgl picking here using a switch statement: Tree.CIRCLE, Tree.SQUARE, Tree.PROJECTION
+    let radius = size / 2;
     return shape === Tree.CIRCLE ?
       Math.sqrt(Math.pow((x - pointerX), 2.0) + Math.pow((y - pointerY), 2.0)) < radius :
       ((Math.abs(pointerX - x) < radius) && (Math.abs(pointerY - y) < radius));
