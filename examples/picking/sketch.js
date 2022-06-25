@@ -54,10 +54,10 @@ function draw() {
     stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
     //cross({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, circled: false }) ? 'white' : 'red');
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5, circled: false });
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5, ref: Tree.SCREEN, pvMatrix: pv, eMatrix: e });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, shape: Tree.SQUARE }) ? 'white' : 'red');
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5, shape: Tree.SQUARE });
+    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
+    //bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     pop();
   }
   );

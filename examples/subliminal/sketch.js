@@ -77,8 +77,8 @@ function scene1() {
         let pixelRatio = fbo1.pixelRatio(boxLocation);
         box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
-        //fbo1.bullsEye({ mMatrix: fbo1.mMatrix(), size: box.size * 5, ref: Tree.WORLD });
-        fbo1.bullsEye({ mMatrix: fbo1.mMatrix(), size: box.target * 2 });
+        let projection = fbo1.treeLocation({ from: fbo1.mMatrix(), to: Tree.SCREEN });
+        fbo1.bullsEye({ size: box.target * 2, x: projection.x, y: projection.y });
         //let eyeLocation = fbo1.treeLocation(Tree.ORIGIN, { from: Tree.EYE, to: Tree.WORLD });
         // same as:
         //let eyeLocation = fbo1.treeLocation({ from: Tree.EYE, to: Tree.WORLD });

@@ -58,10 +58,10 @@ function draw() {
   //pg.axes();
   pg.push();
   pg.stroke('magenta');
-  pg.grid({ dotted: dotted });
+  pg.grid({ style: dotted ? Tree.DOTTS : Tree.SOLID });
   pg.strokeWeight(3);
   pg.stroke('orange');
-  pg.bullsEye({ size: 100, circled: circled });
+  pg.bullsEye({ size: 100, shape: circled ? Tree.CIRCLE : Tree.SQUARE });
   pg.pop();
   switch (mode.value()) {
     case 'Fill':
@@ -78,8 +78,8 @@ function draw() {
   pg.rotateZ(frameCount * 0.01);
   pg.rotateX(frameCount * 0.01);
   pg.rotateY(frameCount * 0.01);
-  //pg.cylinder(50, 200);
-  pg.cone(50, 200);
+  pg.cylinder(50, 200);
+  //pg.cone(50, 200);
   if (hud.checked()) {
     // init p5.treegl.HUD
     beginHUD();
@@ -98,10 +98,6 @@ function draw() {
     image(pg, -150, -150);
   }
   pg.pop();
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }
 
 function keyPressed() {

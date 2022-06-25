@@ -1,5 +1,28 @@
 'use strict';
 
+// TODOs
+/*
+i. Ideas lacking design & implementation
+- Keyframes (https://en.wikipedia.org/wiki/Key_frame)
+- Flocks. See:
+  * Reynolds, C. W. Flocks, Herds and Schools: A Distributed Behavioral Model. 87.
+    (original paper) http://www.cs.toronto.edu/~dt/siggraph97-course/cwr87/
+    (presentation) https://pdfs.semanticscholar.org/73b1/5c60672971c44ef6304a39af19dc963cd0af.pdf
+    (processing 3d implementation supporting first & third camera modes)
+    https://github.com/VisualComputing/nub/blob/master/examples/demos/FlockOfBoids/
+  * Google for more...
+- More shader parsing means...
+ii. Ideas lacking only implementation
+- webgl picking: https://webglfundamentals.org/webgl/lessons/webgl-picking.html
+- To be implemented within the current picking function (hello-world example in the picking folder)
+  as the { shape: Tree.PROJECTION } property.
+iii. Demo series missed:
+- shapes (Daniel)
+- picking (hello-world example in the picking folder)
+- visibility (hello-world example in the visibility folder)
+- shaders: fractals, noise, shadow mapping (work-in-progress example in the shadow_mapping folder).
+*/
+
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -23,6 +46,14 @@ var Tree = (function (ext) {
   const _Y = 1 << 4;
   const _Z = 1 << 5;
   const LABELS = 1 << 6;
+  // grid style
+  const SOLID = 0;
+  const DOTTS = 1
+  // bullseye and picking shape
+  const SQUARE = 0;
+  const CIRCLE = 1;
+  // only picking shape
+  const PROJECTION = 2;
   // Frustum consts
   const NEAR = 1 << 0;
   const FAR = 1 << 1;
@@ -75,6 +106,11 @@ var Tree = (function (ext) {
   ext._Y = _Y;
   ext._Z = _Z;
   ext.LABELS = LABELS;
+  ext.SOLID = SOLID;
+  ext.DOTTS = DOTTS;
+  ext.SQUARE = SQUARE;
+  ext.CIRCLE = CIRCLE;
+  ext.PROJECTION = PROJECTION;
   ext.NEAR = NEAR;
   ext.FAR = FAR;
   ext.LEFT = LEFT;
@@ -1094,8 +1130,8 @@ for details.` : ''}
     return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
-  p5.prototype.mousePicking = function ({ mMatrix, x = this.width / 2, y = this.height / 2, ref = Tree.WORLD, size = 50, circled = true } = {}) {
-    return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, ref: ref, size: size, circled: circled });
+  p5.prototype.mousePicking = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50, shape = Tree.CIRCLE } = {}) {
+    return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape });
   }
 
   p5.prototype.pointerPicking = function () {
@@ -1104,14 +1140,18 @@ for details.` : ''}
 
   /**
    * Returns true if pointer is close enough to pointerX, pointerY screen location.
+   * @param  {p5.Matrix} mMatrix model space matrix origin to compute (x, y) from.
+   * @param  {Number}    x screen x coordinate. Default is width / 2.
+   * @param  {Number}    y screen y coordinate. Default is height / 2.
+   * @param  {Number}    size bullseye diameter. Default is 50.
+   * @param  {Number}    shape either Tree.CIRCLE, Tree.SQUARE or Tree.PROJECTION. Default is Tree.CIRCLE.
    */
   p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, {
     mMatrix,
     x = this.width / 2,
     y = this.height / 2,
-    ref = Tree.SCREEN,
     size = 50,
-    circled = true,
+    shape = Tree.CIRCLE,
     eMatrix,
     pMatrix,
     vMatrix,
@@ -1121,12 +1161,11 @@ for details.` : ''}
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
-      if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
-      }
+      size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
     }
     let radius = size / 2;
-    return circled ?
+    // TODO implement webgl picking here using a switch statement: Tree.CIRCLE, Tree.SQUARE, Tree.PROJECTION
+    return shape === Tree.CIRCLE ?
       Math.sqrt(Math.pow((x - pointerX), 2.0) + Math.pow((y - pointerY), 2.0)) < radius :
       ((Math.abs(pointerX - x) < radius) && (Math.abs(pointerY - y) < radius));
   }
@@ -1200,11 +1239,11 @@ for details.` : ''}
    * Draws grid
    * @param  {Number}  size grid size in world units. Default is 100.
    * @param  {Number}  subdivisions number of grid subdivisions. Default is 10.
-   * @param  {Boolean} dotted defines either a continuous or a dotted grid. Default is true.
+   * @param  {Number}  style either Tree.DOTTS or Tree.SOLID. Default is Tree.DOTTS.
    */
-  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10, dotted = true } = {}) {
+  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10, style = Tree.DOTTS } = {}) {
     this._rendererState = this.push();
-    if (dotted) {
+    if (style === Tree.DOTTS) {
       let weight = this.curStrokeWeight;
       // other useful as well: this.curStrokeColor this.curFillColor
       let posi = 0;
@@ -1249,15 +1288,15 @@ for details.` : ''}
 
   /**
    * Draws a cross on the screen.
-   * @param  {Number} x screen x coordinate. Default is width / 2.
-   * @param  {Number} y screen y coordinate. Default is height / 2.
-   * @param  {Number} size cross size in pixels. Default is 50.
+   * @param  {p5.Matrix} mMatrix model space matrix origin to compute (x, y) from.
+   * @param  {Number}    x screen x coordinate. Default is width / 2.
+   * @param  {Number}    y screen y coordinate. Default is height / 2.
+   * @param  {Number}    size cross size. Default is 50.
    */
   p5.RendererGL.prototype.cross = function ({
     mMatrix,
     x = this.width / 2,
     y = this.height / 2,
-    ref = Tree.WORLD,
     size = 50,
     eMatrix,
     pMatrix,
@@ -1268,9 +1307,7 @@ for details.` : ''}
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
-      if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
-      }
+      size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
     }
     const half_size = size / 2.0;
     this._rendererState = this.push();
@@ -1287,18 +1324,18 @@ for details.` : ''}
 
   /**
    * Draws a bulls-eye on the screen.
-   * @param  {Number}  x screen x coordinate. Default is width / 2.
-   * @param  {Number}  y screen y coordinate. Default is height / 2.
-   * @param  {Number}  size bullseye diameter in pixels. Default is 50.
-   * @param  {Boolean} circled defines either a circled or a squared shape bulls eye. Default is true.
+   * @param  {p5.Matrix} mMatrix model space matrix origin to compute (x, y) from.
+   * @param  {Number}    x screen x coordinate. Default is width / 2.
+   * @param  {Number}    y screen y coordinate. Default is height / 2.
+   * @param  {Number}    size bullseye diameter. Default is 50.
+   * @param  {Number}    shape either Tree.CIRCLE or Tree.SQUARE. Default is Tree.CIRCLE.
    */
   p5.RendererGL.prototype.bullsEye = function ({
     mMatrix,
     x = this.width / 2,
     y = this.height / 2,
-    ref = Tree.WORLD,
     size = 50,
-    circled = true,
+    shape = Tree.CIRCLE,
     eMatrix,
     pMatrix,
     vMatrix,
@@ -1308,12 +1345,10 @@ for details.` : ''}
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
-      if (ref === Tree.WORLD) {
-        size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
-      }
+      size = size / this.pixelRatio(this.treeLocation({ from: mMatrix, to: Tree.WORLD, eMatrix: eMatrix }));
     }
     this._rendererState = this.push();
-    if (circled) {
+    if (shape === Tree.CIRCLE) {
       this.beginHUD();
       this._circle({ x, y, radius: size / 2 })
       this.endHUD();
