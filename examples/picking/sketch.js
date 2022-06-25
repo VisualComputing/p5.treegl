@@ -46,12 +46,13 @@ function draw() {
     push();
     translate(element.position);
     mat = mMatrix();
-    fill(element.color);
-    //box(element.size);
+    let picked = mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
+    fill(picked ? 'white' : element.color);
     noStroke();
+    //box(element.size);
     sphere(element.size);
     strokeWeight(3);
-    stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
+    stroke(picked ? 'yellow' : 'red');
     //cross({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, shape: Tree.SQUARE }) ? 'white' : 'red');

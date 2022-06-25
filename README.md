@@ -200,8 +200,10 @@ function draw() {
 # Utilities
 
 1. `pixelRatio(location)`: Returns the world to pixel ratio units at given world location, i.e., a line of `n * pixelRatio(location)` world units will be projected with a length of `n` pixels on screen.
-2. `visibility`: Returns object visibility, either as `Tree.VISIBLE`, `Tree.INVISIBLE`, or `Tree.SEMIVISIBLE`. Object may be either a _point_: `visibility({ center, [bounds = this.bounds()]})`, a _ball_: `visibility({ center, radius, [bounds = this.bounds()]})` or an _axis-aligned box_: `visibility({ corner1, corner2, [bounds = this.bounds()]})`.
-3. `bounds()`: Returns the [general form](http://www.songho.ca/math/plane/plane.html) of the current frustum six plane equations, i.e., _ax + by + cz + d = 0_, formatted as an object literal having keys: `Tree.LEFT`, `Tree.RIGHT`, `Tree.BOTTOM`, `Tree.TOP`, `Tree.NEAR` and `Tree.FAR`, e.g., access the near plane coefficients as:
+2. `mousePicking({ [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: same as `return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape, eMatrix: eMatrix, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })` (see below).
+3. `pointerPicking(pointerX, pointerY, { [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: Returns `true` if pointer is close enough to `pointerX`, `pointerY` screen location. Use `mMatrix` model space matrix origin to compute (x, y) from.
+4. `visibility`: Returns object visibility, either as `Tree.VISIBLE`, `Tree.INVISIBLE`, or `Tree.SEMIVISIBLE`. Object may be either a _point_: `visibility({ center, [bounds = this.bounds()]})`, a _ball_: `visibility({ center, radius, [bounds = this.bounds()]})` or an _axis-aligned box_: `visibility({ corner1, corner2, [bounds = this.bounds()]})`.
+5. `bounds()`: Returns the [general form](http://www.songho.ca/math/plane/plane.html) of the current frustum six plane equations, i.e., _ax + by + cz + d = 0_, formatted as an object literal having keys: `Tree.LEFT`, `Tree.RIGHT`, `Tree.BOTTOM`, `Tree.TOP`, `Tree.NEAR` and `Tree.FAR`, e.g., access the near plane coefficients as:
    ```js
    let bounds = bounds();
    let near = bounds[Tree.NEAR];// near.a, near.b, near.c and near.d
@@ -210,9 +212,9 @@ function draw() {
 # Drawing stuff
 
 1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
-2. `grid([{ [size = 100], [subdivisions = 10], [dotted = true] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` or continuous lines.
-3. `cross([{ [x = this.width / 2], [y = this.height / 2], [size = 50] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels.
-4. `bullsEye([{ [x = this.width / 2], [y = this.height / 2], [size = 50], [circled = true] }])`:  Draws a `circled` (or squared) bullseye at `x`, `y` screen coordinates with given `size` in pixels.
+2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTTS`) or solid (`Tree.SOLID`) lines.
+3. `cross([{ [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels. Use `mMatrix` model space matrix origin to compute (x, y) from.
+4. `bullsEye([{ [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`:  Draws a circled bullseye (use `Tree.SQUARE` to draw it as a square) at `x`, `y` screen coordinates with given `size` in pixels. Use `mMatrix` model space matrix origin to compute (x, y) from.
 5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
 
 # Installation

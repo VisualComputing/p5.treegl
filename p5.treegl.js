@@ -1130,8 +1130,18 @@ for details.` : ''}
     return p5.Vector.dot(location, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
-  p5.prototype.mousePicking = function ({ mMatrix, x = this.width / 2, y = this.height / 2, size = 50, shape = Tree.CIRCLE } = {}) {
-    return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape });
+  p5.prototype.mousePicking = function ({
+    mMatrix,
+    x = this.width / 2,
+    y = this.height / 2,
+    size = 50,
+    shape = Tree.CIRCLE,
+    eMatrix,
+    pMatrix,
+    vMatrix,
+    pvMatrix
+  } = {}) {
+    return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape, eMatrix: eMatrix, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
   }
 
   p5.prototype.pointerPicking = function () {
