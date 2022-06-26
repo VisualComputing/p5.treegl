@@ -37,6 +37,7 @@ function setup() {
 let p, v, pv, e, mat;
 
 function draw() {
+  // (optionally) cache pv and e matrices to speedup computations
   pv = pvMatrix();
   e = eMatrix();
   background(0.5);
@@ -46,6 +47,8 @@ function draw() {
     push();
     translate(element.position);
     mat = mMatrix();
+    // non-cache version (perhaps slower, but it really depends on the number of models to be processed)
+    //let picked = mousePicking({ mMatrix: mat, size: element.size * 2.5 });
     let picked = mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
     fill(picked ? 'white' : element.color);
     noStroke();
