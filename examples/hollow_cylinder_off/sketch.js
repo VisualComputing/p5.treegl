@@ -58,7 +58,7 @@ function draw() {
   //pg.axes();
   pg.push();
   pg.stroke('magenta');
-  pg.grid({ style: dotted ? Tree.DOTTS : Tree.SOLID });
+  pg.grid({ style: dotted ? Tree.DOTS : Tree.SOLID });
   pg.strokeWeight(3);
   pg.stroke('orange');
   pg.bullsEye({ size: 100, shape: circled ? Tree.CIRCLE : Tree.SQUARE });

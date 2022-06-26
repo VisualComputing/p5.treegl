@@ -48,7 +48,7 @@ var Tree = (function (ext) {
   const LABELS = 1 << 6;
   // grid style
   const SOLID = 0;
-  const DOTTS = 1
+  const DOTS = 1
   // bullseye and picking shape
   const SQUARE = 0;
   const CIRCLE = 1;
@@ -107,7 +107,7 @@ var Tree = (function (ext) {
   ext._Z = _Z;
   ext.LABELS = LABELS;
   ext.SOLID = SOLID;
-  ext.DOTTS = DOTTS;
+  ext.DOTS = DOTS;
   ext.SQUARE = SQUARE;
   ext.CIRCLE = CIRCLE;
   ext.PROJECTION = PROJECTION;
@@ -1249,11 +1249,11 @@ for details.` : ''}
    * Draws grid
    * @param  {Number}  size grid size in world units. Default is 100.
    * @param  {Number}  subdivisions number of grid subdivisions. Default is 10.
-   * @param  {Number}  style either Tree.DOTTS or Tree.SOLID. Default is Tree.DOTTS.
+   * @param  {Number}  style either Tree.DOTS or Tree.SOLID. Default is Tree.DOTS.
    */
-  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10, style = Tree.DOTTS } = {}) {
+  p5.RendererGL.prototype.grid = function ({ size = 100, subdivisions = 10, style = Tree.DOTS } = {}) {
     this._rendererState = this.push();
-    if (style === Tree.DOTTS) {
+    if (style === Tree.DOTS) {
       let weight = this.curStrokeWeight;
       // other useful as well: this.curStrokeColor this.curFillColor
       let posi = 0;
