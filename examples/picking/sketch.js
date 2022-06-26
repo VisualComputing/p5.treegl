@@ -1,6 +1,6 @@
 let easycam;
 let boxes;
-let picked;
+let picked, squared, cached = true;
 
 function setup() {
   //pixelDensity(1);
@@ -38,8 +38,10 @@ let p, v, pv, e, mat;
 
 function draw() {
   // (optionally) cache pv and e matrices to speedup computations
-  pv = pvMatrix();
-  e = eMatrix();
+  if (cached) {
+    pv = pvMatrix();
+    e = eMatrix();
+  }
   background(0.5);
   axes();
   grid();
@@ -48,21 +50,32 @@ function draw() {
     translate(element.position);
     mat = mMatrix();
     // non-cache version (perhaps slower, but it really depends on the number of models to be processed)
-    //let picked = mousePicking({ mMatrix: mat, size: element.size * 2.5 });
-    let picked = mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
+    let picked = cached ? mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
+      : mousePicking({ mMatrix: mat, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
     fill(picked ? 'white' : element.color);
     noStroke();
     //box(element.size);
     sphere(element.size);
     strokeWeight(3);
-    stroke(picked ? 'yellow' : 'red');
-    //cross({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
-    bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, shape: Tree.SQUARE }) ? 'white' : 'red');
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5, shape: Tree.SQUARE });
-    //stroke(mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e }) ? 'white' : 'red');
-    //bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e });
+    stroke(picked ? 'yellow' : cached ? 'red' : 'blue');
+    if (cached) {
+      //cross({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      bullsEye({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+    }
+    else {
+      //cross({ mMatrix: mat, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      bullsEye({ mMatrix: mat, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+    }
     pop();
   }
   );
+}
+
+function keyPressed() {
+  if (key === 's') {
+    squared = !squared;
+  }
+  if (key === 'c') {
+    cached = !cached;
+  }
 }
