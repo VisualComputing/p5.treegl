@@ -48,14 +48,14 @@ function draw() {
   boxes.forEach(element => {
     push();
     translate(element.position);
+    // cache model matrix, just before drawing it
     mat = mMatrix();
     // non-cache version (perhaps slower, but it really depends on the number of models to be processed)
     let picked = cached ? mousePicking({ mMatrix: mat, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
       : mousePicking({ mMatrix: mat, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
     fill(picked ? 'white' : element.color);
     noStroke();
-    //box(element.size);
-    sphere(element.size);
+    squared ? box(element.size) : sphere(element.size);
     strokeWeight(3);
     stroke(picked ? 'yellow' : cached ? 'red' : 'blue');
     if (cached) {
