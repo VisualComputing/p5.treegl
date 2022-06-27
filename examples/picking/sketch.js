@@ -45,7 +45,6 @@ function draw() {
     translate(element.position);
     // cache model rix, just before drawing it
     m = mMatrix();
-    // non-cache version (perhaps slower, but it really depends on the number of models to be processed)
     let picked = cached ? mousePicking({ mMatrix: m, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
       : mousePicking({ mMatrix: m, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
     fill(picked ? 'white' : element.color);
