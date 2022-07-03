@@ -1673,11 +1673,11 @@ for details.` : ''}
     this._rendererState = this.push();
 
     // arrow's head
-    this.drawHollowCylinder({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight });
+    this.drawTruncatedCylinder({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight });
     this.translate(0, 0, headHeight);
     this.drawCircle({ detail, radius: headRadius });
     // arrow's body
-    this.drawHollowCylinder({ detail, topRadius: radius, height: bodyHeight });
+    this.drawTruncatedCylinder({ detail, topRadius: radius, height: bodyHeight });
     this.translate(0, 0, bodyHeight);
     this.drawCircle({ detail, radius: radius });
 
