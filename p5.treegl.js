@@ -1586,7 +1586,7 @@ for details.` : ''}
     }
   };
 
-  p5.prototype.drawTruncatedCylinderr = function () {
+  p5.prototype.drawTruncatedCylinder = function () {
     this._renderer.drawTruncatedCylinder(...arguments);
   };
 
