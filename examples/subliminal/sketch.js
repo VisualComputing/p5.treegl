@@ -1,6 +1,5 @@
 let fbo1, fbo2;
 let cam1, cam2;
-let target = 150;
 let length = 600;
 let boxes;
 let box_key;
@@ -72,12 +71,14 @@ function scene1() {
     fbo1.fill(boxes[box_key] === box ? color('red') : box.color);
     fbo1.translate(box.position);
     if (boxes[box_key] === box) {
-      if (keyIsPressed && !mouseIsPressed) {
+      if (keyIsPressed && (key === 'w' || key === 'z') && !mouseIsPressed) {
         //let boxLocation = fbo1.treeLocation(Tree.ORIGIN, { from: fbo1.mMatrix(), to: Tree.WORLD });
         let boxLocation = fbo1.treeLocation({ from: fbo1.mMatrix(), to: Tree.WORLD });
         let pixelRatio = fbo1.pixelRatio(boxLocation);
         box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
+        let projection = fbo1.treeLocation({ from: fbo1.mMatrix(), to: Tree.SCREEN });
+        fbo1.bullsEye({ size: box.target * 2, x: projection.x, y: projection.y });
         //let eyeLocation = fbo1.treeLocation(Tree.ORIGIN, { from: Tree.EYE, to: Tree.WORLD });
         // same as:
         //let eyeLocation = fbo1.treeLocation({ from: Tree.EYE, to: Tree.WORLD });

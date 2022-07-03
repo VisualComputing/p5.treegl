@@ -24,7 +24,7 @@ function setup() {
   auto_rotate = createCheckbox('auto rotate', true);
   auto_rotate.style('color', 'magenta');
   auto_rotate.position(10, 10);
-  details = createSlider(3, 50, 20, 1);
+  details = createSlider(3, 16, 13, 1);
   details.position(10, 40);
   details.style('width', '80px');
   mode = createSelect();
@@ -51,7 +51,7 @@ function setup() {
 
 function draw() {
   background(200);
-  grid({ dotted: false });
+  grid({ style: Tree.SOLID });
   axes();
   rotateZ(frames * 0.01);
   rotateX(frames * 0.01);
@@ -73,7 +73,7 @@ function draw() {
       noStroke();
       texture(img);
   }
-  cylinder(30, 60);
+  cylinder(30, 60, details.value(), details.value());
   pop();
   push();
   translate(-50, 30);

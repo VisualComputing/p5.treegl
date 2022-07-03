@@ -32,7 +32,7 @@ function draw() {
   push();
   strokeWeight(4);
   stroke('green');
-  bullsEye({ x: 100, y: 200, size: 100, circled: false });
+  bullsEye({ x: 100, y: 200, size: 100, shape: Tree.SQUARE });
   pop();
   bullsEye({ x: 100, y: 100 }); 
   push();

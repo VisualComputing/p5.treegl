@@ -73,6 +73,7 @@ function draw() {
     pvInv = pvInvMatrix({ pvMatrix: pv });
   }
   background(120);
+  axes({ size: 200 });
   push();
   noFill();
   strokeWeight(3);
@@ -130,6 +131,11 @@ function draw() {
 }
 
 function keyPressed() {
+  if (key === 'r') {
+    let ratio = pixelRatio([10, -25, 15]);
+    print(ratio);
+
+  }
   if (key === 'p') {
     persp = !persp;
     if (persp) {
