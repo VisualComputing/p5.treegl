@@ -17,7 +17,6 @@ ii. Ideas lacking only implementation
   To be implemented within the current picking function (hello-world example in the picking folder)
   as the { shape: Tree.PROJECTION } property.
 iii. Demo series missed:
-- shapes (Daniel)
 - picking (hello-world example in the picking folder)
 - visibility (hello-world example in the visibility folder)
 - shaders: fractals, noise, shadow mapping (work-in-progress example in the shadow_mapping folder).
@@ -33,7 +32,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.1.3',
+    VERSION: '0.2.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1384,15 +1383,27 @@ for details.` : ''}
     this._renderer._circle(...arguments);
   };
 
-  p5.RendererGL.prototype._circle = function ({ x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
+  p5.RendererGL.prototype._circle = function ({ filled = false, x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
     this._rendererState = this.push();
-    this.translate(x, y);
-    const angle = TWO_PI / detail;
-    let lastPosition = { x: radius, y: 0 };
-    for (let i = 1; i <= detail; i++) {
-      let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius };
-      this.line(lastPosition.x, lastPosition.y, position.x, position.y);
-      lastPosition = position;
+    if (filled) {
+      this.beginShape(TRIANGLE_STRIP);
+      for (let t = 0; t <= detail; t++) {
+        const x = cos(t * TWO_PI / detail);
+        const y = sin(t * TWO_PI / detail);
+        this.vertex(0, 0, 0, 0.5, 0.5)
+        this.vertex(radius * x, radius * y, 0, (x * 0.5) + 0.5, (y * 0.5) + 0.5);
+      }
+      this.endShape();
+    }
+    else {
+      this.translate(x, y);
+      const angle = TWO_PI / detail;
+      let lastPosition = { x: radius, y: 0 };
+      for (let i = 1; i <= detail; i++) {
+        let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius };
+        this.line(lastPosition.x, lastPosition.y, position.x, position.y);
+        lastPosition = position;
+      }
     }
     this.pop(this._rendererState);
   };
@@ -1586,12 +1597,12 @@ for details.` : ''}
     }
   };
 
-  p5.prototype.drawTruncatedCylinder = function () {
-    this._renderer.drawTruncatedCylinder(...arguments);
+  p5.prototype.pipe = function () {
+    this._renderer.pipe(...arguments);
   };
 
   /**
-   * Draws a Truncated cylinder whose faces can be rotated with any given normal vector
+   * Draws a pipe: a cylinder whose faces can be oriented according to given normals.
    * @param  {Number}  detail Cylinder's detail.
    * @param  {Number}  topRadius Cylinder's top radius.
    * @param  {Number}  bottomRadius Cylinder's bottom radius.
@@ -1600,63 +1611,33 @@ for details.` : ''}
    * @param  {Vector}  bottomNormal Bottom face's normal vector.
    */
   // investigar nombre, 1na sola primitiva, caps
-  p5.RendererGL.prototype.drawTruncatedCylinder = function ({detail = 16, topRadius = 10, bottomRadius, height= 50, topNormal = createVector(0, 0, 1), bottomNormal = createVector(0, 0, -1)} = {}) {
+  p5.RendererGL.prototype.pipe = function ({ detail = 16, topRadius = 10, bottomRadius, height = 50, topNormal = createVector(0, 0, 1), bottomNormal = createVector(0, 0, -1) } = {}) {
     this._rendererState = this.push();
     bottomRadius = bottomRadius || topRadius;
     let pm0 = createVector(0, 0, 0);
     let pn0 = createVector(0, 0, height);
     let l = createVector(0, 0, 1);
-
     this.beginShape(TRIANGLE_STRIP);
-
     for (let t = 0; t <= detail; t++) {
       const x = cos(t * TWO_PI / detail);
       const y = sin(t * TWO_PI / detail);
       const l0 = createVector(x, y, 0).mult(topRadius);
       const l1 = createVector(x, y, 0).mult(bottomRadius);
-
       const u = float(t) / detail;
-
       const d0 = (topNormal.dot(p5.Vector.sub(pm0, l0))) / (l.dot(topNormal));
       const p0 = p5.Vector.add(p5.Vector.mult(l, d0), l0);
       this.vertex(p0.x, p0.y, p0.z, u, 0);
-
       l0.set(l0.x, l0.y, height);
       const d1 = (bottomNormal.dot(p5.Vector.sub(pn0, l1))) / (l.dot(bottomNormal));
       const p1 = p5.Vector.add(p5.Vector.mult(l, d1), l1);
       this.vertex(p1.x, p1.y, p1.z, u, 1);
     }
     this.endShape();
-
     this.pop(this._rendererState);
   };
-  
-  p5.prototype.drawCircle = function () {
-    this._renderer.drawCircle(...arguments);
-  };
 
-  /**
-   * Draws a simple circle, used as a cylinder's base
-   * @param  {Number}  radius Cylinder's radius.
-   */
-  p5.RendererGL.prototype.drawCircle = function ({ radius = 10, detail = 16} = {}) {
-    this._rendererState = this.push();
-    this.beginShape(TRIANGLE_STRIP);
-
-    for (let t = 0; t <= detail; t++) {
-      const x = cos(t * TWO_PI / detail);
-      const y = sin(t * TWO_PI / detail);
-
-      this.vertex(0, 0, 0, 0.5, 0.5)
-      this.vertex(radius * x, radius * y, 0, (x * 0.5) + 0.5, (y * 0.5) + 0.5);
-    }
-
-    this.endShape();
-    this.pop(this._rendererState);
-  };
-  
-  p5.prototype.drawArrow = function () {
-    this._renderer.drawArrow(...arguments);
+  p5.prototype.arrow = function () {
+    this._renderer.arrow(...arguments);
   };
 
   /**
@@ -1665,22 +1646,19 @@ for details.` : ''}
    * @param  {Number}  radius Arrow's radius.
    * @param  {Number}  height Arrow's height.
    */
-  p5.RendererGL.prototype.drawArrow = function ({detail = 16, radius = 10, height = 50} = {}) {
+  p5.RendererGL.prototype.arrow = function ({ detail = 16, radius = 10, height = 50 } = {}) {
     const headHeight = height * 0.3;
     const headRadius = radius * 1.6;
     const bodyHeight = height * 0.7;
-
     this._rendererState = this.push();
-
     // arrow's head
-    this.drawTruncatedCylinder({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight });
+    this.pipe({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight });
     this.translate(0, 0, headHeight);
-    this.drawCircle({ detail, radius: headRadius });
+    this._circle({ filled: true, detail, radius: headRadius });
     // arrow's body
-    this.drawTruncatedCylinder({ detail, topRadius: radius, height: bodyHeight });
+    this.pipe({ detail, topRadius: radius, height: bodyHeight });
     this.translate(0, 0, bodyHeight);
-    this.drawCircle({ detail, radius: radius });
-
+    this._circle({ filled: true, detail, radius: radius });
     this.pop(this._rendererState);
   };
 
@@ -1689,131 +1667,68 @@ for details.` : ''}
   };
 
   /**
-   * Draws a mobius strip
+   * Draws a mobius strip.
    * @param  {Number}  detail mobius strip's detail.
    * @param  {Number}  radius mobius strip's radius.
    */
   p5.RendererGL.prototype.mobius = function ({ detail = 16, radius = 50 } = {}) {
     this._rendererState = this.push();
     const uFragment = TWO_PI / detail;
-
     this.beginShape(TRIANGLE_STRIP);
-
-    for(let u = 0; u <= TWO_PI; u += uFragment){
-      const x0 = (1 + (-1/2) * cos(u/2)) * cos(u);
-      const y0 = (1 + (-1/2) * cos(u/2)) * sin(u);
-      const z0 = (-1/2) * sin(u/2);
-
-      const x1 = (1 + (1/2) * cos(u/2)) * cos(u);
-      const y1 = (1 + (1/2) * cos(u/2)) * sin(u);
-      const z1 = (1/2) * sin(u/2);
-
+    for (let u = 0; u <= TWO_PI; u += uFragment) {
+      const x0 = (1 + (-1 / 2) * cos(u / 2)) * cos(u);
+      const y0 = (1 + (-1 / 2) * cos(u / 2)) * sin(u);
+      const z0 = (-1 / 2) * sin(u / 2);
+      const x1 = (1 + (1 / 2) * cos(u / 2)) * cos(u);
+      const y1 = (1 + (1 / 2) * cos(u / 2)) * sin(u);
+      const z1 = (1 / 2) * sin(u / 2);
       this.vertex(x0 * radius, y0 * radius, z0 * radius, u / TWO_PI, 0);
-			this.vertex(x1 * radius, y1 * radius, z1 * radius, u / TWO_PI, 1);
+      this.vertex(x1 * radius, y1 * radius, z1 * radius, u / TWO_PI, 1);
     }
-
     this.vertex(1.5 * radius, 0, 0, 1, 0);
-		this.vertex(0.5 * radius, 0, 0, 1, 1);
-
-    this.endShape();
-
-    this.pop(this._rendererState);
-  };
-
-  p5.prototype.drawTorus = function () {
-    this._renderer.drawTorus(...arguments);
-  };
-
-  /**
-   * Draws a Torus
-   * @param {Number} mayor_detail detail of the torus' mayor radius.
-   * @param {Number} minor_detail detail of the torus' minor radius.
-   * @param {Number} mayor_radius Torus' mayor radius. (From the center of the torus to a point in the middle of the body of the torus)
-   * @param {Number} minor_detail Torus' minor radius. (From the middle of the body of the torus to it's surface)
-   */
-  p5.RendererGL.prototype.drawTorus = function ({ mayor_detail = 16, minor_detail = 16, mayor_radius = 48, minor_radius = 32 } = {}) {
-    this._rendererState = this.push();
-    
-    const theta_detail = TWO_PI / mayor_detail;
-    const phi_detail = TWO_PI / minor_detail;
-
-    this.beginShape(TRIANGLE_STRIP);
-
-    const lastCircle = [];
-
-    for(let i = 0; i <= mayor_detail; i++) {
-      const theta = i * theta_detail;
-      
-      for (let j = 0; j <= minor_detail; j++) {
-        const phi = j * phi_detail;
-        const x = (mayor_radius + minor_radius * cos(theta)) * cos(phi);
-        const y = (mayor_radius + minor_radius * cos(theta)) * sin(phi);
-        const z = minor_radius * sin(theta);
-        const u = j / minor_detail;
-        const v = i / mayor_detail;
-        const currentPoint = {...createVector(x, y, z), u, v};
-        const lastPoint = lastCircle[j];
-
-        if(lastPoint){
-          this.vertex(lastPoint.x, lastPoint.y, lastPoint.z, lastPoint.u, lastPoint.v);
-          this.vertex(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.u, currentPoint.v);
-        }
-        
-        lastCircle[j] = currentPoint;
-      }
-    }
-
+    this.vertex(0.5 * radius, 0, 0, 1, 1);
     this.endShape();
     this.pop(this._rendererState);
   };
-  
-  p5.prototype.drawBagel = function () {
-    this._renderer.drawBagel(...arguments);
+
+  p5.prototype.bagel = function () {
+    this._renderer.bagel(...arguments);
   };
 
   /**
    * Draws an immersion of the Klein bottle known as a "bagel".
-   * @param {Number} mayor_detail detail of the bagel's mayor radius.
-   * @param {Number} minor_detail detail of the bagel's minor radius.
-   * @param {Number} mayor_radius bagel's mayor radius.
-   * @param {Number} minor_detail bagel's minor radius.
+   * @param {Number} mayorDetail detail of the bagel's mayor radius.
+   * @param {Number} minorDetail detail of the bagel's minor radius.
+   * @param {Number} mayorRadius bagel's mayor radius.
+   * @param {Number} minorDetail bagel's minor radius.
    */
-  p5.RendererGL.prototype.drawBagel = function ({ mayor_detail = 32, minor_detail = 32, mayor_radius = 30, minor_radius = 20 } = {}) {
+  p5.RendererGL.prototype.bagel = function ({ mayorDetail = 32, minorDetail = 32, mayorRadius = 30, minorRadius = 20 } = {}) {
     this._rendererState = this.push();
-    
-    const theta_detail = TWO_PI / mayor_detail;
-    const phi_detail = TWO_PI / minor_detail;
-
+    const theta_detail = TWO_PI / mayorDetail;
+    const phi_detail = TWO_PI / minorDetail;
     this.beginShape(TRIANGLE_STRIP);
-
     const lastCircle = [];
-
-    for(let i = 0; i <= mayor_detail; i++) {
+    for (let i = 0; i <= mayorDetail; i++) {
       const theta = i * theta_detail;
-      
-      for (let j = 0; j <= minor_detail; j++) {
+      for (let j = 0; j <= minorDetail; j++) {
         // for more info on this function: https://en.wikipedia.org/wiki/Klein_bottle#Parametrization
         const phi = j * phi_detail;
-        const commonFactor = mayor_radius + minor_radius * (cos(theta/2) * sin(phi) - sin(theta/2) * sin(2*phi));
+        const commonFactor = mayorRadius + minorRadius * (cos(theta / 2) * sin(phi) - sin(theta / 2) * sin(2 * phi));
         const x = commonFactor * cos(theta);
         const y = commonFactor * sin(theta);
-        const z = minor_radius * (sin(theta/2) * sin(phi) + cos(theta/2) * sin(2*phi));
-        const u = j / minor_detail;
-        const v = i / mayor_detail;
-        const currentPoint = {...createVector(x, y, z), u, v};
+        const z = minorRadius * (sin(theta / 2) * sin(phi) + cos(theta / 2) * sin(2 * phi));
+        const u = j / minorDetail;
+        const v = i / mayorDetail;
+        const currentPoint = { ...createVector(x, y, z), u, v };
         const lastPoint = lastCircle[j];
-
-        if(lastPoint){
+        if (lastPoint) {
           this.vertex(lastPoint.x, lastPoint.y, lastPoint.z, lastPoint.u, lastPoint.v);
           this.vertex(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.u, currentPoint.v);
         }
-        
         lastCircle[j] = currentPoint;
       }
     }
-
     this.endShape();
     this.pop(this._rendererState);
   };
-  
 })();
