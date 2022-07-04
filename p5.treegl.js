@@ -1388,8 +1388,8 @@ for details.` : ''}
     if (filled) {
       this.beginShape(TRIANGLE_STRIP);
       for (let t = 0; t <= detail; t++) {
-        const x = cos(t * TWO_PI / detail);
-        const y = sin(t * TWO_PI / detail);
+        const x = Math.cos(t * TWO_PI / detail);
+        const y = Math.sin(t * TWO_PI / detail);
         this.vertex(0, 0, 0, 0.5, 0.5)
         this.vertex(radius * x, radius * y, 0, (x * 0.5) + 0.5, (y * 0.5) + 0.5);
       }
@@ -1611,18 +1611,18 @@ for details.` : ''}
    * @param  {Vector}  bottomNormal Bottom face's normal vector.
    */
   // investigar nombre, 1na sola primitiva, caps
-  p5.RendererGL.prototype.pipe = function ({ detail = 16, topRadius = 10, bottomRadius, height = 50, topNormal = createVector(0, 0, 1), bottomNormal = createVector(0, 0, -1) } = {}) {
+  p5.RendererGL.prototype.pipe = function ({ detail = 16, topRadius = 10, bottomRadius, height = 50, topNormal = new p5.Vector(0, 0, 1), bottomNormal = new p5.Vector(0, 0, -1) } = {}) {
     this._rendererState = this.push();
     bottomRadius = bottomRadius || topRadius;
-    let pm0 = createVector(0, 0, 0);
-    let pn0 = createVector(0, 0, height);
-    let l = createVector(0, 0, 1);
+    let pm0 = new p5.Vector(0, 0, 0);
+    let pn0 = new p5.Vector(0, 0, height);
+    let l = new p5.Vector(0, 0, 1);
     this.beginShape(TRIANGLE_STRIP);
     for (let t = 0; t <= detail; t++) {
-      const x = cos(t * TWO_PI / detail);
-      const y = sin(t * TWO_PI / detail);
-      const l0 = createVector(x, y, 0).mult(topRadius);
-      const l1 = createVector(x, y, 0).mult(bottomRadius);
+      const x = Math.cos(t * TWO_PI / detail);
+      const y = Math.sin(t * TWO_PI / detail);
+      const l0 = new p5.Vector(x, y, 0).mult(topRadius);
+      const l1 = new p5.Vector(x, y, 0).mult(bottomRadius);
       const u = float(t) / detail;
       const d0 = (topNormal.dot(p5.Vector.sub(pm0, l0))) / (l.dot(topNormal));
       const p0 = p5.Vector.add(p5.Vector.mult(l, d0), l0);
@@ -1676,12 +1676,12 @@ for details.` : ''}
     const uFragment = TWO_PI / detail;
     this.beginShape(TRIANGLE_STRIP);
     for (let u = 0; u <= TWO_PI; u += uFragment) {
-      const x0 = (1 + (-1 / 2) * cos(u / 2)) * cos(u);
-      const y0 = (1 + (-1 / 2) * cos(u / 2)) * sin(u);
-      const z0 = (-1 / 2) * sin(u / 2);
-      const x1 = (1 + (1 / 2) * cos(u / 2)) * cos(u);
-      const y1 = (1 + (1 / 2) * cos(u / 2)) * sin(u);
-      const z1 = (1 / 2) * sin(u / 2);
+      const x0 = (1 + (-1 / 2) * Math.cos(u / 2)) * Math.cos(u);
+      const y0 = (1 + (-1 / 2) * Math.cos(u / 2)) * Math.sin(u);
+      const z0 = (-1 / 2) * Math.sin(u / 2);
+      const x1 = (1 + (1 / 2) * Math.cos(u / 2)) * Math.cos(u);
+      const y1 = (1 + (1 / 2) * Math.cos(u / 2)) * Math.sin(u);
+      const z1 = (1 / 2) * Math.sin(u / 2);
       this.vertex(x0 * radius, y0 * radius, z0 * radius, u / TWO_PI, 0);
       this.vertex(x1 * radius, y1 * radius, z1 * radius, u / TWO_PI, 1);
     }
@@ -1713,13 +1713,13 @@ for details.` : ''}
       for (let j = 0; j <= minorDetail; j++) {
         // for more info on this function: https://en.wikipedia.org/wiki/Klein_bottle#Parametrization
         const phi = j * phi_detail;
-        const commonFactor = mayorRadius + minorRadius * (cos(theta / 2) * sin(phi) - sin(theta / 2) * sin(2 * phi));
-        const x = commonFactor * cos(theta);
-        const y = commonFactor * sin(theta);
-        const z = minorRadius * (sin(theta / 2) * sin(phi) + cos(theta / 2) * sin(2 * phi));
+        const commonFactor = mayorRadius + minorRadius * (Math.cos(theta / 2) * Math.sin(phi) - Math.sin(theta / 2) * Math.sin(2 * phi));
+        const x = commonFactor * Math.cos(theta);
+        const y = commonFactor * Math.sin(theta);
+        const z = minorRadius * (Math.sin(theta / 2) * Math.sin(phi) + Math.cos(theta / 2) * Math.sin(2 * phi));
         const u = j / minorDetail;
         const v = i / mayorDetail;
-        const currentPoint = { ...createVector(x, y, z), u, v };
+        const currentPoint = { ...new p5.Vector(x, y, z), u, v };
         const lastPoint = lastCircle[j];
         if (lastPoint) {
           this.vertex(lastPoint.x, lastPoint.y, lastPoint.z, lastPoint.u, lastPoint.v);
