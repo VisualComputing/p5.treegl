@@ -1682,13 +1682,10 @@ for details.` : ''}
     const bodyHeight = height * 0.7;
     this._rendererState = this.push();
     // arrow's head
-    this.pipe({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight });
+    this.pipe({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight, caps: Tree.BOTTOMCAP });
     this.translate(0, 0, headHeight);
-    this._circle({ filled: true, detail, radius: headRadius });
     // arrow's body
-    this.pipe({ detail, topRadius: radius, height: bodyHeight });
-    this.translate(0, 0, bodyHeight);
-    this._circle({ filled: true, detail, radius: radius });
+    this.pipe({ detail, topRadius: radius, height: bodyHeight, caps: Tree.BOTTOMCAP });
     this.pop(this._rendererState);
   };
 
