@@ -1615,17 +1615,28 @@ for details.` : ''}
    * @param  {Vector}  topNormal Top face's normal vector.
    * @param  {Vector}  bottomNormal Bottom face's normal vector.
    */
-  // investigar nombre, 1na sola primitiva, caps
-  p5.RendererGL.prototype.pipe = function ({ detail = 16, topRadius = 10, bottomRadius, height = 50, topNormal = new p5.Vector(0, 0, 1), bottomNormal = new p5.Vector(0, 0, -1), caps = (Tree.TOPCAP | Tree.BOTTOMCAP) } = {}) {
+  p5.RendererGL.prototype.pipe = function ({
+    detail = 16,
+    topRadius = 10,
+    bottomRadius,
+    height = 50,
+    topNormal = new p5.Vector(0, 0, 1),
+    bottomNormal = new p5.Vector(0, 0, -1),
+    caps = (Tree.TOPCAP | Tree.BOTTOMCAP)
+  } = {}) {
+    if (Array.isArray(topNormal)) {
+      topNormal = new p5.Vector(topNormal[0] ?? 0, topNormal[1] ?? 0, topNormal[2] ?? 1);
+    }
+    if (Array.isArray(bottomNormal)) {
+      bottomNormal = new p5.Vector(bottomNormal[0] ?? 0, bottomNormal[1] ?? 0, bottomNormal[2] ?? -1);
+    }
     this._rendererState = this.push();
     bottomRadius = bottomRadius || topRadius;
     let pm0 = new p5.Vector(0, 0, 0);
     let pn0 = new p5.Vector(0, 0, height);
     let l = new p5.Vector(0, 0, 1);
-    
     const topCap = [];
     const bottomCap = [];
-
     this.beginShape(TRIANGLE_STRIP);
     for (let t = 0; t <= detail; t++) {
       const x = Math.cos(t * TWO_PI / detail);
@@ -1644,25 +1655,22 @@ for details.` : ''}
       this.vertex(p1.x, p1.y, p1.z, u, 1);
     }
     this.endShape();
-
-    if((~(caps | ~Tree.TOPCAP) === 0)){
+    if ((~(caps | ~Tree.TOPCAP) === 0)) {
       this.beginShape(TRIANGLE_STRIP);
-      for(const cap of topCap){
+      for (const cap of topCap) {
         this.vertex(0, 0, 0, 0.5, 0.5)
-        this.vertex(cap.x, cap.y, cap.z, (cap.x + topRadius) / (2*topRadius), (cap.y + topRadius) / (2*topRadius));
+        this.vertex(cap.x, cap.y, cap.z, (cap.x + topRadius) / (2 * topRadius), (cap.y + topRadius) / (2 * topRadius));
       }
       this.endShape();
     }
-
-    if((~(caps | ~Tree.BOTTOMCAP) === 0)){
+    if ((~(caps | ~Tree.BOTTOMCAP) === 0)) {
       this.beginShape(TRIANGLE_STRIP);
-      for(const cap of bottomCap){
+      for (const cap of bottomCap) {
         this.vertex(0, 0, height, 0.5, 0.5)
-        this.vertex(cap.x, cap.y, cap.z, (cap.x + bottomRadius) / (2*bottomRadius), (cap.y + bottomRadius) / (2*bottomRadius));
+        this.vertex(cap.x, cap.y, cap.z, (cap.x + bottomRadius) / (2 * bottomRadius), (cap.y + bottomRadius) / (2 * bottomRadius));
       }
       this.endShape();
     }
-
     this.pop(this._rendererState);
   };
 
