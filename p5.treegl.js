@@ -1622,7 +1622,7 @@ for details.` : ''}
     height = 50,
     topNormal = new p5.Vector(0, 0, 1),
     bottomNormal = new p5.Vector(0, 0, -1),
-    caps = (Tree.TOPCAP | Tree.BOTTOMCAP)
+    caps = Tree.TOPCAP | Tree.BOTTOMCAP
   } = {}) {
     if (Array.isArray(topNormal)) {
       topNormal = new p5.Vector(topNormal[0] ?? 0, topNormal[1] ?? 0, topNormal[2] ?? 1);
