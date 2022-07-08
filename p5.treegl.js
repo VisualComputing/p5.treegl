@@ -58,12 +58,9 @@ var Tree = (function (ext) {
   const FAR = 1 << 1;
   const LEFT = 1 << 2;
   const RIGHT = 1 << 3;
-  const BOTTOM = 1 << 4;
-  const TOP = 1 << 5;
+  const BOTTOM = 1 << 4; // also pipe bootm cap
+  const TOP = 1 << 5; // also pipe top cap
   const BODY = 1 << 6;
-  // Pipe caps
-  const TOPCAP = 1 << 0;
-  const BOTTOMCAP = 1 << 1;
   // visibility
   const INVISIBLE = 0;
   const VISIBLE = 1;
@@ -120,8 +117,6 @@ var Tree = (function (ext) {
   ext.BOTTOM = BOTTOM;
   ext.TOP = TOP;
   ext.BODY = BODY;
-  ext.TOPCAP = TOPCAP;
-  ext.BOTTOMCAP = BOTTOMCAP;
   ext.INVISIBLE = INVISIBLE;
   ext.VISIBLE = VISIBLE;
   ext.SEMIVISIBLE = SEMIVISIBLE;
@@ -1391,10 +1386,10 @@ for details.` : ''}
   p5.RendererGL.prototype._circle = function ({ filled = false, x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
     this._rendererState = this.push();
     if (filled) {
-      this.beginShape(TRIANGLE_STRIP);
+      this.beginShape(0x0005);
       for (let t = 0; t <= detail; t++) {
-        const x = Math.cos(t * TWO_PI / detail);
-        const y = Math.sin(t * TWO_PI / detail);
+        const x = Math.cos(t * (2 * Math.PI) / detail);
+        const y = Math.sin(t * (2 * Math.PI) / detail);
         this.vertex(0, 0, 0, 0.5, 0.5)
         this.vertex(radius * x, radius * y, 0, (x * 0.5) + 0.5, (y * 0.5) + 0.5);
       }
@@ -1402,7 +1397,7 @@ for details.` : ''}
     }
     else {
       this.translate(x, y);
-      const angle = TWO_PI / detail;
+      const angle = (2 * Math.PI) / detail;
       let lastPosition = { x: radius, y: 0 };
       for (let i = 1; i <= detail; i++) {
         let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius };
@@ -1622,7 +1617,7 @@ for details.` : ''}
     height = 50,
     topNormal = new p5.Vector(0, 0, 1),
     bottomNormal = new p5.Vector(0, 0, -1),
-    caps = Tree.TOPCAP | Tree.BOTTOMCAP
+    caps = Tree.TOP | Tree.BOTTOM
   } = {}) {
     if (Array.isArray(topNormal)) {
       topNormal = new p5.Vector(topNormal[0] ?? 0, topNormal[1] ?? 0, topNormal[2] ?? 1);
@@ -1637,10 +1632,10 @@ for details.` : ''}
     let l = new p5.Vector(0, 0, 1);
     const topCap = [];
     const bottomCap = [];
-    this.beginShape(TRIANGLE_STRIP);
+    this.beginShape(0x0005);
     for (let t = 0; t <= detail; t++) {
-      const x = Math.cos(t * TWO_PI / detail);
-      const y = Math.sin(t * TWO_PI / detail);
+      const x = Math.cos(t * (2 * Math.PI) / detail);
+      const y = Math.sin(t * (2 * Math.PI) / detail);
       const l0 = new p5.Vector(x, y, 0).mult(topRadius);
       const l1 = new p5.Vector(x, y, 0).mult(bottomRadius);
       const u = float(t) / detail;
@@ -1655,16 +1650,16 @@ for details.` : ''}
       this.vertex(p1.x, p1.y, p1.z, u, 1);
     }
     this.endShape();
-    if ((~(caps | ~Tree.TOPCAP) === 0)) {
-      this.beginShape(TRIANGLE_STRIP);
+    if ((~(caps | ~Tree.TOP) === 0)) {
+      this.beginShape(0x0005);
       for (const cap of topCap) {
         this.vertex(0, 0, 0, 0.5, 0.5)
         this.vertex(cap.x, cap.y, cap.z, (cap.x + topRadius) / (2 * topRadius), (cap.y + topRadius) / (2 * topRadius));
       }
       this.endShape();
     }
-    if ((~(caps | ~Tree.BOTTOMCAP) === 0)) {
-      this.beginShape(TRIANGLE_STRIP);
+    if ((~(caps | ~Tree.BOTTOM) === 0)) {
+      this.beginShape(0x0005);
       for (const cap of bottomCap) {
         this.vertex(0, 0, height, 0.5, 0.5)
         this.vertex(cap.x, cap.y, cap.z, (cap.x + bottomRadius) / (2 * bottomRadius), (cap.y + bottomRadius) / (2 * bottomRadius));
@@ -1690,10 +1685,10 @@ for details.` : ''}
     const bodyHeight = height * 0.7;
     this._rendererState = this.push();
     // arrow's head
-    this.pipe({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight, caps: Tree.BOTTOMCAP });
+    this.pipe({ detail, topRadius: 0, bottomRadius: headRadius, height: headHeight, caps: Tree.BOTTOM });
     this.translate(0, 0, headHeight);
     // arrow's body
-    this.pipe({ detail, topRadius: radius, height: bodyHeight, caps: Tree.BOTTOMCAP });
+    this.pipe({ detail, topRadius: radius, height: bodyHeight, caps: Tree.BOTTOM });
     this.pop(this._rendererState);
   };
 
@@ -1708,17 +1703,17 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.mobius = function ({ detail = 16, radius = 50 } = {}) {
     this._rendererState = this.push();
-    const uFragment = TWO_PI / detail;
-    this.beginShape(TRIANGLE_STRIP);
-    for (let u = 0; u <= TWO_PI; u += uFragment) {
+    const uFragment = (2 * Math.PI) / detail;
+    this.beginShape(0x0005);
+    for (let u = 0; u <= (2 * Math.PI); u += uFragment) {
       const x0 = (1 + (-1 / 2) * Math.cos(u / 2)) * Math.cos(u);
       const y0 = (1 + (-1 / 2) * Math.cos(u / 2)) * Math.sin(u);
       const z0 = (-1 / 2) * Math.sin(u / 2);
       const x1 = (1 + (1 / 2) * Math.cos(u / 2)) * Math.cos(u);
       const y1 = (1 + (1 / 2) * Math.cos(u / 2)) * Math.sin(u);
       const z1 = (1 / 2) * Math.sin(u / 2);
-      this.vertex(x0 * radius, y0 * radius, z0 * radius, u / TWO_PI, 0);
-      this.vertex(x1 * radius, y1 * radius, z1 * radius, u / TWO_PI, 1);
+      this.vertex(x0 * radius, y0 * radius, z0 * radius, u / (2 * Math.PI), 0);
+      this.vertex(x1 * radius, y1 * radius, z1 * radius, u / (2 * Math.PI), 1);
     }
     this.vertex(1.5 * radius, 0, 0, 1, 0);
     this.vertex(0.5 * radius, 0, 0, 1, 1);
@@ -1739,9 +1734,9 @@ for details.` : ''}
    */
   p5.RendererGL.prototype.bagel = function ({ mayorDetail = 32, minorDetail = 32, mayorRadius = 30, minorRadius = 20 } = {}) {
     this._rendererState = this.push();
-    const theta_detail = TWO_PI / mayorDetail;
-    const phi_detail = TWO_PI / minorDetail;
-    this.beginShape(TRIANGLE_STRIP);
+    const theta_detail = (2 * Math.PI) / mayorDetail;
+    const phi_detail = (2 * Math.PI) / minorDetail;
+    this.beginShape(0x0005);
     const lastCircle = [];
     for (let i = 0; i <= mayorDetail; i++) {
       const theta = i * theta_detail;
