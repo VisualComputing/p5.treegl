@@ -1400,7 +1400,7 @@ for details.` : ''}
       const angle = (2 * Math.PI) / detail;
       let lastPosition = { x: radius, y: 0 };
       for (let i = 1; i <= detail; i++) {
-        let position = { x: cos(i * angle) * radius, y: sin(i * angle) * radius };
+        let position = { x: Math.cos(i * angle) * radius, y: Math.sin(i * angle) * radius };
         this.line(lastPosition.x, lastPosition.y, position.x, position.y);
         lastPosition = position;
       }
