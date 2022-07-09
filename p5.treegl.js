@@ -1613,7 +1613,7 @@ for details.` : ''}
   p5.RendererGL.prototype.pipe = function ({
     detail = 16,
     topRadius = 10,
-    bottomRadius,
+    bottomRadius = 10,
     height = 50,
     topNormal = new p5.Vector(0, 0, 1),
     bottomNormal = new p5.Vector(0, 0, -1),
