@@ -5,6 +5,7 @@
 
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
+- [p5.treegl](#p5treegl)
 - [Shaders](#shaders)
   - [Handling](#handling)
   - [Macros](#macros)
@@ -16,7 +17,8 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 - [Utilities](#utilities)
 - [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
-- [Hacking](#vs-code--vs-codium--gitpod-hacking-instructions)
+- [vs-code & [vs-codium](https://vscodium.com/) & [gitpod](https://www.gitpod.io/) hacking instructions](#vs-code--vs-codium--gitpod-hacking-instructions)
+  - [Contributors ✨](#contributors-)
 
 Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
 
@@ -216,7 +218,7 @@ function draw() {
 3. `cross([{ [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels. Use `mMatrix` to compute (`x`, `y`) as the screen projection of the model space origin.
 4. `bullsEye([{ [mMatrix], [x = this.width / 2], [y = this.height / 2], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`:  Draws a circled bullseye (use `Tree.SQUARE` to draw it as a square) at `x`, `y` screen coordinates with given `size` in pixels. Use `mMatrix` to compute (`x`, `y`) as the screen projection of the model space origin.
 5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
-6. `pipe([{ [detail = 16], [topRadius = 10], [bottomRadius = 10], [height = 50,] [topNormal = Tree.k], [bottomNormal = Tree._k], [caps = Tree.TOP | Tree.BOTTOM] }])`: Draws a pipe, i.e., a cylinder whose caps can be oriented according to given normals.
+6. `pipe([{ [detail = 16], [topRadius = 10], [bottomRadius = topRadius], [height = 50,] [topNormal = Tree.k], [bottomNormal = Tree._k], [caps = Tree.TOP | Tree.BOTTOM] }])`: Draws a pipe, i.e., a cylinder whose caps can be oriented according to given normals.
 7. `arrow([{ [detail = 16], [radius = 10], [height = 50] }])`: Draws an arrow.
 8. `moebius([{ [detail = 16], [radius = 50] }])`: Draws a [moebius strip](https://en.wikipedia.org/wiki/M%C3%B6bius_strip).
 9. `bagel([{ [mayorDetail = 32], [minorDetail = 32], [mayorRadius = 30], [minorRadius = 20] }])` : Draws an immersion of the [Klein bottle](https://en.wikipedia.org/wiki/Klein_bottle) known as a [bagel](https://en.wikipedia.org/wiki/Klein_bottle#Parametrization).
