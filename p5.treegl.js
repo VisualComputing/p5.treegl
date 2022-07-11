@@ -1613,7 +1613,7 @@ for details.` : ''}
   p5.RendererGL.prototype.pipe = function ({
     detail = 16,
     topRadius = 10,
-    bottomRadius = 10,
+    bottomRadius = topRadius,
     height = 50,
     topNormal = new p5.Vector(0, 0, 1),
     bottomNormal = new p5.Vector(0, 0, -1),
@@ -1626,7 +1626,6 @@ for details.` : ''}
       bottomNormal = new p5.Vector(bottomNormal[0] ?? 0, bottomNormal[1] ?? 0, bottomNormal[2] ?? -1);
     }
     this._rendererState = this.push();
-    bottomRadius = bottomRadius || topRadius;
     let pm0 = new p5.Vector(0, 0, 0);
     let pn0 = new p5.Vector(0, 0, height);
     let l = new p5.Vector(0, 0, 1);
