@@ -65,6 +65,8 @@ function setup() {
   console.log(vec, " n4 -> n3 loc: " + treeLocation(vec, { from: n4, to: n3 }));
   console.log(vec, " n4 -> n3 dis: " + treeDisplacement(vec, { from: n4, to: n3 }));
   //console.log(n3);
+  let loc = [80, 80, 0.2];
+  console.log(loc, " SCREEN -> NDC loc: " + treeLocation(loc, { from: Tree.SCREEN, to: Tree.NDC }));
 }
 
 function draw() {

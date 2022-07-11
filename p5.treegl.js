@@ -32,7 +32,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.2.0',
+    VERSION: '0.2.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -503,6 +503,14 @@ var Tree = (function (ext) {
 
   // NDC stuff needs testing
 
+  p5.prototype._map = function () {
+    return this._renderer._map(...arguments);
+  }
+
+  p5.RendererGL.prototype._map = function (n, start1, stop1, start2, stop2) {
+    return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+  }
+
   p5.prototype.treeLocation = function () {
     return this._renderer.treeLocation(...arguments);
   }
@@ -587,15 +595,15 @@ var Tree = (function (ext) {
   }
 
   p5.RendererGL.prototype._ndcToScreenLocation = function (vector) {
-    return new p5.Vector(map(vector.x, -1, 1, 0, this.width),
-      map(vector.y, -1, 1, 0, this.height),
-      map(vector.z, -1, 1, 0, 1));
+    return new p5.Vector(this._map(vector.x, -1, 1, 0, this.width),
+      this._map(vector.y, -1, 1, 0, this.height),
+      this._map(vector.z, -1, 1, 0, 1));
   }
 
   p5.RendererGL.prototype._screenToNDCLocation = function (vector) {
-    return new p5.Vector(map(vector.x, 0, this.width, -1, 1),
-      map(vector.y, 0, this.height, -1, 1),
-      map(vector.z, 0, 1, -1, 1));
+    return new p5.Vector(this._map(vector.x, 0, this.width, -1, 1),
+      this._map(vector.y, 0, this.height, -1, 1),
+      this._map(vector.z, 0, 1, -1, 1));
   }
 
   p5.RendererGL.prototype._screenLocation = function (
