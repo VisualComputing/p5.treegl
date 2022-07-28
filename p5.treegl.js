@@ -20,6 +20,10 @@ iii. Demo series missed:
 - picking (hello-world example in the picking folder)
 - visibility (hello-world example in the visibility folder)
 - shaders: fractals, noise, shadow mapping (work-in-progress example in the shadow_mapping folder).
+iv. Code improvements
+- porting code to arrow functions (since seems it always ensures instance mode according to @Chranium).
+  Refer also to this: https://stackoverflow.com/questions/34361379/are-arrow-functions-and-functions-equivalent-interchangeable
+  Perhaps a good idea would be to testing it first with readShader and parseVertexShader?
 */
 
 // See:
