@@ -1,31 +1,5 @@
 'use strict';
 
-// TODOs
-/*
-i. Ideas lacking design & implementation
-- Keyframes (https://en.wikipedia.org/wiki/Key_frame)
-- Flocks. See:
-  * Reynolds, C. W. Flocks, Herds and Schools: A Distributed Behavioral Model. 87.
-    (original paper) http://www.cs.toronto.edu/~dt/siggraph97-course/cwr87/
-    (presentation) https://pdfs.semanticscholar.org/73b1/5c60672971c44ef6304a39af19dc963cd0af.pdf
-    (processing 3d implementation supporting first & third camera modes)
-    https://github.com/VisualComputing/nub/blob/master/examples/demos/FlockOfBoids/
-  * Google for more...
-- More shader parsing means...
-ii. Ideas lacking only implementation
-- webgl picking: https://webglfundamentals.org/webgl/lessons/webgl-picking.html
-  To be implemented within the current picking function (hello-world example in the picking folder)
-  as the { shape: Tree.PROJECTION } property.
-iii. Demo series missed:
-- picking (hello-world example in the picking folder)
-- visibility (hello-world example in the visibility folder)
-- shaders: fractals, noise, shadow mapping (work-in-progress example in the shadow_mapping folder).
-iv. Code improvements
-- porting code to arrow functions (since seems it always ensures instance mode according to @Chranium).
-  Refer also to this: https://stackoverflow.com/questions/34361379/are-arrow-functions-and-functions-equivalent-interchangeable
-  Perhaps a good idea would be to testing it first with readShader and parseVertexShader?
-*/
-
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -36,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.2.1',
+    VERSION: '0.2.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
