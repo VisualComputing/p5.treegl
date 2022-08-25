@@ -532,10 +532,10 @@ var Tree = (function (ext) {
       vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
     if (from == Tree.MODEL) {
-      from = this.mMatrix();
+      from = this.mMatrix({ eMatrix: eMatrix });
     }
     if (to == Tree.MODEL) {
-      to = this.mMatrix();
+      to = this.mMatrix({ eMatrix: eMatrix });
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
@@ -690,10 +690,10 @@ var Tree = (function (ext) {
       vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
     }
     if (from == Tree.MODEL) {
-      from = this.mMatrix();
+      from = this.mMatrix({ eMatrix: eMatrix });
     }
     if (to == Tree.MODEL) {
-      to = this.mMatrix();
+      to = this.mMatrix({ eMatrix: eMatrix });
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._worldToScreenDisplacement(vector, pMatrix);
