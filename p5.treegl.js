@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.2.2',
+    VERSION: '0.3.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -789,6 +789,33 @@ var Tree = (function (ext) {
   }
 
   // 3. Shader utilities
+
+  var __setMatrixUniforms = p5.Shader.prototype._setMatrixUniforms;
+
+  p5.Shader.prototype._setMatrixUniforms = function () {
+    // https://stackoverflow.com/questions/10427708/override-function-e-g-alert-and-call-the-original-function
+    //console.log('_setMatrixUniforms overridden');
+    __setMatrixUniforms.apply(this, arguments);
+    if (this._renderer._tree) {
+      this.setUniform('uModelMatrix', this._renderer.mMatrix().mat4);
+    }
+  };
+
+  p5.prototype.bindModelMatrix = function () {
+    this._renderer.bindModelMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.bindModelMatrix = function () {
+    this._tree = true;
+  }
+
+  p5.prototype.unbindModelMatrix = function () {
+    this._renderer.unbindModelMatrix(...arguments);
+  }
+
+  p5.RendererGL.prototype.unbindModelMatrix = function () {
+    this._tree = false;
+  }
 
   p5.prototype.readShader = function (fragFilename, {
     precision,
