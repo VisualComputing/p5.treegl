@@ -1,7 +1,7 @@
 let easycam;
 let models;
 let picked, squared, cached = true;
-let pv, e, m;
+let pv, e;
 
 function setup() {
   createCanvas(400, 400, WEBGL);
@@ -43,22 +43,20 @@ function draw() {
   models.forEach(element => {
     push();
     translate(element.position);
-    // cache model matrix, just before drawing it
-    m = mMatrix();
-    let picked = cached ? mousePicking({ x: width / 2, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
-      : mousePicking({ mMatrix: m, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
+    let picked = cached ? mousePicking({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
+      : mousePicking({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
     fill(picked ? 'white' : element.color);
     noStroke();
     squared ? box(element.size) : sphere(element.size);
     strokeWeight(3);
     stroke(picked ? 'yellow' : cached ? 'red' : 'blue');
     if (cached) {
-      //cross({ mMatrix: m, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      bullsEye({ mMatrix: m, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      cross({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      //bullsEye({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
     }
     else {
-      //cross({ mMatrix: m, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      bullsEye({ mMatrix: m, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      cross({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      //bullsEye({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
     }
     pop();
   }

@@ -1303,16 +1303,16 @@ for details.` : ''}
    * @param  {Number}    size cross size. Default is 50.
    */
   p5.RendererGL.prototype.cross = function ({
-    mMatrix,
-    x = this.width / 2,
-    y = this.height / 2,
+    mMatrix = this.mMatrix(),
+    x,
+    y,
     size = 50,
     eMatrix,
     pMatrix,
     vMatrix,
     pvMatrix
   } = {}) {
-    if (mMatrix) {
+    if (!(x && y)) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
@@ -1340,9 +1340,9 @@ for details.` : ''}
    * @param  {Number}    shape either Tree.CIRCLE or Tree.SQUARE. Default is Tree.CIRCLE.
    */
   p5.RendererGL.prototype.bullsEye = function ({
-    mMatrix,
-    x = this.width / 2,
-    y = this.height / 2,
+    mMatrix = this.mMatrix(),
+    x,
+    y,
     size = 50,
     shape = Tree.CIRCLE,
     eMatrix,
@@ -1350,7 +1350,7 @@ for details.` : ''}
     vMatrix,
     pvMatrix
   } = {}) {
-    if (mMatrix) {
+    if (!(x && y)) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;
