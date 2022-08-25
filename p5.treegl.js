@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.2.2',
+    VERSION: '0.3.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -48,6 +48,7 @@ var Tree = (function (ext) {
   const EYE = 'EYE';
   const NDC = 'NDC';
   const SCREEN = 'SCREEN';
+  const MODEL = 'MODEL';
   // points
   const ORIGIN = [0, 0, 0];
   // vectors
@@ -102,6 +103,7 @@ var Tree = (function (ext) {
   ext.EYE = EYE;
   ext.NDC = NDC;
   ext.SCREEN = SCREEN;
+  ext.MODEL = MODEL;
   ext.ORIGIN = ORIGIN;
   ext.i = i;
   ext.j = j;
@@ -498,10 +500,10 @@ var Tree = (function (ext) {
    * @param  {p5.Vector} vector      location to be converted.
    * @param  {p5.Matrix|String} from source space: either a global
    *                                 transform matrix or Tree.WORLD, Tree.EYE,
-   *                                 Tree.SCREEN or Tree.NDC.
+   *                                 Tree.SCREEN, Tree.NDC or Tree.MODEL.
    * @param  {p5.Matrix|String} to   target space: either a global
    *                                 transform matrix or Tree.WORLD, Tree.EYE,
-   *                                 Tree.SCREEN or Tree.NDC.
+   *                                 Tree.SCREEN, Tree.NDC or Tree.MODEL.
    * @param  {p5.Matrix} pMatrix     projection matrix.
    * @param  {p5.Matrix} vMatrix     view matrix.
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
@@ -528,6 +530,12 @@ var Tree = (function (ext) {
     } = {}) {
     if (Array.isArray(vector)) {
       vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+    }
+    if (from == Tree.MODEL) {
+      from = this.mMatrix();
+    }
+    if (to == Tree.MODEL) {
+      to = this.mMatrix();
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._screenLocation({ vector: vector, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
@@ -652,10 +660,10 @@ var Tree = (function (ext) {
    * @param  {p5.Vector} vector      location to be converted.
    * @param  {p5.Matrix|String} from source space: either a global
    *                                 transform matrix or Tree.WORLD, Tree.EYE,
-   *                                 Tree.SCREEN or Tree.NDC.
+   *                                 Tree.SCREEN, Tree.NDC or Tree.MODEL.
    * @param  {p5.Matrix|String} to   target space: either a global
    *                                 transform matrix or Tree.WORLD, Tree.EYE,
-   *                                 Tree.SCREEN or Tree.NDC.
+   *                                 Tree.SCREEN, Tree.NDC or Tree.MODEL.
    * @param  {p5.Matrix} pMatrix     projection matrix.
    * @param  {p5.Matrix} vMatrix     view matrix.
    * @param  {p5.Matrix} pvMatrix    projection times view matrix.
@@ -680,6 +688,12 @@ var Tree = (function (ext) {
     } = {}) {
     if (Array.isArray(vector)) {
       vector = new p5.Vector(vector[0] ?? 0, vector[1] ?? 0, vector[2] ?? 0);
+    }
+    if (from == Tree.MODEL) {
+      from = this.mMatrix();
+    }
+    if (to == Tree.MODEL) {
+      to = this.mMatrix();
     }
     if ((from == Tree.WORLD) && (to == Tree.SCREEN)) {
       return this._worldToScreenDisplacement(vector, pMatrix);
