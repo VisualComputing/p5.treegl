@@ -1130,9 +1130,9 @@ for details.` : ''}
   }
 
   p5.prototype.mousePicking = function ({
-    mMatrix,
-    x = this.width / 2,
-    y = this.height / 2,
+    mMatrix = this.mMatrix(),
+    x,
+    y,
     size = 50,
     shape = Tree.CIRCLE,
     eMatrix,
@@ -1156,9 +1156,9 @@ for details.` : ''}
    * @param  {Number}    shape either Tree.CIRCLE, Tree.SQUARE or Tree.PROJECTION. Default is Tree.CIRCLE.
    */
   p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, {
-    mMatrix,
-    x = this.width / 2,
-    y = this.height / 2,
+    mMatrix = this.mMatrix(),
+    x,
+    y,
     size = 50,
     shape = Tree.CIRCLE,
     eMatrix,
@@ -1166,7 +1166,7 @@ for details.` : ''}
     vMatrix,
     pvMatrix
   } = {}) {
-    if (mMatrix) {
+    if (!(x && y)) {
       let screenLocation = this.treeLocation({ from: mMatrix, to: Tree.SCREEN, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix });
       x = screenLocation.x;
       y = screenLocation.y;

@@ -45,7 +45,7 @@ function draw() {
     translate(element.position);
     // cache model matrix, just before drawing it
     m = mMatrix();
-    let picked = cached ? mousePicking({ mMatrix: m, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
+    let picked = cached ? mousePicking({ x: width / 2, size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
       : mousePicking({ mMatrix: m, size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
     fill(picked ? 'white' : element.color);
     noStroke();
