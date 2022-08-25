@@ -51,12 +51,12 @@ function draw() {
     strokeWeight(3);
     stroke(picked ? 'yellow' : cached ? 'red' : 'blue');
     if (cached) {
-      cross({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      //bullsEye({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      //cross({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      bullsEye({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
     }
     else {
-      cross({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      //bullsEye({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      //cross({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+      bullsEye({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
     }
     pop();
   }
