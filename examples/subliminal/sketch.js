@@ -1,3 +1,5 @@
+'use strict';
+
 let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
@@ -24,7 +26,6 @@ function setup() {
   cam2.setViewport([width / 2, 0, width / 2, height]);
   document.oncontextmenu = function () { return false; }
   // scene
-  colorMode(RGB, 1);
   let trange = 100;
   boxes = [];
   for (let i = 0; i < 10; i++) {
@@ -32,7 +33,7 @@ function setup() {
       {
         position: createVector((random() * 2 - 1) * trange, (random() * 2 - 1) * trange, (random() * 2 - 1) * trange),
         size: random() * 25 + 8,
-        color: color(random(), random(), random())
+        color: color(random(255), random(255), random(255))
       }
     );
   }
@@ -77,8 +78,6 @@ function scene1() {
         let pixelRatio = fbo1.pixelRatio(boxLocation);
         box.target ??= box.size / pixelRatio;
         box.size = box.target * pixelRatio;
-        let projection = fbo1.treeLocation({ from: Tree.MODEL, to: Tree.SCREEN });
-        fbo1.bullsEye({ size: box.target * 2, x: projection.x, y: projection.y });
         //let eyeLocation = fbo1.treeLocation(Tree.ORIGIN, { from: Tree.EYE, to: Tree.WORLD });
         // same as:
         //let eyeLocation = fbo1.treeLocation({ from: Tree.EYE, to: Tree.WORLD });

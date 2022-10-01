@@ -1,7 +1,8 @@
+'use strict';
+
 let easycam;
 let models;
-let picked, squared, cached = true;
-let pv, e;
+let picked, squared;
 
 function setup() {
   createCanvas(400, 400, WEBGL);
@@ -32,32 +33,19 @@ function setup() {
 }
 
 function draw() {
-  // (optionally) cache pv and e matrices to speedup computations
-  if (cached) {
-    pv = pvMatrix();
-    e = eMatrix();
-  }
   background(0.5);
   axes();
   grid();
   models.forEach(element => {
     push();
     translate(element.position);
-    let picked = cached ? mousePicking({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
-      : mousePicking({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE })
-    fill(picked ? 'white' : element.color);
+    let picked = mousePicking({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
+    fill(picked ? 'yellow' : element.color);
     noStroke();
     squared ? box(element.size) : sphere(element.size);
     strokeWeight(3);
-    stroke(picked ? 'yellow' : cached ? 'red' : 'blue');
-    if (cached) {
-      //cross({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      bullsEye({ size: element.size * 2.5, pvMatrix: pv, eMatrix: e, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-    }
-    else {
-      //cross({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-      bullsEye({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
-    }
+    stroke(picked ? 'red' : 'blue');
+    bullsEye({ size: element.size * 2.5, shape: squared ? Tree.SQUARE : Tree.CIRCLE });
     pop();
   }
   );
@@ -66,8 +54,5 @@ function draw() {
 function keyPressed() {
   if (key === 's') {
     squared = !squared;
-  }
-  if (key === 'c') {
-    cached = !cached;
   }
 }

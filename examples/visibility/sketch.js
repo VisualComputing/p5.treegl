@@ -21,6 +21,7 @@ function setup() {
   cam1.attachMouseListeners(this._renderer);
   cam1.state_reset = state1;   // state to use on reset (double-click/tap)
   cam1.setViewport([0, 0, width / 2, height]);
+  cam1.setPanScale(0.005);
   cam2 = new Dw.EasyCam(fbo2._renderer, { rotation: [0.94, 0.33, 0, 0] });
   cam2.attachMouseListeners(this._renderer);
   let state2 = cam2.getState();
@@ -89,11 +90,9 @@ function keyPressed() {
     if (persp) {
       let eyeZ = (fbo1.height / 2) / tan(PI / 6);
       fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ);
-      //fbo1.perspective();
     }
     else {
       fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
-      //fbo1.ortho();
     }
   }
   if (key === 'b') {

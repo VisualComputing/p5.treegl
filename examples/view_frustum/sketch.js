@@ -85,11 +85,9 @@ function keyPressed() {
     if (persp) {
       let eyeZ = (fbo1.height / 2) / tan(PI / 6);
       fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ);
-      //fbo1.perspective();
     }
     else {
       fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 100);
-      //fbo1.ortho();
     }
   }
 }
