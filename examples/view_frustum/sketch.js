@@ -4,7 +4,7 @@ let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
 let boxes;
-let persp = true;
+let foreshortening = true;
 
 function setup() {
   createCanvas(length, length / 2);
@@ -60,8 +60,10 @@ function draw() {
   fbo2.stroke('magenta');
   fbo2.fill(color(1, 0, 1, 0.3));
   fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.FAR });
-  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
+  // other options are:
   //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
+  //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.box(30) });
+  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);
@@ -80,14 +82,8 @@ function scene(graphics) {
 }
 
 function keyPressed() {
-  if (key === 'p') {
-    persp = !persp;
-    if (persp) {
-      let eyeZ = (fbo1.height / 2) / tan(PI / 6);
-      fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ);
-    }
-    else {
-      fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 100);
-    }
-  }
+  foreshortening = !foreshortening;
+  let eyeZ = (fbo1.height / 2) / tan(PI / 6);
+  foreshortening ? fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ) :
+    fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
 }

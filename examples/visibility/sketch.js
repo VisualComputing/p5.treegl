@@ -51,10 +51,6 @@ function draw() {
   fbo2.stroke(255, 0, 255);
   fbo2.fill(255, 0, 255, 100);
   fbo2.viewFrustum({ fbo: fbo1, bits: Tree.BODY });
-  // other options are:
-  //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
-  //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.box(30) });
-  //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
   fbo2.pop();
   beginHUD();
   image(fbo2, width / 2, 0);
@@ -81,7 +77,7 @@ function keyPressed() {
     foreshortening = !foreshortening;
     let eyeZ = (fbo1.height / 2) / tan(PI / 6);
     foreshortening ? fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ) :
-    fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
+      fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
   }
   if (key === 'b') {
     box = !box;

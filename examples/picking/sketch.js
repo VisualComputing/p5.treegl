@@ -2,7 +2,7 @@
 
 let easycam;
 let models;
-let picked, squared;
+let squared;
 
 function setup() {
   createCanvas(400, 400, WEBGL);
@@ -52,7 +52,5 @@ function draw() {
 }
 
 function keyPressed() {
-  if (key === 's') {
-    squared = !squared;
-  }
+  squared = !squared;
 }
