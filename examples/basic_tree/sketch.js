@@ -1,19 +1,21 @@
 'use strict';
 
+// obje model
+let fox;
 // texture
-let fire;
+let fox_tex;
 // check box
 let auto_rotate;
 // select
 let mode;
-// slider
-let details;
-
 let easycam;
 let frames = 0;
 
 function preload() {
-  fire = loadImage('fire_breather.jpg');
+  // obj model took from this discourse thread:
+  // https://discourse.processing.org/t/load-obj-model-with-mtl-file-and-jpg-texture/4634/7
+  fox_tex = loadImage('fox.png');
+  fox = loadModel('fox.obj', true);
 }
 
 function setup() {
@@ -22,11 +24,8 @@ function setup() {
   auto_rotate = createCheckbox('auto rotate', true);
   auto_rotate.style('color', 'magenta');
   auto_rotate.position(10, 10);
-  details = createSlider(3, 16, 13, 1);
-  details.position(10, 40);
-  details.style('width', '80px');
   mode = createSelect();
-  mode.position(10, 70);
+  mode.position(10, 35);
   mode.option('Fill');
   mode.option('Wiredframe');
   mode.option('Texture');
@@ -42,7 +41,6 @@ function setup() {
 
 function draw() {
   background(200);
-  foreshortening ? perspective() : ortho();
   push();
   strokeWeight(0.5);
   stroke('purple');
@@ -68,22 +66,23 @@ function draw() {
       break;
     default:
       noStroke();
-      texture(fire);
+      texture(fox_tex);
   }
-  cylinder(30, 60, details.value(), details.value());
+  model(fox);
   pop();
   push();
-  translate(-50, 30);
+  translate(-70, 50);
   rotateY(frames * 0.01);
-  // no need to specify the point to be located since it's the origin
-  let screenProjection = treeLocation(/*[0, 0, 0],*/ { from: Tree.MODEL, to: Tree.SCREEN });
   axes({ size: 30 });
   noStroke();
   fill(0, 255, 255, 125);
   sphere(10);
+  // the screen projection of sphere local space origin
+  // origin is used below to center the bullsEye display
+  let screenProjection = treeLocation(/*[0, 0, 0],*/ { from: Tree.MODEL, to: Tree.SCREEN });
   pop();
   push();
-  translate(50, -30);
+  translate(70, -50);
   rotateZ(frames * 0.01);
   axes({ size: 30 });
   noStroke();
