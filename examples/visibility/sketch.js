@@ -4,8 +4,8 @@ let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
 let hue;
-const r = 30
-let persp = true;
+const size = 30
+let foreshortening = true;
 let box = false;
 
 function setup() {
@@ -51,7 +51,9 @@ function draw() {
   fbo2.stroke(255, 0, 255);
   fbo2.fill(255, 0, 255, 100);
   fbo2.viewFrustum({ fbo: fbo1, bits: Tree.BODY });
+  // other options are:
   //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.axes({ size: 50, bits: Tree.Y | Tree.X }) });
+  //fbo2.viewFrustum({ fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: () => fbo2.box(30) });
   //fbo2.viewFrustum({fbo: fbo1, bits: Tree.NEAR | Tree.BODY, viewer: Tree.NONE});
   fbo2.pop();
   beginHUD();
@@ -60,40 +62,26 @@ function draw() {
 }
 
 function scene1() {
-  let vis = fbo1.visibility(box ? { corner1: [-r / 2, -r / 2, -r / 2], corner2: [r / 2, r / 2, r / 2] } :
-    { center: [0, 0, 0], radius: r });
+  let vis = fbo1.visibility(box ? { corner1: [-size / 2, -size / 2, -size / 2], corner2: [size / 2, size / 2, size / 2] } :
+    { center: [0, 0, 0], radius: size });
   hue = vis === Tree.VISIBLE ? 'green' : vis === Tree.SEMIVISIBLE ? 'blue' : 'red';
   fbo1.fill(hue);
   fbo1.noStroke();
-  if (box) {
-    fbo1.box(r);
-  }
-  else {
-    fbo1.sphere(r);
-  }
+  box ? fbo1.box(size) : fbo1.sphere(size);
 }
 
 function scene2() {
   fbo2.fill(hue);
   fbo2.noStroke();
-  if (box) {
-    fbo2.box(r);
-  }
-  else {
-    fbo2.sphere(r);
-  }
+  box ? fbo2.box(size) : fbo2.sphere(size);
 }
 
 function keyPressed() {
   if (key === 'p') {
-    persp = !persp;
-    if (persp) {
-      let eyeZ = (fbo1.height / 2) / tan(PI / 6);
-      fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ);
-    }
-    else {
-      fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
-    }
+    foreshortening = !foreshortening;
+    let eyeZ = (fbo1.height / 2) / tan(PI / 6);
+    foreshortening ? fbo1.perspective(PI / 3, fbo1.width / fbo1.height, eyeZ / 10, eyeZ) :
+    fbo1.ortho(-fbo1.width / 2, fbo1.width / 2, -fbo1.height / 2, fbo1.height / 2, 1, 500);
   }
   if (key === 'b') {
     box = !box;
