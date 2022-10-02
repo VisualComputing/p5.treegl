@@ -1,5 +1,15 @@
 'use strict';
 
+/*
+This example illustrates
+a. p5 (https://p5js.org/):
+- texture mapping: loadImage, texture
+- modelview stack: push, pop
+b. p5.treegl (https://github.com/VisualComputing/p5.treegl):
+- drawing stuff: axes, grid, bullsEye,
+- space transformations: treeLocation
+*/
+
 // obje model
 let fox;
 // texture
@@ -32,8 +42,8 @@ function setup() {
   mode.value('Texture');
   easycam = createEasyCam();
   let state = {
-    distance: 250,                 // scalar
-    center: [0, 0, 0],         // vector
+    distance: 250,           // scalar
+    center: [0, 0, 0],       // vector
     rotation: [0, 0, 0, 1],  // quaternion
   };
   easycam.setState(state, 1000); // animate to state over the period of 1 second

@@ -1,5 +1,14 @@
 'use strict';
 
+/*
+This example illustrates
+a. p5 (https://p5js.org/):
+- modelview stack: push, pop
+b. p5.treegl (https://github.com/VisualComputing/p5.treegl):
+- utilities: mousePicking
+- drawing stuff: axes, grid, bullsEye,
+*/
+
 let easycam;
 let models;
 let squared;

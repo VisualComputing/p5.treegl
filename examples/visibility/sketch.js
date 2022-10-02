@@ -1,5 +1,17 @@
 'use strict';
 
+/*
+See:
+https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+This example illustrates
+a. p5 (https://p5js.org/):
+- offscreen rendering: createGraphics
+- modelview stack: push, pop
+b. p5.treegl (https://github.com/VisualComputing/p5.treegl):
+- utilities: visibility
+- screen drawing: axes, grid, beginHUD / endHUD
+*/
+
 let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;

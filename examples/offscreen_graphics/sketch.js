@@ -1,3 +1,15 @@
+'use strict';
+
+/*
+This example illustrates
+a. p5 (https://p5js.org/):
+- offscreen rendering: createGraphics
+- texture mapping: loadImage, texture
+- modelview stack: push, pop
+b. p5.treegl (https://github.com/VisualComputing/p5.treegl):
+- screen drawing: beginHUD / endHUD
+*/
+
 // texture
 let man;
 // p5.Graphics

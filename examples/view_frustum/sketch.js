@@ -1,5 +1,17 @@
 'use strict';
 
+/*
+Explore a similar concept here:
+https://jsantell.com/3d-projection/
+This example illustrates
+a. p5 (https://p5js.org/):
+- projections: perspective, ortho
+- offscreen rendering: createGraphics
+- modelview stack: push, pop
+b. p5.treegl (https://github.com/VisualComputing/p5.treegl):
+- drawing stuff: viewFrustum, axes, grid
+*/
+
 let fbo1, fbo2;
 let cam1, cam2;
 let length = 600;
