@@ -1,7 +1,7 @@
 'use strict';
 
 /*
-Precise picking ins implemented in webgl2 here:
+Precise picking is implemented in webgl2 here:
 https://mauriciomeza.github.io/WebGL-Tests/
 This example illustrates
 a. p5 (https://p5js.org/):
