@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.3.0',
+    VERSION: '0.3.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -510,8 +510,8 @@ var Tree = (function (ext) {
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
   p5.RendererGL.prototype.treeLocation = function () {
-    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeLocation(Tree.ORIGIN, arguments[0]) :
-      this._treeLocation(...arguments);
+    return arguments.length === 1 && arguments[0] instanceof Object && !(arguments[0] instanceof p5.Vector) && !(Array.isArray(arguments[0])) ?
+      this._treeLocation(Tree.ORIGIN, arguments[0]) : this._treeLocation(...arguments);
   }
 
   p5.prototype._treeLocation = function () {
@@ -670,8 +670,8 @@ var Tree = (function (ext) {
    * @param  {p5.Matrix} pvInvMatrix (projection times view matrix)^-1.
    */
   p5.RendererGL.prototype.treeDisplacement = function () {
-    return arguments.length === 1 & arguments[0] instanceof Object ? this._treeDisplacement(Tree._k, arguments[0]) :
-      this._treeDisplacement(...arguments);
+    return arguments.length === 1 && arguments[0] instanceof Object && !(arguments[0] instanceof p5.Vector) && !(Array.isArray(arguments[0])) ?
+      this._treeDisplacement(Tree._k, arguments[0]) : this._treeDisplacement(...arguments);
   }
 
   p5.prototype._treeDisplacement = function () {
