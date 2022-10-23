@@ -196,7 +196,7 @@ function draw() {
 6. `fPlane()`: Returns the far clipping plane.
 7. `fov()`: Returns the vertical field-of-view (fov) in radians.
 8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
-9. `isOrtho()`: Returns the camera projection type: `true` for orthographic and false for perspective.
+9. `isOrtho()`: Returns the camera projection type: `true` for orthographic and `false` for perspective.
 
 # Utilities
 
