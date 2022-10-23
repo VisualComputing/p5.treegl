@@ -318,15 +318,15 @@ var Tree = (function (ext) {
     return matrix.invert(matrix);
   }
 
-  p5.prototype._isOrtho = function () {
-    return this._renderer._isOrtho(...arguments);
+  p5.prototype.isOrtho = function () {
+    return this._renderer.isOrtho(...arguments);
   }
 
-  p5.RendererGL.prototype._isOrtho = function () {
-    return this.uPMatrix._isOrtho();
+  p5.RendererGL.prototype.isOrtho = function () {
+    return this.uPMatrix.isOrtho();
   }
 
-  p5.Matrix.prototype._isOrtho = function () {
+  p5.Matrix.prototype.isOrtho = function () {
     return this.mat4[15] != 0;
   }
 
@@ -933,7 +933,7 @@ for details.` : ''}
    * @param  {p5.Vector | Array} location      world location reference
    */
   p5.RendererGL.prototype.pixelRatio = function (location) {
-    return this._isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
+    return this.isOrtho() ? Math.abs(this.tPlane() - this.bPlane()) / this.height :
       2 * Math.abs((this._treeLocation(location, { from: Tree.WORLD, to: Tree.EYE, vMatrix: this._curCamera.cameraMatrix })).z) * Math.tan(this.fov() / 2) / this.height;
   }
 
@@ -1049,7 +1049,7 @@ for details.` : ''}
     let up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD });
     let right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
     let posViewDir = p5.Vector.dot(pos, viewDir);
-    if (this._isOrtho()) {
+    if (this.isOrtho()) {
       normals[0] = p5.Vector.mult(right, -1);
       normals[1] = right;
       normals[4] = up;
@@ -1431,7 +1431,7 @@ for details.` : ''}
     this.resetMatrix();
     this.applyMatrix(...this.vMatrix().mat4);
     this.applyMatrix(...fbo.eMatrix().mat4);
-    fbo._isOrtho() ? this._viewOrtho(fbo, bits, viewer) : this._viewPerspective(fbo, bits, viewer);
+    fbo.isOrtho() ? this._viewOrtho(fbo, bits, viewer) : this._viewPerspective(fbo, bits, viewer);
     this.pop(this._rendererState);
   };
 
