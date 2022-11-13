@@ -175,7 +175,7 @@ function draw() {
 **Observations**
 
 1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
-2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN` or `Tree.NDC`.
+2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN`, `Tree.NDC` or `Tree.MODEL`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
 4. The default `treeLocation` call (i.e., `treeLocation(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
 5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
