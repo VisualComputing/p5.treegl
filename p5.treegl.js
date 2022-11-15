@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.3.1',
+    VERSION: '0.4.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -74,6 +74,7 @@ var Tree = (function (ext) {
   const normal3 = 1 << 2;
   const position2 = 1 << 3;
   const position3 = 1 << 4;
+  const position4 = 1 << 5;
   ext ??= {};
   ext.INFO = INFO;
   ext.NONE = NONE;
@@ -123,6 +124,7 @@ var Tree = (function (ext) {
   ext.normal3 = normal3;
   ext.position2 = position2;
   ext.position3 = position3;
+  ext.position4 = position4;
   return ext;
 })(Tree);
 
@@ -847,9 +849,10 @@ var Tree = (function (ext) {
     let normal3 = ~(varyings | ~Tree.normal3) === 0;
     let position2 = ~(varyings | ~Tree.position2) === 0;
     let position3 = ~(varyings | ~Tree.position3) === 0;
+    let position4 = ~(varyings | ~Tree.position4) === 0;
     let pmv = ~(matrices | ~Tree.pmvMatrix) === 0;
     let p = ~(matrices | ~Tree.pMatrix) === 0;
-    let mv = ~(matrices | ~Tree.mvMatrix) === 0;
+    let mv = (~(matrices | ~Tree.mvMatrix) === 0) || position4;
     let n = (~(matrices | ~Tree.nMatrix) === 0) || normal3;
     const target = `gl_Position =${pmv ? ' uModelViewProjectionMatrix * ' : `${p && mv ? ' uProjectionMatrix * uModelViewMatrix *' : ''} `}vec4(aPosition, 1.0)`;
     let vertexShader = `
@@ -867,12 +870,14 @@ ${texcoords2 ? 'varying vec2 texcoords2;' : ''}
 ${normal3 ? 'varying vec3 normal3;' : ''}
 ${position2 ? 'varying vec2 position2;' : ''}
 ${position3 ? 'varying vec3 position3;' : ''}
+${position4 ? 'varying vec4 position4;' : ''}
 void main() {
   ${color4 ? 'color4 = aVertexColor;' : ''}
   ${texcoords2 ? 'texcoords2 = aTexCoord;' : ''}
   ${normal3 ? 'normal3 = normalize(uNormalMatrix * aNormal);' : ''}
   ${position2 ? 'position2 = vec4(aPosition, 1.0).xy;' : ''}
   ${position3 ? 'position3 = vec4(aPosition, 1.0).xyz;' : ''}
+  ${position4 ? 'position4 = uModelViewMatrix * vec4(aPosition, 1.0);' : ''}
   ${target};
 }
 `;
