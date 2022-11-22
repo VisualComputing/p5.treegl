@@ -92,10 +92,10 @@ Feel free to test the `parseVertexShader` function described above, trying out d
 
 Send common `uniform vec2` variables, such as: image offset, pointer position, and screen resolution, to `shader`. Note that the variable names are customizable.
 
-1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` which is computed as: `[1 / image.width, 1 / image.height]`.
-2. `emitMousePosition(shader, [uniform = 'u_mouse'])` which is computed as: `[mouseX * pixelDensity(), (height - mouseY) * pixelDensity()]`.
-3. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` which is computed as: `[pointerX * pixelDensity(), (height - pointerY) * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-4. `emitResolution(shader, [uniform = 'u_resolution'])` which is computed as: `[width * pixelDensity(), height * pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` which is the same as: `shader.setUniform(uniform, [1 / image.width, 1 / image.height])`.
+2. `emitMousePosition(shader, [uniform = 'u_mouse'])` which is the same as: `shader.setUniform(uniform, [mouseX * pixelDensity(), (height - mouseY) * pixelDensity()])`.
+3. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` which is the same as: `shader.setUniform(uniform, [pointerX * pixelDensity(), (height - pointerY) * pixelDensity()])`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+4. `emitResolution(shader, [uniform = 'u_resolution'])` which is the same as: `shader.setUniform(uniform, [width * pixelDensity(), height * pixelDensity()])`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Basic matrices
 
