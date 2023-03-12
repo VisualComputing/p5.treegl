@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.4.0',
+    VERSION: '0.5.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -839,7 +839,7 @@ var Tree = (function (ext) {
 
   p5.prototype.parseVertexShader = function ({
     precision = Tree.mediump,
-    matrices = Tree.pmvMatrix,
+    matrices = Tree.NONE,
     varyings = Tree.color4 | Tree.texcoords2,
     _specs = true
   } = {}) {
@@ -1432,153 +1432,81 @@ for details.` : ''}
       console.error('displaying viewFrustum requires an fbo different than this');
       return;
     }
+    // save state
     this._rendererState = this.push();
     this.resetMatrix();
+    // transform from world space to this eye
     this.applyMatrix(...this.vMatrix().mat4);
+    // transform from fbo eye space to world space
     this.applyMatrix(...fbo.eMatrix().mat4);
-    fbo.isOrtho() ? this._viewOrtho(fbo, bits, viewer) : this._viewPerspective(fbo, bits, viewer);
-    this.pop(this._rendererState);
-  };
-
-  p5.RendererGL.prototype._viewOrtho = function (fbo, bits, viewer) {
+    // frustum rendering begins here...
     if (viewer !== Tree.NONE) {
       viewer();
     }
-    let l = fbo.lPlane();
-    let r = fbo.rPlane();
-    let b = fbo.bPlane();
-    let t = fbo.tPlane();
-    let n = fbo.nPlane();
-    let f = fbo.fPlane();
+    const is_ortho = fbo.isOrtho();
+    const n = -fbo.nPlane();
+    const f = -fbo.fPlane();
+    const l = fbo.lPlane();
+    const r = fbo.rPlane();
+    const b = -fbo.bPlane();
+    const t = -fbo.tPlane();
+    // l, r, b, t far values
+    const ratio = is_ortho ? 1 : f / n;
+    const _l = ratio * l;
+    const _r = ratio * r;
+    const _b = ratio * b;
+    const _t = ratio * t;
     if (~(bits | ~Tree.FAR) === 0) {
       this.beginShape();
-      this.vertex(r, t, -f, 0, 0);
-      this.vertex(l, t, -f, 1, 0);
-      this.vertex(l, b, -f, 1, 1);
-      this.vertex(r, b, -f, 0, 1);
+      this.vertex(_l, _t, f);
+      this.vertex(_r, _t, f);
+      this.vertex(_r, _b, f);
+      this.vertex(_l, _b, f);
       this.endShape();
     }
     else {
-      this.line(r, t, -f, l, t, -f);
-      this.line(l, t, -f, l, b, -f);
-      this.line(l, b, -f, r, b, -f);
-      this.line(r, b, -f, r, t, -f);
+      this.line(_l, _t, f, _r, _t, f);
+      this.line(_r, _t, f, _r, _b, f);
+      this.line(_r, _b, f, _l, _b, f);
+      this.line(_l, _b, f, _l, _t, f);
     }
     if (~(bits | ~Tree.BODY) === 0) {
       this.beginShape();
-      this.vertex(l, t, -f);
-      this.vertex(l, t, -n);
-      this.vertex(r, t, -n);
-      this.vertex(r, t, -f);
+      this.vertex(_l, _t, f);
+      this.vertex(l, t, n);
+      this.vertex(r, t, n);
+      this.vertex(_r, _t, f);
       this.endShape();
       this.beginShape();
-      this.vertex(r, t, -f);
-      this.vertex(r, t, -n);
-      this.vertex(r, b, -n);
-      this.vertex(r, b, -f);
+      this.vertex(_r, _t, f);
+      this.vertex(r, t, n);
+      this.vertex(r, b, n);
+      this.vertex(_r, _b, f);
       this.endShape();
       this.beginShape();
-      this.vertex(r, b, -f);
-      this.vertex(r, b, -n);
-      this.vertex(l, b, -n);
-      this.vertex(l, b, -f);
+      this.vertex(_r, _b, f);
+      this.vertex(r, b, n);
+      this.vertex(l, b, n);
+      this.vertex(_l, _b, f);
       this.endShape();
       this.beginShape();
-      this.vertex(l, t, -n);
-      this.vertex(l, t, -f);
-      this.vertex(l, b, -f);
-      this.vertex(l, b, -n);
+      this.vertex(l, t, n);
+      this.vertex(_l, _t, f);
+      this.vertex(_l, _b, f);
+      this.vertex(l, b, n);
       this.endShape();
+      if (!is_ortho) {
+        this.line(0, 0, 0, r, t, n);
+        this.line(0, 0, 0, l, t, n);
+        this.line(0, 0, 0, l, b, n);
+        this.line(0, 0, 0, r, b, n);
+      }
     }
     else {
-      this.line(r, t, -n, r, t, -f);
-      this.line(l, t, -n, l, t, -f);
-      this.line(l, b, -n, l, b, -f);
-      this.line(r, b, -n, r, b, -f);
-    }
-    // TODO implement near plane texture
-    if (~(bits | ~Tree.NEAR) === 0) {
-      this.beginShape();
-      this.vertex(r, t, -n, 0, 0);
-      this.vertex(l, t, -n, 1, 0);
-      this.vertex(l, b, -n, 1, 1);
-      this.vertex(r, b, -n, 0, 1);
-      this.endShape();
-    }
-    else {
-      this.line(r, t, -n, l, t, -n);
-      this.line(l, t, -n, l, b, -n);
-      this.line(l, b, -n, r, b, -n);
-      this.line(r, b, -n, r, t, -n);
-    }
-  };
-
-  p5.RendererGL.prototype._viewPerspective = function (fbo, bits, viewer) {
-    if (viewer !== Tree.NONE) {
-      viewer();
-    }
-    let magnitude = Math.tan(fbo.fov() / 2);
-    let aspectRatio = fbo.width / fbo.height;
-    const points = [
-      { x: 0, y: 0, z: 0 },
-      { x: 0, y: 0, z: 0 },
-    ];
-    points[0].z = fbo.nPlane();
-    points[1].z = fbo.fPlane();
-    points[0].y = points[0].z * magnitude;
-    points[0].x = points[0].y * aspectRatio;
-    const ratio = points[1].z / points[0].z;
-    points[1].y = ratio * points[0].y;
-    points[1].x = ratio * points[0].x;
-    if (~(bits | ~Tree.FAR) === 0) {
-      this.beginShape();
-      this.vertex(-points[1].x, points[1].y, -points[1].z, 0, 0);
-      this.vertex(points[1].x, points[1].y, -points[1].z, 1, 0);
-      this.vertex(points[1].x, -points[1].y, -points[1].z, 0, 1);
-      this.vertex(-points[1].x, -points[1].y, -points[1].z, 1, 1);
-      this.endShape();
-    }
-    else {
-      this.line(-points[1].x, points[1].y, -points[1].z, points[1].x, points[1].y, -points[1].z);
-      this.line(points[1].x, points[1].y, -points[1].z, points[1].x, -points[1].y, -points[1].z);
-      this.line(points[1].x, -points[1].y, -points[1].z, -points[1].x, -points[1].y, -points[1].z);
-      this.line(-points[1].x, -points[1].y, -points[1].z, -points[1].x, points[1].y, -points[1].z);
-    }
-    if (~(bits | ~Tree.BODY) === 0) {
-      this.beginShape();
-      this.vertex(-points[1].x, points[1].y, -points[1].z);
-      this.vertex(-points[0].x, points[0].y, -points[0].z);
-      this.vertex(points[0].x, points[0].y, -points[0].z);
-      this.vertex(points[1].x, points[1].y, -points[1].z);
-      this.endShape();
-      this.beginShape();
-      this.vertex(points[1].x, points[1].y, -points[1].z);
-      this.vertex(points[0].x, points[0].y, -points[0].z);
-      this.vertex(points[0].x, -points[0].y, -points[0].z);
-      this.vertex(points[1].x, -points[1].y, -points[1].z);
-      this.endShape();
-      this.beginShape();
-      this.vertex(points[1].x, -points[1].y, -points[1].z);
-      this.vertex(points[0].x, -points[0].y, -points[0].z);
-      this.vertex(-points[0].x, -points[0].y, -points[0].z);
-      this.vertex(-points[1].x, -points[1].y, -points[1].z);
-      this.endShape();
-      this.beginShape();
-      this.vertex(-points[0].x, points[0].y, -points[0].z);
-      this.vertex(-points[1].x, points[1].y, -points[1].z);
-      this.vertex(-points[1].x, -points[1].y, -points[1].z);
-      this.vertex(-points[0].x, -points[0].y, -points[0].z);
-      this.endShape();
-      this.line(0, 0, 0, points[0].x, points[0].y, -points[0].z);
-      this.line(0, 0, 0, -points[0].x, points[0].y, -points[0].z);
-      this.line(0, 0, 0, -points[0].x, -points[0].y, -points[0].z);
-      this.line(0, 0, 0, points[0].x, -points[0].y, -points[0].z);
-    }
-    else {
-      this.line(0, 0, 0, points[1].x, points[1].y, -points[1].z);
-      this.line(0, 0, 0, -points[1].x, points[1].y, -points[1].z);
-      this.line(0, 0, 0, -points[1].x, -points[1].y, -points[1].z);
-      this.line(0, 0, 0, points[1].x, -points[1].y, -points[1].z);
+      this.line(is_ortho ? r : 0, is_ortho ? t : 0, is_ortho ? n : 0, _r, _t, f);
+      this.line(is_ortho ? l : 0, is_ortho ? t : 0, is_ortho ? n : 0, _l, _t, f);
+      this.line(is_ortho ? l : 0, is_ortho ? b : 0, is_ortho ? n : 0, _l, _b, f);
+      this.line(is_ortho ? r : 0, is_ortho ? b : 0, is_ortho ? n : 0, _r, _b, f);
     }
     // TODO implement near plane texture
     // Something along the lines
@@ -1588,17 +1516,19 @@ for details.` : ''}
     // doesn't work since this.texture is not found
     if (~(bits | ~Tree.NEAR) === 0) {
       this.beginShape();
-      this.vertex(-points[0].x, points[0].y, -points[0].z, 0, 0);
-      this.vertex(points[0].x, points[0].y, -points[0].z, 1, 0);
-      this.vertex(points[0].x, -points[0].y, -points[0].z, 0, 1);
-      this.vertex(-points[0].x, -points[0].y, -points[0].z, 1, 1);
+      this.vertex(l, t, n);
+      this.vertex(r, t, n);
+      this.vertex(r, b, n);
+      this.vertex(l, b, n);
       this.endShape();
     }
     else {
-      this.line(-points[0].x, points[0].y, -points[0].z, points[0].x, points[0].y, -points[0].z);
-      this.line(points[0].x, points[0].y, -points[0].z, points[0].x, -points[0].y, -points[0].z);
-      this.line(points[0].x, -points[0].y, -points[0].z, -points[0].x, -points[0].y, -points[0].z);
-      this.line(-points[0].x, -points[0].y, -points[0].z, -points[0].x, points[0].y, -points[0].z);
+      this.line(l, t, n, r, t, n);
+      this.line(r, t, n, r, b, n);
+      this.line(r, b, n, l, b, n);
+      this.line(l, b, n, l, t, n);
     }
+    // restore state
+    this.pop(this._rendererState);
   };
 })();
