@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.5.0',
+    VERSION: '0.5.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -461,7 +461,7 @@ var Tree = (function (ext) {
     let gl = this.drawingContext;
     gl.flush();
     gl.disable(gl.DEPTH_TEST);
-    this.resetMatrix();
+    this.uMVMatrix = p5.Matrix.identity();
     let z = Number.MAX_VALUE;
     this._curCamera.ortho(0, this.width, -this.height, 0, -z, z);
   }
@@ -1434,7 +1434,7 @@ for details.` : ''}
     }
     // save state
     this._rendererState = this.push();
-    this.resetMatrix();
+    this.uMVMatrix = p5.Matrix.identity();
     // transform from world space to this eye
     this.applyMatrix(...this.vMatrix().mat4);
     // transform from fbo eye space to world space
