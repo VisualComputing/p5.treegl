@@ -65,6 +65,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    attribute vec3 aPosition;
    attribute vec4 aVertexColor;
    attribute vec2 aTexCoord;
+   // color4 and texcoords2 names match those of Tree.color4 and Tree.texcoords2, resp.
    varying vec4 color4;
    varying vec2 texcoords2;
    void main() {
