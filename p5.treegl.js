@@ -1065,27 +1065,9 @@ for details.` : ''}
       normals[1] = right;
       normals[4] = up;
       normals[5] = p5.Vector.mult(up, -1);
-      /*
-      // ver 0.4.0
-      let wh0 = Math.abs(this.rPlane() - this.lPlane()) / 2;
-      let wh1 = Math.abs(this.tPlane() - this.bPlane()) / 2;
-      distances[0] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(right, wh0)), normals[0]);
-      distances[1] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(right, wh0)), normals[1]);
-      distances[4] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(up, wh1)), normals[4]);
-      distances[5] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(up, wh1)), normals[5]);
-      */
-      /*
-      // TODO testing
-      const left = this._treeDisplacement([-1, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
-      const down = this._treeDisplacement([0, -1, 0], { from: Tree.EYE, to: Tree.WORLD });
-      distances[0] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(left, l)), normals[0]);
-      distances[4] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(down, b)), normals[4]);
-      // */
-      // /*
       distances[0] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(right, -l)), normals[0]);
-      distances[4] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(up, -b)), normals[4]);
-      // */
       distances[1] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(right, r)), normals[1]);
+      distances[4] = p5.Vector.dot(p5.Vector.add(pos, p5.Vector.mult(up, -b)), normals[4]);
       distances[5] = p5.Vector.dot(p5.Vector.sub(pos, p5.Vector.mult(up, t)), normals[5]);
     }
     else {
@@ -1097,52 +1079,26 @@ for details.` : ''}
       const chfovl = Math.cos(hfovl);
       normals[0] = p5.Vector.add(p5.Vector.mult(viewDir, shfovl), p5.Vector.mult(right, -chfovl));
       normals[1] = p5.Vector.add(p5.Vector.mult(viewDir, -shfovr), p5.Vector.mult(right, chfovr));
-
       const fovt = Math.atan2(t, n);
       const sfovt = Math.sin(fovt);
       const cfovt = Math.cos(fovt);
       const fovb = Math.atan2(b, n);
       const sfovb = Math.sin(fovb);
       const cfovb = Math.cos(fovb);
-      // /*
-      // 1st
       normals[4] = p5.Vector.add(p5.Vector.mult(viewDir, -sfovt), p5.Vector.mult(up, cfovt));
       normals[5] = p5.Vector.add(p5.Vector.mult(viewDir, sfovb), p5.Vector.mult(up, -cfovb));
-      // */
-      /*
-      // swap
-      normals[4] = p5.Vector.add(p5.Vector.mult(viewDir, sfovb), p5.Vector.mult(up, -cfovb));
-      normals[5] = p5.Vector.add(p5.Vector.mult(viewDir, -sfovt), p5.Vector.mult(up, cfovt));
-      // */
-      //console.log(normals[4], normals[5]);
       for (let i = 0; i < 2; ++i) {
         distances[i] = p5.Vector.dot(pos, normals[i]);
       }
       for (let j = 4; j < 6; ++j) {
         distances[j] = p5.Vector.dot(pos, normals[j]);
       }
-      // Natural equations are:
-      // dist[0,1,4,5] = pos * normal[0,1,4,5];
-      // dist[2] = (pos + zNear() * viewDir) * normal[2];
-      // dist[3] = (pos + zFar() * viewDir) * normal[3];
-      // 2 times less computations using expanded/merged equations. Dir vectors
-      // are normalized.
       distances[0] = shfovl * posViewDir - chfovl * p5.Vector.dot(pos, right);
       distances[1] = -shfovr * posViewDir + chfovr * p5.Vector.dot(pos, right);
-
-      // /*
-      // 1st
       distances[4] = -sfovt * posViewDir + cfovt * p5.Vector.dot(pos, up);
       distances[5] = sfovb * posViewDir - cfovb * p5.Vector.dot(pos, up);
-      // */
-      /*
-      // swap
-      distances[4] = sfovb * posViewDir - cfovb * p5.Vector.dot(pos, up);
-      distances[5] = -sfovt * posViewDir + cfovt * p5.Vector.dot(pos, up);
-      //*/
-      //console.log(distances[4], distances[5]);
     }
-    // Front and far planes are identical for both camera types.
+    // Front and far planes eqns are the same for all projections.
     normals[2] = p5.Vector.mult(viewDir, -1);
     normals[3] = viewDir;
     distances[2] = -posViewDir - n;
@@ -1489,12 +1445,12 @@ for details.` : ''}
     const l = fbo.lPlane();
     const r = fbo.rPlane();
     // TODO hack: fixes frustum() drawing
-    // Call as:
+    // camera projections should be called as:
     //   fbo.ortho(lPlane.value(), rPlane.value(), bPlane.value(), tPlane.value(), nPlane.value(), fPlane.value());
     // fbo.frustum(lPlane.value(), rPlane.value(), tPlane.value(), bPlane.value(), nPlane.value(), fPlane.value());
     const t = fbo.isOrtho() ? -fbo.tPlane() : fbo.tPlane();
     const b = fbo.isOrtho() ? -fbo.bPlane() : fbo.bPlane();
-    // l, r, b, t far values
+    // l, r, b, t f values
     const ratio = is_ortho ? 1 : f / n;
     const _l = ratio * l;
     const _r = ratio * r;
