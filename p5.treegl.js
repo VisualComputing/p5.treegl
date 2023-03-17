@@ -393,8 +393,8 @@ var Tree = (function (ext) {
   }
 
   p5.Matrix.prototype.tPlane = function () {
-    // note that inverted values are returned if the projection
-    // matrix was set with @function frustum.
+    // note that swaped values between bPlane and tPlane are returned
+    // if the projection matrix was set with @function frustum.
     return this.mat4[15] == 1 ? (this.mat4[13] - 1) / this.mat4[5] :
       this.nPlane() * (this.mat4[9] - 1) / this.mat4[5];
   }
@@ -408,8 +408,8 @@ var Tree = (function (ext) {
   }
 
   p5.Matrix.prototype.bPlane = function () {
-    // note that inverted values are returned if the projection
-    // matrix was set with @function frustum.
+    // note that swaped values between bPlane and tPlane are returned
+    // if the projection matrix was set with @function frustum.
     return this.mat4[15] == 1 ? (1 + this.mat4[13]) / this.mat4[5] :
       this.nPlane() * (1 + this.mat4[9]) / this.mat4[5];
   }
