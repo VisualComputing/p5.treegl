@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.6.0',
+    VERSION: '0.6.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1087,12 +1087,6 @@ for details.` : ''}
       const cfovb = Math.cos(fovb);
       normals[4] = p5.Vector.add(p5.Vector.mult(viewDir, -sfovt), p5.Vector.mult(up, cfovt));
       normals[5] = p5.Vector.add(p5.Vector.mult(viewDir, sfovb), p5.Vector.mult(up, -cfovb));
-      for (let i = 0; i < 2; ++i) {
-        distances[i] = p5.Vector.dot(pos, normals[i]);
-      }
-      for (let j = 4; j < 6; ++j) {
-        distances[j] = p5.Vector.dot(pos, normals[j]);
-      }
       distances[0] = shfovl * posViewDir - chfovl * p5.Vector.dot(pos, right);
       distances[1] = -shfovr * posViewDir + chfovr * p5.Vector.dot(pos, right);
       distances[4] = -sfovt * posViewDir + cfovt * p5.Vector.dot(pos, up);
