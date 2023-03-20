@@ -10,7 +10,7 @@ var Tree = (function (ext) {
   const INFO =
   {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.6.1',
+    VERSION: '0.6.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1043,7 +1043,10 @@ for details.` : ''}
    * a*x + b*y + c*z + d = 0,  where a, b, c and d are the 4
    * keys of each object literal.
    */
-  p5.RendererGL.prototype.bounds = function () {
+  p5.RendererGL.prototype.bounds = function ({
+    vMatrix,
+    eMatrix
+  } = {}) {
     const n = this.nPlane();
     const f = this.fPlane();
     const l = this.lPlane();
@@ -1054,11 +1057,11 @@ for details.` : ''}
     let distances = Array(6);
     // Computed once and for all
     // TODO experimental: no need to normalize
-    const pos = this._treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
-    const viewDir = this._treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD });
+    const pos = this._treeLocation([0, 0, 0], { from: Tree.EYE, to: Tree.WORLD, eMatrix: eMatrix });
+    const viewDir = this._treeDisplacement([0, 0, -1], { from: Tree.EYE, to: Tree.WORLD, vMatrix: vMatrix });
     // same as: let viewDir = this.treeDisplacement();
-    const up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD });
-    const right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD });
+    const up = this._treeDisplacement([0, 1, 0], { from: Tree.EYE, to: Tree.WORLD, vMatrix: vMatrix });
+    const right = this._treeDisplacement([1, 0, 0], { from: Tree.EYE, to: Tree.WORLD, vMatrix: vMatrix });
     const posViewDir = p5.Vector.dot(pos, viewDir);
     if (this.isOrtho()) {
       normals[0] = p5.Vector.mult(right, -1);
@@ -1413,7 +1416,10 @@ for details.` : ''}
    * @param  {Number}   bits bitwise view-frustum mask that may be composed of Tree.NEAR, Tree.FAR and Tree.BODY bits.
    * @param  {Function} viewer callback fbo visual representation.
    */
+
   p5.RendererGL.prototype.viewFrustum = function ({
+    vMatrix,
+    eMatrix,
     fbo = _renderer,
     bits = Tree.NEAR | Tree.FAR,
     viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })
@@ -1426,9 +1432,9 @@ for details.` : ''}
     this._rendererState = this.push();
     this.uMVMatrix = new p5.Matrix();
     // transform from world space to this eye
-    this.applyMatrix(...this.vMatrix().mat4);
+    this.applyMatrix(...(vMatrix ?? this.vMatrix()).mat4);
     // transform from fbo eye space to world space
-    this.applyMatrix(...fbo.eMatrix().mat4);
+    this.applyMatrix(...(eMatrix ?? fbo.eMatrix()).mat4);
     // frustum rendering begins here...
     if (viewer !== Tree.NONE) {
       viewer();
