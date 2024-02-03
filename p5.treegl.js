@@ -808,7 +808,7 @@ var Tree = (function (ext) {
     let precision = Tree.highp; // initialize precision
     let varyings = Tree.NONE; // initialize varyings
     const precisionRegex = /precision\s+(highp|mediump|lowp)\s+float;/; // Regex for precision and varyings
-    const varyingKeyword = version === 'webgl2' ? 'in' : 'varying';
+    const varyingKeyword = version === 2 ? 'in' : 'varying';
     const varyingRegex = new RegExp(`${varyingKeyword}\\s+(vec[234])\\s+(\\w+);`, 'g');
     const precisionMatch = source.match(precisionRegex);
     if (precisionMatch) {
@@ -849,8 +849,8 @@ and makeShader (https://github.com/VisualComputing/p5.treegl#handling),
 for details.` : ''}
 */`;
     const directive = '#version 300 es\n';
-    const attribute = version.toString().includes('2') || version == 2 ? 'in' : 'attribute';
-    const interpolant = version.toString().includes('2') || version == 2 ? 'out' : 'varying';
+    const attribute = version.toString().includes('2') ? 'in' : 'attribute';
+    const interpolant = version.toString().includes('2') ? 'out' : 'varying';
     const color4 = (varyings & Tree.color4) !== 0;
     const texcoords2 = (varyings & Tree.texcoords2) !== 0;
     const normal3 = (varyings & Tree.normal3) !== 0;
@@ -887,7 +887,7 @@ void main() {
   ${position4 ? 'position4 = uModelViewMatrix * vec4(aPosition, 1.0);' : ''}
   ${target};
 }`;
-    let result = version.toString().includes('2') || version == 2 ? directive + advice + vertexShader : advice + vertexShader;
+    let result = version.toString().includes('2') ? directive + advice + vertexShader : advice + vertexShader;
     result = result.split(/\r?\n/)
       .filter(line => line.trim() !== '')
       .join('\n');
