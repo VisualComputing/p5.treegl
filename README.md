@@ -30,16 +30,17 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = 'webgl2']}])`: parses `precision`, `matrices`, `varyings` and `version` params into a vertex shader which is returned as a string. For example:
+1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = WEBGL2]}])`: parses `precision`, `matrices`, `varyings` and `version` params into a vertex shader which is returned as a string. For example:
    calling `parseVertexShader()` without any parameters will return (and also log onto the console) the following string:
    ```glsl
+   #version 300 es
    precision highp float;
-   attribute vec3 aPosition;
+   in vec3 aPosition;
    void main() {
      gl_Position = vec4(aPosition, 1.0);
    }
    ```
-   whereas calling `parseVertexShader(version: 'webgl1')` will return:
+   whereas calling `parseVertexShader(version: WEBGL)` will return:
    ```glsl
    precision highp float;
    attribute vec3 aPosition;
@@ -47,8 +48,8 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
      gl_Position = vec4(aPosition, 1.0);
    }
    ```
-2. `readShader(fragFilename, [{[precision = Tree.mediump], [matrices = Tree.NONE], [varyings = Tree.NONE]}])`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
-3. `makeShader(fragSrc, [{[precision = Tree.mediump], [matrices = Tree.NONE], [varyings = Tree.NONE]}])`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+2. `readShader(fragFilename, matrices = Tree.NONE)`: (similar to [loadShader](https://p5js.org/reference/#/p5/loadShader)) loads a fragment shader from (string) file path, parses it and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+3. `makeShader(fragSrc, matrices = Tree.NONE)`: (similar to [createShader](https://p5js.org/reference/#/p5/createShader)) creates a fragment shader from (string) source, parses it and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the behind the scenes vertex shader is automatically generated (and log onto the console) from a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 
 **Observations**
 

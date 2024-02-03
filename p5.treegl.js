@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.0',
+    VERSION: '0.7.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -804,7 +804,7 @@ var Tree = (function (ext) {
   p5.prototype._parseFragmentShader = function (source) {
     const firstLineEndIndex = source.indexOf('\n'); // check version in the first line
     const firstLine = source.substring(0, firstLineEndIndex);
-    const version = firstLine.includes('300') ? 'webgl2' : 'webgl';
+    const version = firstLine.includes('300') ? 2 : 1;
     let precision = Tree.highp; // initialize precision
     let varyings = Tree.NONE; // initialize varyings
     const precisionRegex = /precision\s+(highp|mediump|lowp)\s+float;/; // Regex for precision and varyings
@@ -834,7 +834,7 @@ var Tree = (function (ext) {
     precision = Tree.highp,
     matrices = Tree.NONE,
     varyings = Tree.NONE,
-    version = 'webgl2',
+    version = 2,
     _specs = true
   } = {}) {
     const advice = `
@@ -849,8 +849,8 @@ and makeShader (https://github.com/VisualComputing/p5.treegl#handling),
 for details.` : ''}
 */`;
     const directive = '#version 300 es\n';
-    const attribute = version === 'webgl2' ? 'in' : 'attribute';
-    const interpolant = version === 'webgl2' ? 'out' : 'varying';
+    const attribute = version.toString().includes('2') || version == 2 ? 'in' : 'attribute';
+    const interpolant = version.toString().includes('2') || version == 2 ? 'out' : 'varying';
     const color4 = (varyings & Tree.color4) !== 0;
     const texcoords2 = (varyings & Tree.texcoords2) !== 0;
     const normal3 = (varyings & Tree.normal3) !== 0;
@@ -887,7 +887,7 @@ void main() {
   ${position4 ? 'position4 = uModelViewMatrix * vec4(aPosition, 1.0);' : ''}
   ${target};
 }`;
-    let result = version === 'webgl' ? advice + vertexShader : directive + advice + vertexShader;
+    let result = version.toString().includes('2') || version == 2 ? directive + advice + vertexShader : advice + vertexShader;
     result = result.split(/\r?\n/)
       .filter(line => line.trim() !== '')
       .join('\n');
