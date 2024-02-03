@@ -30,10 +30,18 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 ## Handling
 
-1. `parseVertexShader([{[precision = Tree.mediump], [matrices = Tree.NONE], [varyings = Tree.NONE]}])`: parses `precision`, `matrices` and `varyings` params into a vertex shader which is returned as a string. For example:
+1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = 'webgl2']}])`: parses `precision`, `matrices`, `varyings` and `version` params into a vertex shader which is returned as a string. For example:
    calling `parseVertexShader()` without any parameters will return (and also log onto the console) the following string:
    ```glsl
-   precision mediump float;
+   precision highp float;
+   attribute vec3 aPosition;
+   void main() {
+     gl_Position = vec4(aPosition, 1.0);
+   }
+   ```
+   whereas calling `parseVertexShader(version: 'webgl1')` will return:
+   ```glsl
+   precision highp float;
    attribute vec3 aPosition;
    void main() {
      gl_Position = vec4(aPosition, 1.0);
