@@ -223,7 +223,9 @@ function draw() {
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
 3. `cross([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
 4. `bullsEye([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`:  Draws a circled bullseye (use `Tree.SQUARE` to draw it as a square) at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
-5. `viewFrustum([{ [fbo = _renderer], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })], [eMatrix = fbo.eMatrix()], [vMatrix = this.vMatrix()] }])`: Draws frame buffer object (`fbo`) view frustum representation according to view-frustum bitwise mask `bits` which may be composed of `Tree.NEAR`, `Tree.FAR` and `Tree.BODY` `bits`, and `viewer` callback visual representation.
+5. `viewFrustum([{ [pg], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })], [eMatrix = pg?.eMatrix()], [pMatrix = pg?.pMatrix()], [vMatrix = this.vMatrix()] }])`: Draws a view frustum based on the specified bitwise mask bits `Tree.NEAR`, `Tree.FAR` and `Tree.BODY`, and `viewer`  callback visual representation. The function determines the view frustum's position, orientation, and viewing volume either from a given `pg`, or directly through `eMatrix` and `pMatrix` parameters.
+
+# Installation
 
 # Installation
 
