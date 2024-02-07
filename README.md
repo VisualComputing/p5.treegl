@@ -48,8 +48,8 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
        gl_Position = vec4(aPosition, 1.0);
      }
      ```
-2. `readShader(fragFilename, matrices = Tree.NONE)`: This function, akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), reads a fragment shader from a file path specified as a string, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Notably, an accompanying vertex shader is automatically created (and output to the console) through a call to `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
-3. `makeShader(fragSrc, matrices = Tree.NONE)`: Similar to [createShader](https://p5js.org/reference/#/p5/createShader), this function generates a fragment shader from a string source, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). It is important to note that an accompanying vertex shader is automatically crafted (and output to the console) through a call to `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+2. `readShader(fragFilename, matrices = Tree.NONE)`: This function, akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), reads a fragment shader from a file path specified as a string, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the underlying vertex shader is automatically generated (and logged to the console) through a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+3. `makeShader(fragSrc, matrices = Tree.NONE)`: Similar to [createShader](https://p5js.org/reference/#/p5/createShader), this function generates a fragment shader from a string source, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the underlying vertex shader is automatically generated (and logged to the console) through a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
 
 **Observations**
 
