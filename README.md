@@ -56,23 +56,25 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 1. The `precision` parameter sets the precision for floating-point calculations in the vertex shader, selectable as `Tree.lowp`, `Tree.mediump`, or `Tree.highp`, in alignment with [OpenGL's precision qualifiers](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers).
 2. The `matrices` parameter specifies which [uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) the vertex shader will utilize, with options including `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix`, or `Tree.NONE` for excluding matrix uniforms. For example, executing `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` generates the following code (and logs it to the console):
    ```glsl
-   precision mediump float;
-   attribute vec3 aPosition;
+   #version 300 es
+   precision highp float;
+   in vec3 aPosition;
    uniform mat4 uProjectionMatrix;
    uniform mat4 uModelViewMatrix;
    void main() {
-     gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+     gl_Position = uProjectionMatrix * uModelViewMatrix *vec4(aPosition, 1.0);
    }
    ```
    Matrix uniform variables are automatically emitted by the [p5 API](https://p5js.org/reference/), for instance, when utilizing commands like [camera](https://p5js.org/reference/#/p5/camera) or [translate](https://p5js.org/reference/#/p5/translate). It's important to align with the matrix uniform variables naming conventions as outlined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters) when crafting your fragment shader.
-3. The `varyings` parameter designates which [vertex attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) are interpolated across to the fragment shader, from options like `Tree.color4`, `Tree.texcoords2` (for [texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.position2`, `Tree.position3`, `Tree.position4` (with `position2` and `position3` defined in local space, and `position4` in eye space), `Tree.normal3` (in eye space), or `Tree.NONE` for excluding varyings. For instance, calling `parseVertexShader({ varyings = Tree.color4 | Tree.texcoords2 })` results in:
+3. The `varyings` parameter designates which [vertex attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) are interpolated across to the fragment shader, from options like `Tree.color4`, `Tree.texcoords2` (for [texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.position2`, `Tree.position3`, `Tree.position4` (with `position2` and `position3` defined in local space, and `position4` in eye space), `Tree.normal3` (in eye space), or `Tree.NONE` for excluding varyings. For instance, calling `parseVertexShader({ varyings: Tree.color4 | Tree.texcoords2 })` results in:
    ```glsl
-   precision mediump float;
-   attribute vec3 aPosition;
-   attribute vec4 aVertexColor;
-   attribute vec2 aTexCoord;
-   varying vec4 color4;
-   varying vec2 texcoords2;
+   #version 300 es
+   precision highp float;
+   in vec3 aPosition;
+   in vec4 aVertexColor;
+   in vec2 aTexCoord;
+   out vec4 color4;
+   out vec2 texcoords2;
    void main() {
      color4 = aVertexColor;
      texcoords2 = aTexCoord;
