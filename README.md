@@ -135,14 +135,14 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 # Bind matrices
 
-1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer by specifying a bit mask, enabling the corresponding uniforms in the bound shader alongside those automatically emitted by p5.js, such as `uProjectionMatrix`, `uViewMatrix`, etc. The `matrices` parameter allows for a bitwise OR combination to specifying those extra matrices to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
+1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
 
 ```js
 // Bind additional eMatrix and mMatrix to the current renderer
 bindMatrices(Tree.eMatrix | Tree.mMatrix);
 ```
 
-By specifying additional matrices, developers can leverage enhanced visual effects and transformations in their shaders, augmenting the creative possibilities offered by p5.js.
+By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as uProjectionMatrix, uViewMatrix, etc., developers can leverage enhanced visual effects and transformations in their shaders.
 
 # Space transformations
 
