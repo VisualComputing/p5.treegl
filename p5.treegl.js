@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.1',
+    VERSION: '0.7.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -61,10 +61,15 @@ var Tree = (function (ext) {
   const mediump = 1;
   const highp = 2;
   // Matrices
-  const pmvMatrix = 1 << 0;
+  const vMatrix = 1 << 0;
   const pMatrix = 1 << 1;
   const mvMatrix = 1 << 2;
-  const nMatrix = 1 << 3;
+  const pmvMatrix = 1 << 3;
+  const nMatrix = 1 << 4;
+  const eMatrix = 1 << 5; // only tree
+  const mMatrix = 1 << 6; // only tree
+  const pvMatrix = 1 << 7; // only tree
+  const pvInvMatrix = 1 << 8; // only tree
   // Varyings
   const color4 = 1 << 0;
   const texcoords2 = 1 << 1;
@@ -82,7 +87,8 @@ var Tree = (function (ext) {
     WORLD, EYE, NDC, SCREEN, MODEL,
     ORIGIN, i, j, k, _i, _j, _k,
     lowp, mediump, highp,
-    pmvMatrix, pMatrix, mvMatrix, nMatrix,
+    vMatrix, pMatrix, mvMatrix, pmvMatrix, nMatrix,
+    eMatrix, mMatrix, pvMatrix, pvInvMatrix, // only tree
     color4, texcoords2, normal3, position2, position3, position4
   });
   return ext;
@@ -207,13 +213,12 @@ var Tree = (function (ext) {
   p5.RendererGL.prototype.nMatrix = function ({
     vMatrix,
     mMatrix,
-    mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
+    mvMatrix = this.mvMatrix({ mMatrix, vMatrix })
   } = {}) {
     return new p5.Matrix('mat3').inverseTranspose(mvMatrix);
   }
 
-  // TODO check where to replace vMatrix for:
-  // this._curCamera.cameraMatrix
+  // TODO check where to replace vMatrix for: this._curCamera.cameraMatrix
 
   p5.prototype.vMatrix = function (...args) {
     return this._renderer.vMatrix(...args);
@@ -248,7 +253,7 @@ var Tree = (function (ext) {
       pMatrix = this.uPMatrix,
       vMatrix,
       mMatrix,
-      mvMatrix = this.mvMatrix({ mMatrix: mMatrix, vMatrix: vMatrix })
+      mvMatrix = this.mvMatrix({ mMatrix, vMatrix })
     } = {}) {
     return pMatrix.copy().apply(mvMatrix);
   }
@@ -276,7 +281,7 @@ var Tree = (function (ext) {
       vMatrix,
       pvMatrix
     } = {}) {
-    let matrix = pvMatrix ? pvMatrix.copy() : this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix });
+    let matrix = pvMatrix ? pvMatrix.copy() : this.pvMatrix({ pMatrix, vMatrix });
     return matrix.invert(matrix);
   }
 
@@ -778,6 +783,29 @@ var Tree = (function (ext) {
 
   // 3. Shader utilities
 
+  const __setMatrixUniforms = p5.Shader.prototype._setMatrixUniforms;
+
+  p5.Shader.prototype._setMatrixUniforms = function (...args) {
+    __setMatrixUniforms.apply(this, ...args);
+    const matrices = this._renderer._matrices;
+    if (matrices) {
+      // this.uniforms.uNormalMatrix condition taken from upstream _setMatrixUniforms
+      (!this.uniforms.uNormalMatrix && (matrices & Tree.nMatrix) !== 0) && this.setUniform('uNormalMatrix', this._renderer.nMatrix().mat3);
+      ((matrices & Tree.eMatrix) !== 0) && this.setUniform('uEyeMatrix', this._renderer.eMatrix().mat4);
+      ((matrices & Tree.mMatrix) !== 0) && this.setUniform('uModelMatrix', this._renderer.mMatrix().mat4);
+      ((matrices & Tree.pvMatrix) !== 0) && this.setUniform('uProjectionViewMatrix', this._renderer.pvMatrix().mat4);
+      ((matrices & Tree.pvInvMatrix) !== 0) && this.setUniform('uProjectionViewInverseMatrix', this._renderer.pvInvMatrix().mat4);
+    }
+  }
+
+  p5.prototype.bindMatrices = function (...args) {
+    this._renderer.bindMatrices(...args);
+  }
+
+  p5.RendererGL.prototype.bindMatrices = function (matrices = Tree.NONE) {
+    this._matrices = matrices;
+  }
+
   p5.prototype.readShader = function (fragFilename, matrices = Tree.NONE) {
     const shader = new p5.Shader();
     this.loadStrings(fragFilename, (result) => {
@@ -857,21 +885,28 @@ for details.` : ''}
     const position2 = (varyings & Tree.position2) !== 0;
     const position3 = (varyings & Tree.position3) !== 0;
     const position4 = (varyings & Tree.position4) !== 0;
+    const v = (matrices & Tree.vMatrix) !== 0;
     const pmv = (matrices & Tree.pmvMatrix) !== 0;
     const p = (matrices & Tree.pMatrix) !== 0;
     const mv = (matrices & Tree.mvMatrix) !== 0 || position4;
     const n = (matrices & Tree.nMatrix) !== 0 || normal3;
-    const target = `gl_Position =${pmv ? ' uModelViewProjectionMatrix * ' : (p && mv ? ' uProjectionMatrix * uModelViewMatrix *' : ' ')}vec4(aPosition, 1.0)`;
+    const target = `gl_Position =${pmv ? ' uModelViewProjectionMatrix * ' :
+      (p && v ? ' uProjectionMatrix * uViewMatrix * ' :
+        (p && mv ? ' uProjectionMatrix * uModelViewMatrix * ' :
+          (p ? ' uProjectionMatrix * ' :
+            (v ? ' uViewMatrix * ' :
+              (mv ? ' uModelViewMatrix * ' : ' ')))))}vec4(aPosition, 1.0)`;
     const vertexShader = `
 precision ${precision === Tree.highp ? 'highp' : (precision === Tree.mediump ? 'mediump' : 'lowp')} float;
 ${attribute} vec3 aPosition;
 ${color4 ? `${attribute} vec4 aVertexColor;` : ''}
 ${texcoords2 ? `${attribute} vec2 aTexCoord;` : ''}
 ${normal3 ? `${attribute} vec3 aNormal;` : ''}
-${pmv ? 'uniform mat4 uModelViewProjectionMatrix;' : ''}
+${v ? 'uniform mat4 uViewMatrix;' : ''}
 ${p ? 'uniform mat4 uProjectionMatrix;' : ''}
-${mv ? 'uniform mat4 uModelViewMatrix;' : ''}
 ${n ? 'uniform mat3 uNormalMatrix;' : ''}
+${mv ? 'uniform mat4 uModelViewMatrix;' : ''}
+${pmv ? 'uniform mat4 uModelViewProjectionMatrix;' : ''}
 ${color4 ? `${interpolant} vec4 color4;` : ''}
 ${texcoords2 ? `${interpolant} vec2 texcoords2;` : ''}
 ${normal3 ? `${interpolant} vec3 normal3;` : ''}
