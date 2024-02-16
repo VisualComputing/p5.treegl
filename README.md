@@ -139,6 +139,7 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 ```js
 // Bind additional eMatrix and mMatrix to the current renderer
+// should be called after setAttributes
 bindMatrices(Tree.eMatrix | Tree.mMatrix);
 ```
 
