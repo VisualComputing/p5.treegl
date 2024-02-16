@@ -7,12 +7,14 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
 - [Matrix queries](#matrix-queries)
+- [Bind matrices](#bind-matrices)
 - [Space transformations](#space-transformations)
 - [Heads Up Display](#heads-up-display)
 - [Frustum queries](#frustum-queries)
 - [Utilities](#utilities)
 - [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
+- [Installation](#installation-1)
 - [vs-code \& vs-codium \& gitpod hacking instructions](#vs-code--vs-codium--gitpod-hacking-instructions)
 
 Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
@@ -24,7 +26,7 @@ let iMatrix = invMatrix(matrix);
 // iMatrix !== matrix
 ```
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [matrix queries](#matrix-queries), [space transformations](#space-transformations), [Heads Up Display](#heads-up-display), [utilities](#utilities) and [drawing stuff](#drawing-stuff) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [matrix queries](#matrix-queries), [bind matrices](#bind-matrices), [space transformations](#space-transformations), [Heads Up Display](#heads-up-display), [utilities](#utilities) and [drawing stuff](#drawing-stuff) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
@@ -54,7 +56,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 **Observations**
 
 1. The `precision` parameter sets the precision for floating-point calculations in the vertex shader, selectable as `Tree.lowp`, `Tree.mediump`, or `Tree.highp`, in alignment with [OpenGL's precision qualifiers](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers).
-2. The `matrices` parameter specifies which [uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) the vertex shader will utilize, with options including `Tree.pmvMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.nMatrix`, or `Tree.NONE` for excluding matrix uniforms. For example, executing `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` generates the following code (and logs it to the console):
+2. The `matrices` parameter specifies which [uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) the vertex shader will utilize, with options including `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, `Tree.nMatrix`, or `Tree.NONE` for excluding matrix uniforms. For example, executing `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` generates the following code (and logs it to the console):
    ```glsl
    #version 300 es
    precision highp float;
@@ -130,6 +132,17 @@ Send common `uniform vec2` variables, such as: image offset, pointer position, a
 
 1. All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 2. The `pMatrix`, `vMatrix`, `pvMatrix`, `eMatrix`, `mMatrix` and `mvMatrix` default values are those [defined by the renderer](#matrix-queries) at the moment the query is issued.
+
+# Bind matrices
+
+1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer by specifying a bit mask, enabling the corresponding uniforms in the bound shader alongside those automatically emitted by p5.js, such as `uProjectionMatrix`, `uViewMatrix`, etc. The `matrices` parameter allows for a bitwise OR combination to specifying those extra matrices to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
+
+```js
+// Bind additional eMatrix and mMatrix to the current renderer
+bindMatrices(Tree.eMatrix | Tree.mMatrix);
+```
+
+By specifying additional matrices, developers can leverage enhanced visual effects and transformations in their shaders, augmenting the creative possibilities offered by p5.js.
 
 # Space transformations
 
