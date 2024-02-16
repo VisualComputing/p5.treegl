@@ -14,7 +14,6 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 - [Utilities](#utilities)
 - [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
-- [Installation](#installation-1)
 - [vs-code \& vs-codium \& gitpod hacking instructions](#vs-code--vs-codium--gitpod-hacking-instructions)
 
 Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
@@ -238,8 +237,6 @@ function draw() {
 3. `cross([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
 4. `bullsEye([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`:  Draws a circled bullseye (use `Tree.SQUARE` to draw it as a square) at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
 5. `viewFrustum([{ [pg], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })], [eMatrix = pg?.eMatrix()], [pMatrix = pg?.pMatrix()], [vMatrix = this.vMatrix()] }])`: Draws a view frustum based on the specified bitwise mask bits `Tree.NEAR`, `Tree.FAR` and `Tree.BODY`, and `viewer`  callback visual representation. The function determines the view frustum's position, orientation, and viewing volume either from a given `pg`, or directly through `eMatrix` and `pMatrix` parameters.
-
-# Installation
 
 # Installation
 
