@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.2',
+    VERSION: '0.7.3',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -930,8 +930,40 @@ void main() {
     return result;
   }
 
+  // flip when using projection matrix
+  p5.prototype.applyEffect = function (fbo, effect, uniforms, flip = false) {
+    fbo.begin();
+    this.shader(effect);
+    for (const key in uniforms) {
+      effect.setUniform(key, uniforms[key]);
+    }
+    this.ndcPlane(flip);
+    fbo.end();
+    return fbo; // Return the modified FBO
+  }
+
+  p5.prototype.texOffset = function (image) {
+    return [1 / image.width, 1 / image.height];
+  }
+
+  p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {
+    shader.setUniform(uniform, this.texOffset(image));
+  }
+
+  p5.prototype.mousePosition = function () {
+    return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()];
+  }
+
   p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
-    shader.setUniform(uniform, [this.mouseX * pixelDensity(), (this.height - this.mouseY) * pixelDensity()]);
+    shader.setUniform(uniform, this.mousePosition());
+  }
+
+  p5.prototype.pointerPosition = function (...args) {
+    return this._renderer.pointerPosition(...args);
+  }
+
+  p5.RendererGL.prototype.pointerPosition = function (pointerX, pointerY) {
+    return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()];
   }
 
   p5.prototype.emitPointerPosition = function (...args) {
@@ -939,7 +971,15 @@ void main() {
   }
 
   p5.RendererGL.prototype.emitPointerPosition = function (shader, pointerX, pointerY, uniform = 'u_pointer') {
-    shader.setUniform(uniform, [pointerX * pixelDensity(), (this.height - pointerY) * pixelDensity()]);
+    shader.setUniform(uniform, this.pointerPosition(pointerX, pointerY));
+  }
+
+  p5.prototype.resolution = function (...args) {
+    return this._renderer.resolution(...args);
+  }
+
+  p5.RendererGL.prototype.resolution = function () {
+    return [this.width * this.pixelDensity(), this.height * this.pixelDensity()];
   }
 
   p5.prototype.emitResolution = function (...args) {
@@ -947,11 +987,7 @@ void main() {
   }
 
   p5.RendererGL.prototype.emitResolution = function (shader, uniform = 'u_resolution') {
-    shader.setUniform(uniform, [this.width * pixelDensity(), this.height * pixelDensity()]);
-  }
-
-  p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {
-    shader.setUniform(uniform, [1 / image.width, 1 / image.height]);
+    shader.setUniform(uniform, this.resolution());
   }
 
   // 4. Utility functions
@@ -1207,6 +1243,37 @@ void main() {
   }
 
   // 5. Drawing stuff
+
+  p5.prototype.ndcPlane = function (...args) {
+    this._renderer.ndcPlane(...args);
+  }
+
+  /**
+   * NDC plane shape,
+   * i.e., x, y and z vertex coordinates ∈ [-1..1]
+   * assuming textureMode is NORMAL, i.e., u, v texture coordinates ∈ [0..1]
+   * see: https://p5js.org/reference/#/p5/beginShape
+   *      https://p5js.org/reference/#/p5/vertex
+   *         y                  v
+   *         |                  |
+   * (-1,1,0)|   (1,1,0)        (0,1)     (1,1)
+   *   *_____|_____*            *__________*
+   *   |     |     |            |          |
+   *   |____NDC____|__x         | texture  |
+   *   |     |     |            |  space   |
+   *   *_____|_____*            *__________*___ u
+   * (-1,-1,0)   (1,-1,0)       (0,0)    (1,0)  
+   * @param {Boolean} flip flip when using projection matrix
+   */
+  p5.RendererGL.prototype.ndcPlane = function (flip = false) {
+    this.beginShape();
+    // format is: vertex(x, y, z, u, v)
+    this.vertex(-1, flip ? -1 : 1, 0, 0, 0); // Top-left (-1, 1)
+    this.vertex(1, flip ? -1 : 1, 0, 1, 0); // Top-right (1, 1)
+    this.vertex(1, flip ? 1 : -1, 0, 1, 1); // Bottom-right (1, -1)
+    this.vertex(-1, flip ? 1 : -1, 0, 0, 1); // Bottom-left (-1, -1)
+    this.endShape();
+  }
 
   p5.prototype.axes = function (...args) {
     this._renderer.axes(...args);
