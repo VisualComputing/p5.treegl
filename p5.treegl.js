@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.3',
+    VERSION: '0.7.4',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -937,7 +937,7 @@ void main() {
     for (const key in uniforms) {
       effect.setUniform(key, uniforms[key]);
     }
-    this.ndcPlane(flip);
+    this.overlay(flip);
     fbo.end();
     return fbo; // Return the modified FBO
   }
@@ -1244,8 +1244,9 @@ void main() {
 
   // 5. Drawing stuff
 
-  p5.prototype.ndcPlane = function (...args) {
-    this._renderer.ndcPlane(...args);
+  p5.prototype.overlay = function (flip = false) {
+    this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+    // TODO the standard call: this._renderer.overlay(...args) causes an rendering a fbo (most likely a p5 bug)
   }
 
   /**
@@ -1265,14 +1266,8 @@ void main() {
    * (-1,-1,0)   (1,-1,0)       (0,0)    (1,0)  
    * @param {Boolean} flip flip when using projection matrix
    */
-  p5.RendererGL.prototype.ndcPlane = function (flip = false) {
-    this.beginShape();
-    // format is: vertex(x, y, z, u, v)
-    this.vertex(-1, flip ? -1 : 1, 0, 0, 0); // Top-left (-1, 1)
-    this.vertex(1, flip ? -1 : 1, 0, 1, 0); // Top-right (1, 1)
-    this.vertex(1, flip ? 1 : -1, 0, 1, 1); // Bottom-right (1, -1)
-    this.vertex(-1, flip ? 1 : -1, 0, 0, 1); // Bottom-left (-1, -1)
-    this.endShape();
+  p5.RendererGL.prototype.overlay = function (flip = false) {
+    this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
   }
 
   p5.prototype.axes = function (...args) {
