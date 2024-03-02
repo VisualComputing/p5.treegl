@@ -98,12 +98,16 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
 
 ## Macros
 
-Send common `uniform vec2` variables, such as: image offset, pointer position, and screen resolution, to `shader`. Note that the variable names are customizable.
+Retrieve image offset, mouse position, pointer position, and screen resolution, and send them as `uniform vec2` variables to a given `shader`. Note that the uniform variable names are customizable.
 
-1. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` which is the same as: `shader.setUniform(uniform, [1 / image.width, 1 / image.height])`.
-2. `emitMousePosition(shader, [uniform = 'u_mouse'])` which is the same as: `shader.setUniform(uniform, [mouseX * pixelDensity(), (height - mouseY) * pixelDensity()])`.
-3. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` which is the same as: `shader.setUniform(uniform, [pointerX * pixelDensity(), (height - pointerY) * pixelDensity()])`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-4. `emitResolution(shader, [uniform = 'u_resolution'])` which is the same as: `shader.setUniform(uniform, [width * pixelDensity(), height * pixelDensity()])`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+1. `texOffset(image)` which is the same as: `return [1 / image.width, 1 / image.height]`.
+2. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` which is the same as: `shader.setUniform(uniform, this.texOffset(image))`.
+3. `mousePosition()` which is the same as: `return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]`.
+4. `emitMousePosition(shader, [uniform = 'u_mouse'])` which is the same as: `shader.setUniform(uniform, this.mousePosition())`.
+5. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+6. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` which is the same as: `shader.setUniform(uniform, this.pointerPosition(pointerX, pointerY))`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+7. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+8. `emitResolution(shader, [uniform = 'u_resolution'])` which is the same as: `shader.setUniform(uniform, this.resolution())`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Basic matrices
 
@@ -154,7 +158,7 @@ Pass matrix params when you *cached* those matrices (see the [previous section](
 ```js
 let pvInv;
 
-functon draw() {
+function draw() {
   // cache pvInv at the beginning of the rendering loop
   // note that this matrix rarely change within the iteration
   pvInv = pvInvMatrix();
@@ -236,7 +240,7 @@ function draw() {
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
 3. `cross([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`: Draws a cross at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
 4. `bullsEye([{ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] }])`:  Draws a circled bullseye (use `Tree.SQUARE` to draw it as a square) at `x`, `y` screen coordinates with given `size` in pixels. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`).
-5. `viewFrustum([{ [pg], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })], [eMatrix = pg?.eMatrix()], [pMatrix = pg?.pMatrix()], [vMatrix = this.vMatrix()] }])`: Draws a view frustum based on the specified bitwise mask bits `Tree.NEAR`, `Tree.FAR` and `Tree.BODY`, and `viewer`  callback visual representation. The function determines the view frustum's position, orientation, and viewing volume either from a given `pg`, or directly through `eMatrix` and `pMatrix` parameters.
+5. `viewFrustum([{ [pg], [bits = Tree.NEAR | Tree.FAR], [viewer = () => this.axes({ size: 50, bits: Tree.X | Tree._X | Tree.Y | Tree._Y | Tree.Z | Tree._Z })], [eMatrix = pg?.eMatrix()], [pMatrix = pg?.pMatrix()], [vMatrix = this.vMatrix()] }])`: Draws a view frustum based on the specified bitwise mask bits `Tree.NEAR`, `Tree.FAR`, `Tree.APEX`, `Tree.BODY`, and `viewer`  callback visual representation. The function determines the view frustum's position, orientation, and viewing volume either from a given `pg`, or directly through `eMatrix` and `pMatrix` parameters.
 
 # Installation
 
