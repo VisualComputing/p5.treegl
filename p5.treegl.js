@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.4',
+    VERSION: '0.7.5',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -429,6 +429,7 @@ var Tree = (function (ext) {
     this.uMVMatrix = new p5.Matrix();
     let z = Number.MAX_VALUE;
     this._curCamera.ortho(0, this.width, -this.height, 0, -z, z);
+    this._hud = true;
   }
 
   p5.prototype.endHUD = function (...args) {
@@ -444,6 +445,7 @@ var Tree = (function (ext) {
     this.pop(this._rendererState);
     this.uPMatrix.set(this.p);
     this.uMVMatrix.set(this.mv);
+    this._hud = false;
   }
 
   // 2.1 Points
@@ -1244,8 +1246,9 @@ void main() {
 
   // 5. Drawing stuff
 
-  p5.prototype.overlay = function (flip = false) {
-    this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+  p5.prototype.overlay = function (flip = this._renderer._hud ? true : false) {
+    this._renderer._hud ? this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0) :
+      this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
     // TODO the standard call: this._renderer.overlay(...args) causes an rendering a fbo (most likely a p5 bug)
   }
 
@@ -1266,8 +1269,9 @@ void main() {
    * (-1,-1,0)   (1,-1,0)       (0,0)    (1,0)  
    * @param {Boolean} flip flip when using projection matrix
    */
-  p5.RendererGL.prototype.overlay = function (flip = false) {
-    this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+  p5.RendererGL.prototype.overlay = function (flip = this._hud ? true : false) {
+    this._hud ? this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0) :
+      this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
   }
 
   p5.prototype.axes = function (...args) {
