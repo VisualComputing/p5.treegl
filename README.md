@@ -146,7 +146,7 @@ Retrieve image offset, mouse position, pointer position, and screen resolution, 
 bindMatrices(Tree.eMatrix | Tree.mMatrix);
 ```
 
-By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as uProjectionMatrix, uViewMatrix, etc., developers can leverage enhanced visual effects and transformations in their shaders.
+By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as `uProjectionMatrix`, `uViewMatrix`, etc., developers can leverage enhanced visual effects and transformations in their shaders.
 
 # Space transformations
 
