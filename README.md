@@ -107,7 +107,7 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
     for (const key in uniforms) {
       effect.setUniform(key, uniforms[key]);
     }
-    this.overlay(flip);
+    overlay(flip);
     fbo.end();
     return fbo;
    }
