@@ -83,7 +83,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    Remember to adhere to the `varying` naming conventions established in the vertex shader, as it must match the naming used in your custom fragment shader.
-4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the following naming convention is necessary:
+4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the following naming convention is essential:
    | Fragment shader<br> varying variable | `parseVertexShader`<br> bit | Space |
    |--------------------------------------|-----------------------------|-------|
    | color4                               | Tree.color4                 | n.a.  |
