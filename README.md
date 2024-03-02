@@ -4,6 +4,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 
 - [Shaders](#shaders)
   - [Handling](#handling)
+  - [Post-effects](#post-effects)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
 - [Matrix queries](#matrix-queries)
@@ -32,7 +33,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 ## Handling
 
 1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = WEBGL2]}])`: This function interprets the `precision`, `matrices`, `varyings`, and `version` parameters to construct a vertex shader, which it outputs as a string. For instance:
-   - Invoking `parseVertexShader()` with no arguments will output (and also print to the console) the string below:
+   - Invoking `parseVertexShader()` with no arguments will output (and also log onto the console) the string below:
      ```glsl
      #version 300 es
      precision highp float;
@@ -95,6 +96,23 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    | n.a.                                 | Tree.NONE                   | n.a.  |
 
 Feel free to explore the capabilities of the `parseVertexShader` function detailed earlier by adjusting the `precision`, `matrices`, and `varyings` parameters to identify the outputs that best align with your needs.
+
+## Post-effects
+
+1. `applyEffect(fbo, effect, uniforms, flip = false)` emits `uniforms` (structured as `{ uniform_1_name: value_1, uniform_2_name: value_2,... uniform_n_name: value_n }` object) to the `effect` shader, applies it to the specified `fbo`, renders the outcome on a overlaying `quad`, and returns the modified `fbo` to enable chaining with additional effects. It's equivalent to:
+   ```js
+   applyEffect(fbo, effect, uniforms, flip = false) {
+    fbo.begin();
+    this.shader(effect);
+    for (const key in uniforms) {
+      effect.setUniform(key, uniforms[key]);
+    }
+    this.overlay(flip);
+    fbo.end();
+    return fbo;
+   }
+   ```
+2. `overlay(flip)`: used by `applyEffect` as screen covering [quad](https://p5js.org/reference/#/p5/quad) rendered area. It can independently be invoked between [beginHUD and endHUD](#heads-up-display), allowing you to apply an effect directly to the screen space.
 
 ## Macros
 
