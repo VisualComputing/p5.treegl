@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.5',
+    VERSION: '0.7.6',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -37,6 +37,7 @@ var Tree = (function (ext) {
   const BOTTOM = 1 << 4;
   const TOP = 1 << 5;
   const BODY = 1 << 6;
+  const APEX = 1 << 7;
   // Visibility
   const INVISIBLE = 0;
   const VISIBLE = 1;
@@ -82,7 +83,7 @@ var Tree = (function (ext) {
   Object.assign(ext, {
     INFO, NONE, X, Y, Z, _X, _Y, _Z, LABELS,
     SOLID, DOTS, SQUARE, CIRCLE, PROJECTION,
-    NEAR, FAR, LEFT, RIGHT, BOTTOM, TOP, BODY,
+    NEAR, FAR, LEFT, RIGHT, BOTTOM, TOP, BODY, APEX,
     INVISIBLE, VISIBLE, SEMIVISIBLE,
     WORLD, EYE, NDC, SCREEN, MODEL,
     ORIGIN, i, j, k, _i, _j, _k,
@@ -1541,6 +1542,7 @@ void main() {
       viewer();
     }
     const is_ortho = pMatrix.isOrtho();
+    const apex = !is_ortho && ((bits & Tree.APEX) !== 0);
     const n = -pMatrix.nPlane();
     const f = -pMatrix.fPlane();
     const l = pMatrix.lPlane();
@@ -1596,7 +1598,7 @@ void main() {
       this.vertex(_l, _b, f);
       this.vertex(l, b, n);
       this.endShape();
-      if (!is_ortho) {
+      if (apex) {
         this.line(0, 0, 0, r, t, n);
         this.line(0, 0, 0, l, t, n);
         this.line(0, 0, 0, l, b, n);
@@ -1604,10 +1606,10 @@ void main() {
       }
     }
     else {
-      this.line(is_ortho ? r : 0, is_ortho ? t : 0, is_ortho ? n : 0, _r, _t, f);
-      this.line(is_ortho ? l : 0, is_ortho ? t : 0, is_ortho ? n : 0, _l, _t, f);
-      this.line(is_ortho ? l : 0, is_ortho ? b : 0, is_ortho ? n : 0, _l, _b, f);
-      this.line(is_ortho ? r : 0, is_ortho ? b : 0, is_ortho ? n : 0, _r, _b, f);
+      this.line(apex ? 0 : r, apex ? 0 : t, apex ? 0 : n, _r, _t, f);
+      this.line(apex ? 0 : l, apex ? 0 : t, apex ? 0 : n, _l, _t, f);
+      this.line(apex ? 0 : l, apex ? 0 : b, apex ? 0 : n, _l, _b, f);
+      this.line(apex ? 0 : r, apex ? 0 : b, apex ? 0 : n, _r, _b, f);
     }
     // TODO implement near plane texture
     // Something along the lines
