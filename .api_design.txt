@@ -1,6 +1,0 @@
-matrix logic in tree enables to compute important matrix computations needed by apps such as:
-picking, pixelRatio, visibility, screen space interactions, shaders...
-
-it is reflected in the tree api high-level param invokation style (female I/O too) which may be invoked w w/o matrix params.
-former case just (magically behind the scenes) define matrices from the current p5 geometry transformations state.
-latter case good for passing both, custom (out-of local p5.Graphics instances) or cache (as when speeding up computations) matrices.
