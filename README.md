@@ -99,7 +99,7 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
 
 ## Post-effects
 
-1. `applyEffect(fbo, effect, uniforms, flip = false)` emits `uniforms` (structured as `{ uniform_1_name: value_1, uniform_2_name: value_2,... uniform_n_name: value_n }` object) to the `effect` shader, applies it to the specified `fbo`, renders the outcome on a overlaying `quad`, and returns the modified `fbo` to enable chaining with additional effects. It's equivalent to:
+1. `applyEffect(fbo, effect, uniforms, flip = false)` emits `uniforms` (structured as the `{ uniform_1_name: value_1, uniform_2_name: value_2,... uniform_n_name: value_n }` object) to the `effect` shader, applies it to the specified `fbo`, renders the outcome on a overlaying `quad`, and returns the modified `fbo` to enable chaining with additional effects. It's equivalent to:
    ```js
    applyEffect(fbo, effect, uniforms, flip = false) {
     fbo.begin();
