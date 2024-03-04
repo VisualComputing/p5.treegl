@@ -99,7 +99,7 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
 
 ## Bind shader
 
-1. `bindShader(effect, { target, uniforms, scene, options })` applies the shader `effect` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the shader `uniforms` (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), executes `scene(options)` to render the result (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
+1. `bindShader(effect, [{ [target], [uniforms], [scene], [options] }])` applies the shader `effect` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the shader `uniforms` (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), executes `scene(options)` to render the result (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `bindShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can be called independently between [beginHUD and endHUD](#heads-up-display) for direct screen space effect application.
 
 ## Macros
