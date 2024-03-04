@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.7.6',
+    VERSION: '0.8.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -933,32 +933,25 @@ void main() {
     return result;
   }
 
-  // flip when using projection matrix
-  p5.prototype.applyEffect = function (fbo, effect, uniforms, flip = false) {
-    fbo.begin();
-    this.shader(effect);
+  p5.prototype.bindShader = function (effect, { target, uniforms, scene, options = {} } = {}) {
+    target instanceof p5.Framebuffer && target.begin();
+    const context = target instanceof p5.Graphics ? target : this;
+    context.shader(effect);
     for (const key in uniforms) {
       effect.setUniform(key, uniforms[key]);
     }
-    this.overlay(flip);
-    fbo.end();
-    return fbo; // Return the modified FBO
+    target && (options.target = target);
+    typeof scene === 'function' ? scene(options) : context.overlay(options.flip);
+    target instanceof p5.Framebuffer && target.end();
+    return target || context;
   }
 
   p5.prototype.texOffset = function (image) {
     return [1 / image.width, 1 / image.height];
   }
 
-  p5.prototype.emitTexOffset = function (shader, image, uniform = 'u_texoffset') {
-    shader.setUniform(uniform, this.texOffset(image));
-  }
-
   p5.prototype.mousePosition = function () {
     return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()];
-  }
-
-  p5.prototype.emitMousePosition = function (shader, uniform = 'u_mouse') {
-    shader.setUniform(uniform, this.mousePosition());
   }
 
   p5.prototype.pointerPosition = function (...args) {
@@ -969,28 +962,12 @@ void main() {
     return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()];
   }
 
-  p5.prototype.emitPointerPosition = function (...args) {
-    this._renderer.emitPointerPosition(...args);
-  }
-
-  p5.RendererGL.prototype.emitPointerPosition = function (shader, pointerX, pointerY, uniform = 'u_pointer') {
-    shader.setUniform(uniform, this.pointerPosition(pointerX, pointerY));
-  }
-
   p5.prototype.resolution = function (...args) {
     return this._renderer.resolution(...args);
   }
 
   p5.RendererGL.prototype.resolution = function () {
     return [this.width * this.pixelDensity(), this.height * this.pixelDensity()];
-  }
-
-  p5.prototype.emitResolution = function (...args) {
-    this._renderer.emitResolution(...args);
-  }
-
-  p5.RendererGL.prototype.emitResolution = function (shader, uniform = 'u_resolution') {
-    shader.setUniform(uniform, this.resolution());
   }
 
   // 4. Utility functions

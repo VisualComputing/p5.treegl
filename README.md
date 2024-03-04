@@ -4,7 +4,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 
 - [Shaders](#shaders)
   - [Handling](#handling)
-  - [Post-effects](#post-effects)
+  - [Bind shader](#bind-shader)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
 - [Matrix queries](#matrix-queries)
@@ -86,7 +86,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    Remember to adhere to the `varying` naming conventions established in the vertex shader, as it must match the naming used in your custom fragment shader.
 4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the following naming convention is essential:
    | Fragment shader<br> varying variable | `parseVertexShader`<br> bit | Space |
-   |--------------------------------------|-----------------------------|-------|
+   | ------------------------------------ | --------------------------- | ----- |
    | color4                               | Tree.color4                 | n.a.  |
    | texcoords2                           | Tree.texcoords2             | n.a.  |
    | position2                            | Tree.position2              | local |
@@ -97,35 +97,19 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 Feel free to explore the capabilities of the `parseVertexShader` function detailed earlier by adjusting the `precision`, `matrices`, and `varyings` parameters to identify the outputs that best align with your needs.
 
-## Post-effects
+## Bind shader
 
-1. `applyEffect(fbo, effect, uniforms, flip = false)` emits `uniforms` (structured as the `{ uniform_1_name: value_1, uniform_2_name: value_2,... uniform_n_name: value_n }` object) to the `effect` shader, applies it to the specified `fbo`, renders the outcome on a overlaying `quad`, and returns the modified `fbo` to enable chaining with additional effects. It's equivalent to:
-   ```js
-   applyEffect(fbo, effect, uniforms, flip = false) {
-    fbo.begin();
-    this.shader(effect);
-    for (const key in uniforms) {
-      effect.setUniform(key, uniforms[key]);
-    }
-    overlay(flip); // see below
-    fbo.end();
-    return fbo;
-   }
-   ```
-2. `overlay(flip)`: used by `applyEffect` as screen covering [quad](https://p5js.org/reference/#/p5/quad) rendered area. It can independently be invoked between [beginHUD and endHUD](#heads-up-display), allowing you to apply an effect directly to the screen space.
+1. `bindShader(effect, { target, uniforms, scene, options })` applies the shader `effect` to the specified `target` (which can be a p5.Graphics, p5.Framebuffer, or the current context), emits the shader `uniforms` (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), executes `scene(options)` to render the result (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
+2. `overlay(flip)`: A default rendering method used by `bindShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can be called independently between [beginHUD and endHUD](#heads-up-display) for direct screen space effect application.
 
 ## Macros
 
-Retrieve image offset, mouse position, pointer position, and screen resolution, and send them as `uniform vec2` variables to a given `shader`. Note that the uniform variable names are customizable.
+Retrieve image offset, mouse position, pointer position and screen resolution which are common `uniform vec2` variables
 
 1. `texOffset(image)` which is the same as: `return [1 / image.width, 1 / image.height]`.
-2. `emitTexOffset(shader, image, [uniform = 'u_texoffset'])` which is the same as: `shader.setUniform(uniform, this.texOffset(image))`.
-3. `mousePosition()` which is the same as: `return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]`.
-4. `emitMousePosition(shader, [uniform = 'u_mouse'])` which is the same as: `shader.setUniform(uniform, this.mousePosition())`.
-5. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-6. `emitPointerPosition(shader, pointerX, pointerY, [uniform = 'u_pointer'])` which is the same as: `shader.setUniform(uniform, this.pointerPosition(pointerX, pointerY))`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-7. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
-8. `emitResolution(shader, [uniform = 'u_resolution'])` which is the same as: `shader.setUniform(uniform, this.resolution())`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+2. `mousePosition()` which is the same as: `return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]`.
+3. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+4. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Basic matrices
 
