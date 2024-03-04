@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.0',
+    VERSION: '0.8.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -933,7 +933,21 @@ void main() {
     return result;
   }
 
-  p5.prototype.bindShader = function (effect, { target, uniforms, scene, options = {} } = {}) {
+  /**
+   * Applies a shader (`effect`) to a specified rendering `target`, sets shader `uniforms`,
+   * and optionally executes a `scene` function with provided `options`. If no `scene` is specified,
+   * a default overlaying quad is rendered. The function facilitates method chaining by returning the `target`.
+   * @param {p5.Shader} effect - The shader to be applied.
+   * @param {Object} config - Configuration object containing:
+   *   @param {p5.Graphics|p5.Framebuffer} [config.target=this] - The target to which the shader is applied. 
+   *        Can be the current context, a p5.Graphics object, or a p5.Framebuffer.
+   *   @param {Object} config.uniforms - Object containing shader uniforms in the format 
+   *        { uniform_1_name: value_1, ..., uniform_n_name: value_n }.
+   *   @param {Function} [config.scene] - Optional function to execute for rendering the scene.
+   *   @param {Object} [config.options] - Optional object to pass additional parameters to the `scene` function.
+   * @returns {p5.Graphics|p5.Framebuffer} - The rendering target for method chaining.
+   */
+  p5.prototype.applyShader = function (effect, { target, uniforms, scene, options = {} } = {}) {
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
     context.shader(effect);
