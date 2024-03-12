@@ -100,9 +100,9 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
 
 ## uniformsUI
 
-Through parsing comments in `glsl` shader code, `treegl` builds a `custom_shader.uniformsUI` object that maps uniform variable names to p5.Element instances for interactively adjusting their values.
+Through parsing comments within `glsl` `shader` code, `treegl` builds a `shader.uniformsUI` object that maps uniform variable names to [p5.Element](https://p5js.org/reference/#/p5.Element) instances for interactively adjusting their values.
 
-The library supports sliders for `int` and `float` types, color pickers for `vec4` types, and checkboxes for `bool` types, as showcased in the following examples:
+The library supports [sliders](https://p5js.org/reference/#/p5/createSlider) for `int` and `float` types, [color pickers](https://p5js.org/reference/#/p5/createColorPicker) for `vec4` types, and [checkboxes](https://p5js.org/reference/#/p5/createCheckbox) for `bool` types, as showcased in the following examples:
 
 * **Sliders**: Create a slider by annotating a uniform `float` or `int` declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
 
