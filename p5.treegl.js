@@ -8,7 +8,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.1',
+    VERSION: '0.8.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -809,26 +809,45 @@ var Tree = (function (ext) {
     this._matrices = matrices;
   }
 
-  p5.prototype.readShader = function (fragFilename, matrices = Tree.NONE) {
+  p5.prototype._swapArgs = function (arg2, arg3) {
+    let matrices = Tree.NONE;
+    let uiConfig = undefined;
+    if (typeof arg2 === 'number') {
+      matrices = arg2;
+      uiConfig = typeof arg3 === 'object' ? arg3 : undefined;
+    } else if (typeof arg2 === 'object') {
+      uiConfig = arg2;
+      matrices = typeof arg3 === 'number' ? arg3 : Tree.NONE;
+    }
+    return { matrices, uiConfig };
+  }
+
+  p5.prototype.readShader = function (fragFilename, arg2 = {}, arg3 = {}) {
     const shader = new p5.Shader();
+    const { matrices, uiConfig } = this._swapArgs(arg2, arg3);
+    shader._pMatrix = (matrices & Tree.pmvMatrix) === Tree.pmvMatrix || (matrices & Tree.pMatrix) === Tree.pMatrix;
     this.loadStrings(fragFilename, (result) => {
       const source = result.join('\n');
       shader._fragSrc = source;
       this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
       const target = this._parseFragmentShader(source);
       shader._vertSrc = this.parseVertexShader({ version: target.version, precision: target.precision, varyings: target.varyings, matrices, _specs: false });
+      this.parseUniformsUI(shader, uiConfig);
       this._coupledWith = undefined;
     });
     return shader;
   }
 
-  p5.prototype.makeShader = function (source, matrices = Tree.NONE) {
+  p5.prototype.makeShader = function (source, arg2 = {}, arg3 = {}) {
     const shader = new p5.Shader();
+    const { matrices, uiConfig } = this._swapArgs(arg2, arg3);
+    shader._pMatrix = (matrices & Tree.pmvMatrix) === Tree.pmvMatrix || (matrices & Tree.pMatrix) === Tree.pMatrix;
     this._coupledWith = 'the fragment shader provided as param in makeShader()';
     const target = this._parseFragmentShader(source);
     shader._vertSrc = this.parseVertexShader({ version: target.version, precision: target.precision, varyings: target.varyings, matrices, _specs: false });
-    this._coupledWith = undefined;
     shader._fragSrc = source;
+    this.parseUniformsUI(shader, uiConfig);
+    this._coupledWith = undefined;
     return shader;
   }
 
@@ -933,6 +952,145 @@ void main() {
     return result;
   }
 
+  p5.prototype.parseUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, color } = {}) {
+    if (shader.uniformsUI) {
+      console.debug('Uniforms UI already exists for this shader. Call shader.resetUniformsUI() first');
+      return shader.uniformsUI;
+    }
+    shader.uniformsUI = {};
+    shader.uniformsUI = this._parseUniformsUI(shader._vertSrc, shader.uniformsUI);
+    shader.uniformsUI = this._parseUniformsUI(shader._fragSrc, shader.uniformsUI);
+    this.configUniformsUI(shader, { x, y, offset, width, color });
+    return shader.uniformsUI;
+  }
+
+  p5.prototype._parseUniformsUI = function (source, uniformsUI) {
+    const lines = source.split('\n');
+    const createSliderElement = (params, isFloat) => {
+      const [min, max, value = min, step = (isFloat ? 0.1 : 1)] = params;
+      return this.createSlider(min, max, value, step).hide();
+    };
+    lines.forEach((line) => {
+      if (line.trim() === '' || line.trim().startsWith('//')) {
+        return;
+      }
+      const uniformPattern = /uniform\s+(\w+)\s+(\w+);\s*\/\/\s*(.*)/;
+      const match = line.match(uniformPattern);
+      if (!match) return;
+      const [_, type, name, comment] = match;
+      if (type === 'vec4') {
+        const trimmedComment = comment.trim().replace(/['"]/g, ''); // Remove quotes if present
+        if (!trimmedComment) {
+          uniformsUI[name] = this.createColorPicker('white').hide();
+          console.log(`Created default color picker for '${name}' with white color.`);
+        } else if (!trimmedComment.includes(',') && /^[a-zA-Z]+$/.test(trimmedComment)) {
+          uniformsUI[name] = this.createColorPicker(trimmedComment).hide();
+          console.log(`Created color picker for '${name}' with color: ${trimmedComment}`);
+        } else {
+          console.debug(`Failed to create color picker for '${name}': Unsupported color format '${trimmedComment}'.`);
+        }
+      } else if (type === 'float' || type === 'int') {
+        const params = comment.split(',').map(param => parseFloat(param.trim()));
+        if (params.length >= 2) {
+          uniformsUI[name] = createSliderElement(params, type === 'float');
+          console.log(`Created slider for '${name}' with params: ${params.join(', ')}`);
+        } else {
+          console.debug(`Failed to parse slider for '${name}': Expected format 'min, max, [value], [step]' but got '${comment}'`);
+        }
+      } else if (type === 'bool') {
+        const trimmedComment = comment.trim().toLowerCase().replace(/['"]/g, '');
+        const falsyValues = ['0', 'false', 'null', 'undefined', ''];
+        const defaultValue = !falsyValues.includes(trimmedComment);
+        const checkboxWrapper = this.createCheckbox(name, defaultValue).hide();
+        const checkboxInput = checkboxWrapper.elt.getElementsByTagName('input')[0]; // Accessing the actual checkbox input
+        console.log(`Created checkbox for '${name}' with default value: ${defaultValue}`);
+        //console.log(`Checkbox element: ${checkboxInput}, type: ${checkboxInput.type}, tagName: ${checkboxInput.tagName}`);
+        uniformsUI[name] = checkboxWrapper;
+      }
+    });
+    return uniformsUI;
+  }
+
+  p5.prototype.configUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, bg_color, color } = {}) {
+    const elementHeight = {
+      slider: 35,
+      checkbox: 30,
+      color: 40
+    };
+    for (const key in shader.uniformsUI) {
+      const element = shader.uniformsUI[key];
+      if (element instanceof p5.Element) {
+        const elementType = element.elt.type || (element.elt.tagName.toLowerCase() === 'div' ? element.elt.getElementsByTagName('input')[0].type : undefined);
+        const height = elementType === 'range' ? elementHeight.slider :
+          elementType === 'checkbox' ? elementHeight.checkbox :
+            elementType === 'color' ? elementHeight.color : 0;
+        elementType === 'range' && element.style('width', `${width}px`);
+        element.position(x, y);
+        y += height + offset;
+        bg_color && (element.elt.style.backgroundColor = bg_color);
+        color && (element.elt.style.color = color);
+      }
+    }
+  }
+
+  p5.prototype.hideUniformsUI = function (shader) {
+    if (!shader.uniformsUI) {
+      console.log('No uniformsUI found for this shader. Call parseUniformsUI(shader) first');
+      return;
+    }
+    for (const key in shader.uniformsUI) {
+      const element = shader.uniformsUI[key];
+      element.hide();
+      if (element.eventListener) {
+        element.elt.removeEventListener('input', element.eventListener);
+        element.eventListener = undefined;
+      }
+    }
+  }
+
+  p5.prototype.showUniformsUI = function (shader) {
+    if (!shader.uniformsUI) {
+      console.log('No uniformsUI found for this shader. Call parseUniformsUI(shader) first');
+      return;
+    }
+    for (const key in shader.uniformsUI) {
+      const element = shader.uniformsUI[key];
+      element.show();
+      element.eventListener = () => {
+        shader._setUniformUI(key, element);
+      };
+      element.elt.addEventListener('input', element.eventListener);
+      shader._setUniformUI(key, element);
+    }
+  }
+
+  p5.Shader.prototype._setUniformUI = function (key, element) {
+    const elementType = element.elt.type || (element.elt.tagName.toLowerCase() === 'div' ? element.elt.getElementsByTagName('input')[0].type : undefined);
+    if (elementType === 'color') {
+      const _color = element.color();
+      // TODO p5.prototype needed to parse color picker which seems unaffected by colorMode calls
+      // should be tested in instance mode and if it works taken as a model to implement stuff such as _map, _circle, etc.
+      this.setUniform(key, [p5.prototype.red(_color) / 255, p5.prototype.green(_color) / 255, p5.prototype.blue(_color) / 255, p5.prototype.alpha(_color) / 255]);
+    } else if (elementType === 'range') {
+      this.setUniform(key, element.value());
+    } else if (elementType === 'checkbox') {
+      this.setUniform(key, element.checked());
+    } else {
+      console.debug('Unsupported element type in found in _setUniformUI');
+    }
+  }
+
+  p5.Shader.prototype.setUniformsUI = function () {
+    for (const key in this.uniformsUI) {
+      this._setUniformUI(key, this.uniformsUI[key]);
+    }
+  }
+
+  p5.Shader.prototype.resetUniformsUI = function () {
+    p5.prototype.hideUniformsUI(this);
+    this.uniformsUI = undefined;
+  }
+
   /**
    * Applies a shader (`effect`) to a specified rendering `target`, sets shader `uniforms`,
    * and optionally executes a `scene` function with provided `options`. If no `scene` is specified,
@@ -951,11 +1109,19 @@ void main() {
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
     context.shader(effect);
+    effect.setUniformsUI();
     for (const key in uniforms) {
       effect.setUniform(key, uniforms[key]);
     }
     target && (options.target = target);
-    typeof scene === 'function' ? scene(options) : context.overlay(options.flip);
+    if (typeof scene === 'function') {
+      scene(options);
+    }
+    else {
+      effect._pMatrix && this.beginHUD();
+      context.overlay(options.flip);
+      effect._pMatrix && this.endHUD();
+    }
     target instanceof p5.Framebuffer && target.end();
     return target || context;
   }
@@ -1238,9 +1404,12 @@ void main() {
 
   // 5. Drawing stuff
 
-  p5.prototype.overlay = function (flip = this._renderer._hud ? true : false) {
-    this._renderer._hud ? this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0) :
+  p5.prototype.overlay = function (flip = this._renderer._hud) {
+    if (this._renderer._hud) {
+      this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0);
+    } else {
       this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+    }
     // TODO the standard call: this._renderer.overlay(...args) causes an rendering a fbo (most likely a p5 bug)
   }
 
@@ -1261,9 +1430,12 @@ void main() {
    * (-1,-1,0)   (1,-1,0)       (0,0)    (1,0)  
    * @param {Boolean} flip flip when using projection matrix
    */
-  p5.RendererGL.prototype.overlay = function (flip = this._hud ? true : false) {
-    this._hud ? this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0) :
+  p5.RendererGL.prototype.overlay = function (flip = this._renderer._hud) {
+    if (this._renderer._hud) {
+      this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0);
+    } else {
       this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+    }
   }
 
   p5.prototype.axes = function (...args) {
