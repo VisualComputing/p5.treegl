@@ -1002,9 +1002,7 @@ void main() {
         const falsyValues = ['0', 'false', 'null', 'undefined', ''];
         const defaultValue = !falsyValues.includes(trimmedComment);
         const checkboxWrapper = this.createCheckbox(name, defaultValue).hide();
-        const checkboxInput = checkboxWrapper.elt.getElementsByTagName('input')[0]; // Accessing the actual checkbox input
         console.log(`Created checkbox for '${name}' with default value: ${defaultValue}`);
-        //console.log(`Checkbox element: ${checkboxInput}, type: ${checkboxInput.type}, tagName: ${checkboxInput.tagName}`);
         uniformsUI[name] = checkboxWrapper;
       }
     });
