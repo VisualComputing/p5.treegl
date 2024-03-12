@@ -954,8 +954,8 @@ void main() {
 
   p5.prototype.parseUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, color } = {}) {
     if (shader.uniformsUI) {
-      console.debug('Uniforms UI already exists for this shader. Call shader.resetUniformsUI() first');
-      return shader.uniformsUI;
+      console.log('Overwriting uniformsUI for this shader.');
+      this.hideUniformsUI(shader);
     }
     shader.uniformsUI = {};
     shader.uniformsUI = this._parseUniformsUI(shader._vertSrc, shader.uniformsUI);
@@ -1009,7 +1009,7 @@ void main() {
     return uniformsUI;
   }
 
-  p5.prototype.configUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, bg_color, color } = {}) {
+  p5.prototype.configUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, color/*, bg_color,*/ } = {}) {
     const elementHeight = {
       slider: 35,
       checkbox: 30,
@@ -1025,7 +1025,8 @@ void main() {
         elementType === 'range' && element.style('width', `${width}px`);
         element.position(x, y);
         y += height + offset;
-        bg_color && (element.elt.style.backgroundColor = bg_color);
+        // TODO should this prop really go?
+        // bg_color && (element.elt.style.backgroundColor = bg_color);
         color && (element.elt.style.color = color);
       }
     }
@@ -1082,11 +1083,6 @@ void main() {
     for (const key in this.uniformsUI) {
       this._setUniformUI(key, this.uniformsUI[key]);
     }
-  }
-
-  p5.Shader.prototype.resetUniformsUI = function () {
-    p5.prototype.hideUniformsUI(this);
-    this.uniformsUI = undefined;
   }
 
   /**

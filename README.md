@@ -4,6 +4,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 
 - [Shaders](#shaders)
   - [Handling](#handling)
+  - [uniformsUI](#uniformsui)
   - [Apply shader](#apply-shader)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
@@ -50,8 +51,8 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
        gl_Position = vec4(aPosition, 1.0);
      }
      ```
-2. `readShader(fragFilename, matrices = Tree.NONE)`: This function, akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), reads a fragment shader from a file path specified as a string, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the underlying vertex shader is automatically generated (and logged to the console) through a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
-3. `makeShader(fragSrc, matrices = Tree.NONE)`: Similar to [createShader](https://p5js.org/reference/#/p5/createShader), this function generates a fragment shader from a string source, parses it, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader). Note that the underlying vertex shader is automatically generated (and logged to the console) through a call to: `parseVertexShader({precision: precision, matrices: matrices, varyings: varyings})`.
+2. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig)`: This function, akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), reads a fragment shader from a file path specified as a string. It parses the shader, automatically generates the corresponding vertex shader, and creates a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. Additionally, it invokes `parseUniformsUI` using `uniformsUIConfig` to construct the `uniformsUI` for interactive uniform manipulation.
+3. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig)`: Similar to [createShader](https://p5js.org/reference/#/p5/createShader), this function generates a fragment shader from a string source. It parses the shader, automatically generates the corresponding vertex shader, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. The `parseUniformsUI` function is also called with `uniformsUIConfig` to set up the `uniformsUI` for the shader, enabling interactive adjustments of shader uniforms.
 
 **Observations**
 
@@ -68,7 +69,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    Matrix uniform variables are automatically emitted by the [p5 API](https://p5js.org/reference/), for instance, when utilizing commands like [camera](https://p5js.org/reference/#/p5/camera) or [translate](https://p5js.org/reference/#/p5/translate). It's important to align with the matrix uniform variables naming conventions as outlined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters) when crafting your fragment shader.
-3. The `varyings` parameter designates which [vertex attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) are interpolated across to the fragment shader, from options like `Tree.color4`, `Tree.texcoords2` (for [texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.position2`, `Tree.position3`, `Tree.position4` (with `position2` and `position3` defined in local space, and `position4` in eye space), `Tree.normal3` (in eye space), or `Tree.NONE` for excluding varyings. For instance, calling `parseVertexShader({ varyings: Tree.color4 | Tree.texcoords2 })` results in:
+3. The `varyings` parameter defines which [vertex attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) are interpolated across to the fragment shader, from options like `Tree.color4`, `Tree.texcoords2` (for [texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.position2`, `Tree.position3`, `Tree.position4` (with `position2` and `position3` defined in local space, and `position4` in eye space), `Tree.normal3` (in eye space), or `Tree.NONE` for excluding varyings. For instance, calling `parseVertexShader({ varyings: Tree.color4 | Tree.texcoords2 })` results in:
    ```glsl
    #version 300 es
    precision highp float;
@@ -84,7 +85,7 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
    }
    ```
    Remember to adhere to the `varying` naming conventions established in the vertex shader, as it must match the naming used in your custom fragment shader.
-4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the following naming convention is essential:
+4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the naming convention outlined by `parseVertexShader` is essential:
    | Fragment shader<br> varying variable | `parseVertexShader`<br> bit | Space |
    | ------------------------------------ | --------------------------- | ----- |
    | color4                               | Tree.color4                 | n.a.  |
@@ -97,9 +98,55 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 Feel free to explore the capabilities of the `parseVertexShader` function detailed earlier by adjusting the `precision`, `matrices`, and `varyings` parameters to identify the outputs that best align with your needs.
 
+## uniformsUI
+
+Through parsing comments in `glsl` shader code, `treegl` builds a `custom_shader.uniformsUI` object that maps uniform variable names to p5.Element instances for interactively adjusting their values.
+
+The library supports sliders for int and float types, color pickers for vec4 types, and checkboxes for bool types, as showcased in the following examples:
+
+* **Sliders**: Create a slider by annotating a uniform float or int declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
+
+  Example:
+  ```glsl
+  uniform float speed; // 1, 10, 5, 0.1
+  ```
+  This creates a slider for `speed` with a range from 1 to 10, a default value of 5, and a step of 0.1. The speed slider may be accessed as `custom_shader.uniformsUI.speed`.
+
+* **Color Picker**: To create a color picker, annotate a `vec4` uniform. The comment can specify the default color using a CSS color name.
+
+  Example:
+  ```glsl
+  uniform vec4 color; // 'magenta'
+  ```
+  This creates a color picker for `color` with a default value of magenta.
+
+* **Checkboxes**: For boolean uniforms, a checkbox is created. The comment can specify the default state as true or false.
+
+  Example:
+  ```glsl
+  uniform bool isActive; // true
+  ```
+  This creates a checkbox for `isActive` that is checked by default.
+
+These functions manipulate the `uniformsUI`:
+
+1. **parseUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Parses shader uniform variable comments into the `shader.uniformsUI` map. It automatically calls `configUniformsUI` with the provided `uiConfig` object. This function should be invoked on custom shaders created with `loadShader` or `createShader`, while `readShader` and `makeShader` already call it internally.
+
+2. **configUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Configures the layout and appearance of the UI elements based on the provided parameters:
+   - `x` and `y`: Set the initial position of the first UI element.
+   - `offset`: Determines the spacing between consecutive UI elements.
+   - `width`: Sets the width of the sliders and color pickers.
+   - `color`: Specifies the text color for the UI elements' labels.
+
+3. **showUniformsUI(shader)**: Displays the UI elements associated with the shader's uniforms. It attaches necessary event listeners to update the shader uniforms based on user interactions.
+
+4. **hideUniformsUI(shader)**: Hides the UI elements and removes the event listeners, stopping any further updates to the shader uniforms from UI interactions.
+
+5. **p5.Shader.setUniformsUI()**: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
+
 ## Apply shader
 
-1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniforms` (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
+1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can be called independently between [beginHUD and endHUD](#heads-up-display) for a direct screen space application.
 
 ## Macros
