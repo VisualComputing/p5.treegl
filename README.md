@@ -130,19 +130,15 @@ The library supports sliders for `int` and `float` types, color pickers for `vec
 
 These functions manipulate the `uniformsUI`:
 
-1. **parseUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Parses shader uniform variable comments into the `shader.uniformsUI` map. It automatically calls `configUniformsUI` with the provided `uniformsUIConfig` object. This function should be invoked on custom shaders created with `loadShader` or `createShader`, while `readShader` and `makeShader` already call it internally.
-
-2. **configUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Configures the layout and appearance of the UI elements based on the provided parameters:
+1. `parseUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])`: Parses `shader` uniform variable comments into the `shader.uniformsUI` map. It automatically calls `configUniformsUI` with the provided `uniformsUIConfig` object. This function should be invoked on custom shaders created with [loadShader](https://p5js.org/reference/#/p5/loadShader) or [createShader](https://p5js.org/reference/#/p5/createShader), while `readShader` and `makeShader` already call it internally.
+2. `configUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])`: Configures the layout and appearance of the `shader.uniformsUI` elements based on the provided parameters:
    - `x` and `y`: Set the initial position of the first UI element.
    - `offset`: Determines the spacing between consecutive UI elements.
    - `width`: Sets the width of the sliders and color pickers.
    - `color`: Specifies the text color for the UI elements' labels.
-
-3. **showUniformsUI(shader)**: Displays the UI elements associated with the shader's uniforms. It attaches necessary event listeners to update the shader uniforms based on user interactions.
-
-4. **hideUniformsUI(shader)**: Hides the UI elements and removes the event listeners, stopping any further updates to the shader uniforms from UI interactions.
-
-5. **p5.Shader.setUniformsUI()**: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
+3. `showUniformsUI(shader)`: Displays the `shader.uniformsUI` elements associated with the `shader`'s uniforms. It attaches necessary event listeners to update the shader uniforms based on user interactions.
+4. `hideUniformsUI(shader)`: Hides the `shader.uniformsUI` elements and removes the event listeners, stopping any further updates to the `shader` uniforms from ui interactions.
+5. `p5.Shader.setUniformsUI()`: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
 
 ## Apply shader
 
