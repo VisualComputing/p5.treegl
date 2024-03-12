@@ -130,7 +130,7 @@ The library supports sliders for int and float types, color pickers for vec4 typ
 
 These functions manipulate the `uniformsUI`:
 
-1. **parseUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Parses shader uniform variable comments into the `shader.uniformsUI` map. It automatically calls `configUniformsUI` with the provided `uiConfig` object. This function should be invoked on custom shaders created with `loadShader` or `createShader`, while `readShader` and `makeShader` already call it internally.
+1. **parseUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Parses shader uniform variable comments into the `shader.uniformsUI` map. It automatically calls `configUniformsUI` with the provided `uniformsUIConfig` object. This function should be invoked on custom shaders created with `loadShader` or `createShader`, while `readShader` and `makeShader` already call it internally.
 
 2. **configUniformsUI(shader, [{ [x = 0], [y = 0], [offset = 0], [width = 120], [color] }])**: Configures the layout and appearance of the UI elements based on the provided parameters:
    - `x` and `y`: Set the initial position of the first UI element.
