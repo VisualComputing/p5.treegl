@@ -102,9 +102,9 @@ Feel free to explore the capabilities of the `parseVertexShader` function detail
 
 Through parsing comments in `glsl` shader code, `treegl` builds a `custom_shader.uniformsUI` object that maps uniform variable names to p5.Element instances for interactively adjusting their values.
 
-The library supports sliders for int and float types, color pickers for vec4 types, and checkboxes for bool types, as showcased in the following examples:
+The library supports sliders for `int` and `float` types, color pickers for `vec4` types, and checkboxes for `bool` types, as showcased in the following examples:
 
-* **Sliders**: Create a slider by annotating a uniform float or int declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
+* **Sliders**: Create a slider by annotating a uniform `float` or `int` declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
 
   Example:
   ```glsl
@@ -120,7 +120,7 @@ The library supports sliders for int and float types, color pickers for vec4 typ
   ```
   This creates a color picker for `color` with a default value of magenta.
 
-* **Checkboxes**: For boolean uniforms, a checkbox is created. The comment can specify the default state as true or false.
+* **Checkboxes**: For `bool` uniforms, a checkbox is created. The comment can specify the default state as true or false.
 
   Example:
   ```glsl
