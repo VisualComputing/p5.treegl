@@ -1,5 +1,8 @@
 'use strict';
 
+// TODO's
+// i. Should drawing stuff be implemented only for p5.prototype just as overlay is?
+// ii. Handling other default uniforms such as uSampler (proof-of-concept found on texture branch)
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -8,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.2',
+    VERSION: '0.8.3',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1398,15 +1401,6 @@ void main() {
 
   // 5. Drawing stuff
 
-  p5.prototype.overlay = function (flip = this._renderer._hud) {
-    if (this._renderer._hud) {
-      this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0);
-    } else {
-      this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
-    }
-    // TODO the standard call: this._renderer.overlay(...args) causes an rendering a fbo (most likely a p5 bug)
-  }
-
   /**
    * NDC plane shape,
    * i.e., x, y and z vertex coordinates ∈ [-1..1]
@@ -1424,12 +1418,13 @@ void main() {
    * (-1,-1,0)   (1,-1,0)       (0,0)    (1,0)  
    * @param {Boolean} flip flip when using projection matrix
    */
-  p5.RendererGL.prototype.overlay = function (flip = this._renderer._hud) {
+  p5.prototype.overlay = function (flip = !this._renderer._hud) {
     if (this._renderer._hud) {
-      this.quad(0, flip ? 0 : this.height, this.width, flip ? 0 : this.height, this.width, flip ? this.height : 0, 0, flip ? this.height : 0);
+      this.quad(0, flip ? this.height : 0, this.width, flip ? this.height : 0, this.width, flip ? 0 : this.height, 0, flip ? 0 : this.height);
     } else {
-      this.quad(-1, flip ? -1 : 1, 1, flip ? -1 : 1, 1, flip ? 1 : -1, -1, flip ? 1 : -1);
+      this.quad(-1, flip ? 1 : -1, 1, flip ? 1 : -1, 1, flip ? -1 : 1, -1, flip ? -1 : 1);
     }
+    // TODO this._renderer.overlay(...args) gives bug: p5.Geometry.prototype._getFaceNormal: face has colinear sides or a repeated vertex
   }
 
   p5.prototype.axes = function (...args) {
