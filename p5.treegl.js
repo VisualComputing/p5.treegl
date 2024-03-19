@@ -13,7 +13,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.4',
+    VERSION: '0.8.5',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1163,7 +1163,7 @@ void main() {
         const uniforms = fn(sharedLayer);
         sharedLayer = this.applyShader(effect.shader, {
           target: effect.target,
-          scene: () => overlay(flip),
+          scene: () => this.overlay(flip),
           uniforms,
         });
       }
