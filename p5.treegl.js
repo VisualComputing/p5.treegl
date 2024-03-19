@@ -1,8 +1,10 @@
 'use strict';
 
 // TODO's
-// i. Should drawing stuff be implemented only for p5.prototype just as overlay is?
-// ii. Handling other default uniforms such as uSampler (proof-of-concept found on texture branch)
+// blog apps demos docs.
+// v-0.9: i. only WEBGL; ii. instance mode tests (drawing); iii. use p5.prototype.map instead of _map
+// v-1.0: p5-v2 support
+// v-next: handling other default uniforms (e.g., uSampler)
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -11,7 +13,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.3',
+    VERSION: '0.8.4',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -460,6 +462,7 @@ var Tree = (function (ext) {
     return this._renderer._map(...args);
   }
 
+  // TODO overkill
   p5.RendererGL.prototype._map = function (n, start1, stop1, start2, stop2) {
     return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
   }
@@ -1035,6 +1038,11 @@ void main() {
     }
   }
 
+  p5.prototype.resetUniformsUI = function (shader) {
+    this.hideUniformsUI(shader);
+    shader.uniformsUI = undefined;
+  }
+
   p5.prototype.hideUniformsUI = function (shader) {
     if (!shader.uniformsUI) {
       console.log('No uniformsUI found for this shader. Call parseUniformsUI(shader) first');
@@ -1121,6 +1129,46 @@ void main() {
     }
     target instanceof p5.Framebuffer && target.end();
     return target || context;
+  }
+
+  p5.prototype._effects = [];
+
+  p5.prototype.effects = function () {
+    return this._effects;
+  }
+
+  p5.prototype.setEffects = function (effects) {
+    if (Array.isArray(effects)) {
+      this._effects = effects;
+    } else {
+      console.log('effects must be an array');
+    }
+  }
+
+  p5.prototype.resetEffects = function () {
+    this._effects = [];
+  }
+
+  p5.prototype.addEffect = function (key, shader) {
+    this._effects.push({ name: key, shader, target: this.createFramebuffer() });
+  }
+
+  p5.prototype.applyEffects = function (layer, arg2, arg3) {
+    let sharedLayer = layer;
+    let uniforms = typeof arg2 === 'object' && !Array.isArray(arg2) ? arg2 : (typeof arg3 === 'object' && !Array.isArray(arg3) ? arg3 : {});
+    let flip = typeof arg2 === 'boolean' ? arg2 : (typeof arg3 === 'boolean' ? arg3 : true);
+    this._effects?.forEach(effect => {
+      const fn = uniforms[effect.name];
+      if (typeof fn === 'function') {
+        const uniforms = fn(sharedLayer);
+        sharedLayer = this.applyShader(effect.shader, {
+          target: effect.target,
+          scene: () => overlay(flip),
+          uniforms,
+        });
+      }
+    });
+    return sharedLayer;
   }
 
   p5.prototype.texOffset = function (image) {
@@ -1425,6 +1473,7 @@ void main() {
       this.quad(-1, flip ? 1 : -1, 1, flip ? 1 : -1, 1, flip ? -1 : 1, -1, flip ? -1 : 1);
     }
     // TODO this._renderer.overlay(...args) gives bug: p5.Geometry.prototype._getFaceNormal: face has colinear sides or a repeated vertex
+    // key observation: this gets called from a webgl pg!
   }
 
   p5.prototype.axes = function (...args) {
@@ -1629,6 +1678,7 @@ void main() {
     this._renderer._circle(...args);
   }
 
+  // TODO overkill
   p5.RendererGL.prototype._circle = function ({ filled = false, x = this.width / 2, y = this.height / 2, radius = 100, detail = 50 } = {}) {
     this._rendererState = this.push();
     if (filled) {

@@ -6,6 +6,7 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
   - [Handling](#handling)
   - [uniformsUI](#uniformsui)
   - [Apply shader](#apply-shader)
+  - [Post-effects](#post-effects)
   - [Macros](#macros)
 - [Basic matrices](#basic-matrices)
 - [Matrix queries](#matrix-queries)
@@ -138,12 +139,20 @@ These functions manipulate the `uniformsUI`:
    - `color`: Specifies the text color for the UI elements' labels.
 3. `showUniformsUI(shader)`: Displays the `shader.uniformsUI` elements associated with the `shader`'s uniforms. It attaches necessary event listeners to update the shader uniforms based on user interactions.
 4. `hideUniformsUI(shader)`: Hides the `shader.uniformsUI` elements and removes the event listeners, stopping any further updates to the `shader` uniforms from ui interactions.
-5. `p5.Shader.setUniformsUI()`: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
+5. `resetUniformsUI(shader)`: Hides and resets the `shader.uniformsUI` which should be restored with a call to `parseUniformsUI(shader, configUniformsUI)`.
+6. `p5.Shader.setUniformsUI()`: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
 
 ## Apply shader
 
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can be called independently between [beginHUD and endHUD](#heads-up-display) for a direct screen space application.
+
+## Post-effects
+
+1. `addEffect(key, shader)`: Adds a new effect to the post-effects array, identified by a unique `key` and associated with a `shader`. The `shader` should be an instance of [p5.Shader](https://p5js.org/reference/#/p5.Shader). The effect will be applied in the order it was added when `applyEffects` is called.
+2. `resetEffects()`: Clears all the effects from the post-effects array, effectively resetting it to an empty state. This is useful for starting fresh with a new set of effects or clearing out effects that are no longer needed.
+3. `effects()`: Returns the current post-effects array. Each effect is an object containing the `key`, `shader`, and a `target` which is a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) used to apply the shader.
+4. `applyEffects(layer, uniforms, flip)`: Sequentially applies all effects (in the order they were added) to the source `layer`, which can be a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer), a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics) object, or the current context. The `uniforms` object maps effect keys to functions that return uniform values, with each function accepting the current `sharedLayer` as an argument. These functions dynamically generate uniform values, potentially based on the state of the `sharedLayer` (e.g., its `depth`). The `flip` boolean indicates whether the final image should be vertically flipped. The method sequentially processes each effect, applying its shader with the corresponding uniforms (calling `applyShader`). The final processed layer, now modified by all the effects, is returned.
 
 ## Macros
 
