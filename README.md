@@ -145,7 +145,7 @@ These functions manipulate the `uniformsUI`:
 ## Apply shader
 
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
-2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can be called independently between [beginHUD and endHUD](#heads-up-display) for a direct screen space application.
+2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can also be called between [beginHUD and endHUD](#heads-up-display) to specify the scene geometry in screen space.
 
 ## Post-effects
 
