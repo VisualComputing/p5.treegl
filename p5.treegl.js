@@ -1,10 +1,8 @@
 'use strict';
 
 // TODO's
-// blog apps demos docs.
-// v-0.9: i. only WEBGL; ii. instance mode tests (drawing); iii. use p5.prototype.map instead of _map
-// v-1.0: p5-v2 support
-// v-next: handling other default uniforms (e.g., uSampler)
+// blog apps demos docs. 
+// i. p5-v2; ii. only WEBGL (?); iii. instance mode tests (drawing); iv. use p5.prototype.map instead of _map
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -13,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.7',
+    VERSION: '0.9.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -838,6 +836,7 @@ var Tree = (function (ext) {
       this._coupledWith = fragFilename.substring(fragFilename.lastIndexOf('/') + 1);
       const target = this._parseFragmentShader(source);
       shader._vertSrc = this.parseVertexShader({ version: target.version, precision: target.precision, varyings: target.varyings, matrices, _specs: false });
+      shader._blender = target.blender;
       this.parseUniformsUI(shader, uiConfig);
       this._coupledWith = undefined;
     });
@@ -852,6 +851,7 @@ var Tree = (function (ext) {
     const target = this._parseFragmentShader(source);
     shader._vertSrc = this.parseVertexShader({ version: target.version, precision: target.precision, varyings: target.varyings, matrices, _specs: false });
     shader._fragSrc = source;
+    shader._blender = target.blender;
     this.parseUniformsUI(shader, uiConfig);
     this._coupledWith = undefined;
     return shader;
@@ -883,7 +883,10 @@ var Tree = (function (ext) {
       }
       varyings |= Tree[varyingName];
     }
-    return { version, precision, varyings };
+    const blenderRegex = /^\s*uniform\s+sampler2D\s+blender\s*;.*?(\/\/.*)?$/gm;
+    const blenderMatch = source.match(blenderRegex);
+    const blender = blenderMatch != null;
+    return { version, precision, varyings, blender };
   }
 
   p5.prototype.parseVertexShader = function ({
@@ -1138,14 +1141,11 @@ void main() {
   }
 
   p5.prototype.setEffects = function (effects) {
-    if (Array.isArray(effects)) {
-      this._effects = effects;
-    } else {
-      console.log('effects must be an array');
-    }
+    Array.isArray(effects) ? this._effects = effects : console.log('effects must be an array');
   }
 
   p5.prototype.resetEffects = function () {
+    this._effects.forEach(effect => effect.target?.remove?.());
     this._effects = [];
   }
 
@@ -1154,33 +1154,47 @@ void main() {
     index >= 0 && index < this._effects.length ? this._effects.splice(index, 0, effect) : this._effects.push(effect);
   }
 
-  p5.prototype.removeEffect = function (key) {
+  p5.prototype.effect = function (key) {
     let index = this._effects.findIndex(effect => effect.name === key);
     if (index !== -1) {
-      let effect = this._effects.splice(index, 1)[0];
-      effect.target?.remove?.();
-      return { key, shader: effect.shader, index };
+      let effect = this._effects[index];
+      return { key, shader: effect.shader, target: effect.target, index };
     }
-    console.log(`No effect found with the key '${key}' to remove.`);
+    console.log(`No effect found with the key '${key}'.`);
+    return undefined;
+  }
+
+  p5.prototype.removeEffect = function (key) {
+    let effectObject = this.effect(key);
+    if (effectObject) {
+      this._effects.splice(effectObject.index, 1);
+      effectObject.target?.remove?.();
+      return effectObject;
+    }
     return undefined;
   }
 
   p5.prototype.applyEffects = function (layer, arg2, arg3) {
-    let sharedLayer = layer;
-    let uniforms = typeof arg2 === 'object' && !Array.isArray(arg2) ? arg2 : (typeof arg3 === 'object' && !Array.isArray(arg3) ? arg3 : {});
+    let blender = layer;
+    let uniformsParam = typeof arg2 === 'object' && !Array.isArray(arg2) ? arg2 : (typeof arg3 === 'object' && !Array.isArray(arg3) ? arg3 : {});
     let flip = typeof arg2 === 'boolean' ? arg2 : (typeof arg3 === 'boolean' ? arg3 : true);
     this._effects?.forEach(effect => {
-      const fn = uniforms[effect.name];
-      if (typeof fn === 'function') {
-        const uniforms = fn(sharedLayer);
-        sharedLayer = this.applyShader(effect.shader, {
-          target: effect.target,
-          scene: () => this.overlay(flip),
-          uniforms,
-        });
+      const fnOrObject = uniformsParam[effect.name];
+      let uniforms = {};
+      if (typeof fnOrObject === 'function') {
+        uniforms = fnOrObject(blender);
+      } else {
+        !effect.shader._blender && console.log(`Be sure to declare a uniform sampler2D named blender for shader '${effect.name}'.`);
+        typeof fnOrObject === 'object' && !Array.isArray(fnOrObject) && (uniforms = fnOrObject);
       }
+      uniforms.blender = blender;
+      blender = this.applyShader(effect.shader, {
+        target: effect.target,
+        scene: () => this.overlay(flip),
+        uniforms,
+      });
     });
-    return sharedLayer;
+    return blender;
   }
 
   p5.prototype.texOffset = function (image) {
