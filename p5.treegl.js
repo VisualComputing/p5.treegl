@@ -13,7 +13,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.8.6',
+    VERSION: '0.8.7',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1149,8 +1149,20 @@ void main() {
     this._effects = [];
   }
 
-  p5.prototype.addEffect = function (key, shader) {
-    this._effects.push({ name: key, shader, target: this.createFramebuffer() });
+  p5.prototype.addEffect = function (key, shader, index = -1) {
+    const effect = { name: key, shader, target: this.createFramebuffer() };
+    index >= 0 && index < this._effects.length ? this._effects.splice(index, 0, effect) : this._effects.push(effect);
+  }
+
+  p5.prototype.removeEffect = function (key) {
+    let index = this._effects.findIndex(effect => effect.name === key);
+    if (index !== -1) {
+      let effect = this._effects.splice(index, 1)[0];
+      effect.target?.remove?.();
+      return { key, shader: effect.shader, index };
+    }
+    console.log(`No effect found with the key '${key}' to remove.`);
+    return undefined;
   }
 
   p5.prototype.applyEffects = function (layer, arg2, arg3) {
