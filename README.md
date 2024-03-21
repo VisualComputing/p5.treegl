@@ -166,6 +166,7 @@ uniform sampler2D depth;
 ```js
 // p5 setup
 let layer
+let noise, bloom
 
 function setup() {
   layer = createFramebuffer()
