@@ -33,7 +33,8 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 # Shaders
 
 ## Setup
-(rewrite me)
+
+<!-- Section needs to be restructured (moving parseVertexShader to the end) -->
 
 1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = WEBGL2]}])`: This function interprets the `precision`, `matrices`, `varyings`, and `version` parameters to construct a vertex shader, which it outputs as a string. For instance:
    - Invoking `parseVertexShader()` with no arguments will output (and also log onto the console) the string below:
@@ -145,14 +146,14 @@ These functions manipulate the `uniformsUI`:
 
 ## Apply shader
 
-INTRO MISSED: PURPOSE VS SHADER VANILLA STUFF
+<!-- INTRO MISSED: PURPOSE VS SHADER VANILLA STUFF -->
 
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can also be called between [beginHUD and endHUD](#heads-up-display) to specify the scene geometry in screen space.
 
 ## Post-effects
 
-Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as bloom, motion blur, ambient occlusion, and color grading, into a rendered scene. In `treegl` these `effects()` are managed through a queue, offering flexibility to dynamically alter the rendering order or modify the effects storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects()[0], effects()[1]] = [effects()[1], effects()[0]]`. Effects may be added with `addEffect(key, shader)`, removed with `removeEffect(key)`, retrieved with `effect(key)`, and sequentially be applied to a source `layer` with `applyEffects(layer, uniforms)`. Example usage:
+Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as bloom, motion blur, ambient occlusion, and color grading, into a rendered scene. In `treegl` these `effects` are managed through a user-space defined queue (which should be implemented as an array) of `{ key, shader, [target] }` elements, offering flexibility to dynamically alter the rendering order or modify storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects[0], effects[1]] = [effects[1], effects[0]]`. Effects are sequentially applied to a source `layer` with `applyEffects(layer, effects, uniforms)`. Example usage:
 
 ```glsl
 // noise shader
@@ -169,12 +170,13 @@ uniform sampler2D depth;
 ```js
 // p5 setup
 let layer
+let effects[] // user space queue should be an array
 
 function setup() {
   createCanvas(600, 400, WEBGL)
   layer = createFramebuffer()
-  addEffect('noise', makeShader('noise_string'))
-  addEffect('bloom', makeShader('bloom_string'))
+  effects.push({ key: 'noise', shader: makeShader(noise_shader_string) })
+  effects.push({ key: 'bloom', shader: makeShader(bloom_shader_string) })
 }
 ```
 
@@ -189,7 +191,7 @@ function draw() {
     bloom: { depth: layer.depth },
     noise: { time: millis() / 1000 }
   }
-  const target = applyEffects(layer, uniforms);
+  const target = applyEffects(layer, effects, uniforms);
   // display target using screen space coords
   beginHUD();
   image(target, 0, 0);
@@ -201,17 +203,11 @@ function draw() {
 // p5 keyPressed
 function keyPressed() {
   // swap effects
-  [effects()[0], effects()[1]] = [effects()[1], effects()[0]]
+  [effects[0], effects[1]] = [effects[1], effects[0]]
 }
 ```
 
-1. `addEffect(key, shader, [index = -1])`: Adds a new effect to the post-effects queue, identified by a unique `key` and associated with a `shader`. Optionally, an `index` can be specified to insert the effect at a specific position in the queue; if not provided, the effect is added to the end. The `shader` should be an instance of [p5.Shader](https://p5js.org/reference/#/p5.Shader). The effect will be applied in the order it appears in the queue when `applyEffects` is called.
-2. `removeEffect(key)`: Removes the effect associated with the specified `key` from the post-effects queue. Returns an object containing the `key`, `shader`, and `index` of the removed effect, or `undefined` if no effect with the specified key is found.
-3. `resetEffects()`: Clears all the effects from the post-effects queue, effectively resetting it to an empty state. This is useful for starting fresh with a new set of effects or clearing out effects that are no longer needed.
-4. `setEffects(effects)`: Replaces the current `treegl` post-effects queue with the provided `effects` array.
-5. `effects()`: Returns the current post-effects queue (implemented as a js array). Each effect is an object containing the `key`, `shader`, and a `target` which is a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) instance used to apply the shader.
-6. `effect(key)`: Retrieves the effect associated with the specified `key`. If the effect exists, it returns an object containing the `key`, `shader`, and `target`. If no effect with the specified key is found, it returns `undefined`.
-7. `applyEffects(layer, uniforms, flip)`: Sequentially applies all effects (in the order they were added) to the source [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) `layer`. The `uniforms` param map shader `keys` to their respective uniform values, formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`, provided that a `sampler2D uniform blender` variable is declared in each shader effect as a common layer[^2]. The `flip` boolean indicates whether the final image should be vertically flipped. This method processes each effect, applying its shader with the corresponding uniforms (with `applyShader`), and returns the final processed layer, now modified by all effects.
+1. `applyEffects(layer, effects, [uniforms], [flip])`: Sequentially applies all effects (in the order they were added) to the source [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) `layer`. The `uniforms` param map shader `keys` to their respective uniform values, formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`, provided that a `sampler2D uniform blender` variable is declared in each shader effect as a common layer[^2]. The `flip` boolean indicates whether the final image should be vertically flipped. This method processes each effect, applying its shader with the corresponding uniforms (with `applyShader`), and returns the final processed layer, now modified by all effects.
 
 [^1]: For a detailed study, please refer to the undergraduate thesis on [post-effects](https://visualcomputing.github.io/posteffects/) by Diego Bulla.
 [^2]: Alternatively, `uniforms` can also map shader `keys` to functions that dynamically compute uniform values based on the state of a `shared_layer` parameter.
