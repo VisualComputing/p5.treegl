@@ -142,7 +142,7 @@ These functions manipulate the `uniformsUI`:
 3. `showUniformsUI(shader)`: Displays the `shader.uniformsUI` elements associated with the `shader`'s uniforms. It attaches necessary event listeners to update the shader uniforms based on user interactions.
 4. `hideUniformsUI(shader)`: Hides the `shader.uniformsUI` elements and removes the event listeners, stopping any further updates to the `shader` uniforms from ui interactions.
 5. `resetUniformsUI(shader)`: Hides and resets the `shader.uniformsUI` which should be restored with a call to `parseUniformsUI(shader, configUniformsUI)`.
-6. `p5.Shader.setUniformsUI()`: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
+6. `setUniformsUI(shader)`: Iterates over the `uniformsUI` map and sets the shader's uniforms based on the current values of the corresponding UI elements. This method should be called within the `draw` loop to ensure the shader uniforms are continuously updated. Note that `applyShader` automatically calls this method.
 
 ## Apply shader
 
