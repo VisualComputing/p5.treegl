@@ -3,7 +3,7 @@
 High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
 
 - [Shaders](#shaders)
-  - [Handling](#handling)
+  - [Setup](#setup)
   - [uniformsUI](#uniformsui)
   - [Apply shader](#apply-shader)
   - [Post-effects](#post-effects)
@@ -32,7 +32,8 @@ Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-m
 
 # Shaders
 
-## Handling
+## Setup
+(rewrite me)
 
 1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = WEBGL2]}])`: This function interprets the `precision`, `matrices`, `varyings`, and `version` parameters to construct a vertex shader, which it outputs as a string. For instance:
    - Invoking `parseVertexShader()` with no arguments will output (and also log onto the console) the string below:
@@ -144,6 +145,8 @@ These functions manipulate the `uniformsUI`:
 
 ## Apply shader
 
+INTRO MISSED: PURPOSE VS SHADER VANILLA STUFF
+
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can also be called between [beginHUD and endHUD](#heads-up-display) to specify the scene geometry in screen space.
 
@@ -168,6 +171,7 @@ uniform sampler2D depth;
 let layer
 
 function setup() {
+  createCanvas(600, 400, WEBGL)
   layer = createFramebuffer()
   addEffect('noise', makeShader('noise_string'))
   addEffect('bloom', makeShader('bloom_string'))
@@ -180,12 +184,13 @@ function draw() {
   layer.begin()
   // render scene into layer
   layer.end()
+  // render target by applying effects to layer
   let uniforms = {
     bloom: { depth: layer.depth },
     noise: { time: millis() / 1000 }
   }
-  const target = applyEffects(layer, uniforms, false);
-  // render target using screen space coordinates
+  const target = applyEffects(layer, uniforms);
+  // display target using screen space coords
   beginHUD();
   image(target, 0, 0);
   endHUD();
@@ -195,6 +200,7 @@ function draw() {
 ```js
 // p5 keyPressed
 function keyPressed() {
+  // swap effects
   [effects()[0], effects()[1]] = [effects()[1], effects()[0]]
 }
 ```
