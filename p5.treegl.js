@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.0',
+    VERSION: '0.9.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1077,6 +1077,18 @@ void main() {
     }
   }
 
+  p5.prototype.setUniformsUI = function (shader) {
+    for (const key in shader.uniformsUI) {
+      shader._setUniformUI(key, shader.uniformsUI[key]);
+    }
+  }
+
+  p5.Shader.prototype.setUniformsUI = function () {
+    for (const key in this.uniformsUI) {
+      this._setUniformUI(key, this.uniformsUI[key]);
+    }
+  }
+
   p5.Shader.prototype._setUniformUI = function (key, element) {
     const elementType = element.elt.type || (element.elt.tagName.toLowerCase() === 'div' ? element.elt.getElementsByTagName('input')[0].type : undefined);
     if (elementType === 'color') {
@@ -1093,17 +1105,11 @@ void main() {
     }
   }
 
-  p5.Shader.prototype.setUniformsUI = function () {
-    for (const key in this.uniformsUI) {
-      this._setUniformUI(key, this.uniformsUI[key]);
-    }
-  }
-
   /**
    * Applies a shader (`effect`) to a specified rendering `target`, sets shader `uniforms`,
    * and optionally executes a `scene` function with provided `options`. If no `scene` is specified,
    * a default overlaying quad is rendered. The function facilitates method chaining by returning the `target`.
-   * @param {p5.Shader} effect - The shader to be applied.
+   * @param {p5.Shader} shader - The shader to be applied.
    * @param {Object} config - Configuration object containing:
    *   @param {p5.Graphics|p5.Framebuffer} [config.target=this] - The target to which the shader is applied. 
    *        Can be the current context, a p5.Graphics object, or a p5.Framebuffer.
@@ -1113,86 +1119,58 @@ void main() {
    *   @param {Object} [config.options] - Optional object to pass additional parameters to the `scene` function.
    * @returns {p5.Graphics|p5.Framebuffer} - The rendering target for method chaining.
    */
-  p5.prototype.applyShader = function (effect, { target, uniforms, scene, options = {} } = {}) {
+  p5.prototype.applyShader = function (shader, { target, uniforms, scene, options = {} } = {}) {
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
-    context.shader(effect);
-    effect.setUniformsUI();
+    context.shader(shader);
+    shader.setUniformsUI(); // also possible: this.setUniformsUI(shader);
     for (const key in uniforms) {
-      effect.setUniform(key, uniforms[key]);
+      shader.setUniform(key, uniforms[key]);
     }
     target && (options.target = target);
     if (typeof scene === 'function') {
       scene(options);
     }
     else {
-      effect._pMatrix && this.beginHUD();
+      shader._pMatrix && this.beginHUD();
       context.overlay(options.flip);
-      effect._pMatrix && this.endHUD();
+      shader._pMatrix && this.endHUD();
     }
     target instanceof p5.Framebuffer && target.end();
     return target || context;
   }
 
-  p5.prototype._effects = [];
-
-  p5.prototype.effects = function () {
-    return this._effects;
-  }
-
-  p5.prototype.setEffects = function (effects) {
-    Array.isArray(effects) ? this._effects = effects : console.log('effects must be an array');
-  }
-
-  p5.prototype.resetEffects = function () {
-    this._effects.forEach(effect => effect.target?.remove?.());
-    this._effects = [];
-  }
-
-  p5.prototype.addEffect = function (key, shader, index = -1) {
-    const effect = { name: key, shader, target: this.createFramebuffer() };
-    index >= 0 && index < this._effects.length ? this._effects.splice(index, 0, effect) : this._effects.push(effect);
-  }
-
-  p5.prototype.effect = function (key) {
-    let index = this._effects.findIndex(effect => effect.name === key);
-    if (index !== -1) {
-      let effect = this._effects[index];
-      return { key, shader: effect.shader, target: effect.target, index };
+  p5.prototype.applyEffects = function (layer, effects, arg2, arg3) {
+    if (!(layer instanceof p5.Framebuffer)) {
+      console.log('The layer paarm should be a p5.Framebuffer in applyEffects(layer, effects).');
+      return layer;
     }
-    console.log(`No effect found with the key '${key}'.`);
-    return undefined;
-  }
-
-  p5.prototype.removeEffect = function (key) {
-    let effectObject = this.effect(key);
-    if (effectObject) {
-      this._effects.splice(effectObject.index, 1);
-      effectObject.target?.remove?.();
-      return effectObject;
+    if (!Array.isArray(effects)) {
+      console.log('The effects param should be an array in applyEffects(layer, effects).');
+      return layer;
     }
-    return undefined;
-  }
-
-  p5.prototype.applyEffects = function (layer, arg2, arg3) {
     let blender = layer;
     let uniformsParam = typeof arg2 === 'object' && !Array.isArray(arg2) ? arg2 : (typeof arg3 === 'object' && !Array.isArray(arg3) ? arg3 : {});
     let flip = typeof arg2 === 'boolean' ? arg2 : (typeof arg3 === 'boolean' ? arg3 : true);
-    this._effects?.forEach(effect => {
-      const fnOrObject = uniformsParam[effect.name];
+    effects.forEach((effect, index) => {
+      if (typeof effect !== 'object' || Array.isArray(effect) || typeof effect.key !== 'string' || !(effect.shader instanceof p5.Shader)) {
+        console.log(`Invalid effect '${effect.key || 'unknown'}', skipping.`);
+        return;
+      }
+      if (!(effect.target instanceof p5.Framebuffer)) {
+        effect.target = this.createFramebuffer();
+        console.log(`Framebuffer bound to '${effect.key}'; access with 'effects[${index}].target', e.g., for cleanup.`);
+      }
+      const fnOrObject = uniformsParam[effect.key];
       let uniforms = {};
       if (typeof fnOrObject === 'function') {
         uniforms = fnOrObject(blender);
       } else {
-        !effect.shader._blender && console.log(`Be sure to declare a uniform sampler2D named blender for shader '${effect.name}'.`);
-        typeof fnOrObject === 'object' && !Array.isArray(fnOrObject) && (uniforms = fnOrObject);
+        uniforms = fnOrObject || {};
+        !effect.shader._blender && console.log(`uniform sampler2D blender variable missed for '${effect.key}' shader.`);
       }
       uniforms.blender = blender;
-      blender = this.applyShader(effect.shader, {
-        target: effect.target,
-        scene: () => this.overlay(flip),
-        uniforms,
-      });
+      blender = this.applyShader(effect.shader, { target: effect.target, scene: () => this.overlay(flip), uniforms });
     });
     return blender;
   }
