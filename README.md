@@ -153,7 +153,7 @@ These functions manipulate the `uniformsUI`:
 
 ## Post-effects
 
-Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as bloom, motion blur, ambient occlusion, and color grading, into a rendered scene. In `treegl` these `effects` are managed through a user-space defined queue (which should be implemented as an array) of `{ key, shader, [target] }` elements, offering flexibility to dynamically alter the rendering order or modify storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects[0], effects[1]] = [effects[1], effects[0]]`. Effects are sequentially applied to a source `layer` with `applyEffects(layer, effects, uniforms)`. Example usage:
+Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as bloom, motion blur, ambient occlusion, and color grading, into a rendered scene. In `treegl` these `effects` are managed through a user-space defined queue (which should be implemented as an array) of `{ key, shader, [target] }` elements, offering flexibility to dynamically alter the rendering order or modify storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects[0], effects[1]] = [effects[1], effects[0]]`. Effects are sequentially applied to a source `layer` with `applyEffects(layer, effects, [uniforms], [flip])`. Example usage:
 
 ```glsl
 // noise shader
