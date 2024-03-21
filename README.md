@@ -164,6 +164,7 @@ uniform sampler2D depth;
 ```
 
 ```js
+// p5 setup
 let layer
 
 function setup() {
@@ -174,6 +175,7 @@ function setup() {
 ```
 
 ```js
+// p5 draw
 function draw() {
   layer.begin()
   // render scene into layer
@@ -187,6 +189,13 @@ function draw() {
   beginHUD();
   image(target, 0, 0);
   endHUD();
+}
+```
+
+```js
+// p5 keyPressed
+function keyPressed() {
+  [effects()[0], effects()[1]] = [effects()[1], effects()[0]]
 }
 ```
 
