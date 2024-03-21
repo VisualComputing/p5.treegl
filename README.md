@@ -22,9 +22,9 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
 
 ```js
-let matrix = new p5.Matrix();
+let matrix = new p5.Matrix()
 // invMatrix doesn't modify its matrix param, it gives a new value
-let iMatrix = invMatrix(matrix);
+let iMatrix = invMatrix(matrix)
 // iMatrix !== matrix
 ```
 
@@ -149,7 +149,46 @@ These functions manipulate the `uniformsUI`:
 
 ## Post-effects
 
-Post-effects[^1] are an essential part of dynamic visual rendering, allowing for the application of various shader effects to a rendered scene. In `treegl` these `effects()` are managed through a queue, offering flexibility to dynamically alter the rendering order or modify the effects storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects()[0], effects()[1]] = [effects()[1], effects()[0]]`. Effects may be added with `addEffect(key, shader)`, removed with `removeEffect(key)`, retrieved with `effect(key)`, and sequentially be applied to a source `layer` with `applyEffects(layer, uniforms)`.
+Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as bloom, motion blur, ambient occlusion, and color grading, into a rendered scene. In `treegl` these `effects()` are managed through a queue, offering flexibility to dynamically alter the rendering order or modify the effects storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects()[0], effects()[1]] = [effects()[1], effects()[0]]`. Effects may be added with `addEffect(key, shader)`, removed with `removeEffect(key)`, retrieved with `effect(key)`, and sequentially be applied to a source `layer` with `applyEffects(layer, uniforms)`. Example usage:
+
+```glsl
+// noise shader
+uniform sampler2D blender; // <- shared layer should be named 'blender'
+uniform float time;
+```
+
+```glsl
+// bloom shader
+uniform sampler2D blender; // <- shared layer should be named 'blender'
+uniform sampler2D depth;
+```
+
+```js
+let layer
+
+function setup() {
+  layer = createFramebuffer()
+  addEffect('noise', makeShader(noise))
+  addEffect('bloom', makeShader(bloom))
+}
+```
+
+```js
+function draw() {
+  layer.begin()
+  // render scene into layer
+  layer.end()
+  let uniforms = {
+    bloom: { depth: layer.depth },
+    noise: { time: millis() / 1000 }
+  }
+  const target = applyEffects(layer, uniforms, false);
+  // render target using screen space coordinates
+  beginHUD();
+  image(target, 0, 0);
+  endHUD();
+}
+```
 
 1. `addEffect(key, shader, [index = -1])`: Adds a new effect to the post-effects queue, identified by a unique `key` and associated with a `shader`. Optionally, an `index` can be specified to insert the effect at a specific position in the queue; if not provided, the effect is added to the end. The `shader` should be an instance of [p5.Shader](https://p5js.org/reference/#/p5.Shader). The effect will be applied in the order it appears in the queue when `applyEffects` is called.
 2. `removeEffect(key)`: Removes the effect associated with the specified `key` from the post-effects queue. Returns an object containing the `key`, `shader`, and `index` of the removed effect, or `undefined` if no effect with the specified key is found.
@@ -204,7 +243,7 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 ```js
 // Bind additional eMatrix and mMatrix to the current renderer
 // should be called after setAttributes
-bindMatrices(Tree.eMatrix | Tree.mMatrix);
+bindMatrices(Tree.eMatrix | Tree.mMatrix)
 ```
 
 By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as `uProjectionMatrix`, `uViewMatrix`, etc., developers can leverage enhanced visual effects and transformations in their shaders.
@@ -217,16 +256,16 @@ By specifying additional matrices alongside those automatically emitted by [p5.j
 Pass matrix params when you *cached* those matrices (see the [previous section](#matrix-queries)), either to speedup computations, e.g.,
 
 ```js
-let pvInv;
+let pvInv
 
 function draw() {
   // cache pvInv at the beginning of the rendering loop
   // note that this matrix rarely change within the iteration
-  pvInv = pvInvMatrix();
+  pvInv = pvInvMatrix()
   // ...
   // speedup treeLocation
-  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
-  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv });
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
+  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
   // ... many more treeLocation calls....
   // ... all the above treeLocation calls used the (only computed once) cached pvInv matrix
 }
@@ -235,25 +274,25 @@ function draw() {
 or to transform points (and vectors) between local spaces, e.g.,
 
 ```js
-let model;
+let model
 
 function draw() {
   // ...
   // save model matrix as it is set just before drawing your model
-  model = mMatrix();
-  drawModel();
+  model = mMatrix()
+  drawModel()
   // continue drawing your tree...
   // let's draw a bulls eye at the model origin screen projection
-  push();
-  let screenProjection = treeLocation(Tree.ORIGIN, { from: model, to: Tree.SCREEN });
+  push()
+  let screenProjection = treeLocation(Tree.ORIGIN, { from: model, to: Tree.SCREEN })
   // which is the same as:
   // let screenProjection = treeLocation(createVector(0, 0, 0), { from: model, to: Tree.SCREEN });
   // or,
   // let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
   // or, more simply:
   // let screenProjection = treeLocation({ from: model, to: Tree.SCREEN });
-  bullsEye({ x: screenProjection.x, y: screenProjection.y });
-  pop();
+  bullsEye({ x: screenProjection.x, y: screenProjection.y })
+  pop()
 }
 ```
 
@@ -291,8 +330,8 @@ function draw() {
 4. `visibility`: Returns object visibility, either as `Tree.VISIBLE`, `Tree.INVISIBLE`, or `Tree.SEMIVISIBLE`. Object may be either a _point_: `visibility({ center, [bounds = this.bounds([{[eMatrix = this.eMatrix()], [vMatrix = this.vMatrix()]}])]})`, a _ball_: `visibility({ center, radius, [bounds = this.bounds()]})` or an _axis-aligned box_: `visibility({ corner1, corner2, [bounds = this.bounds()]})`.
 5. `bounds()`: Returns the [general form](http://www.songho.ca/math/plane/plane.html) of the current frustum six plane equations, i.e., _ax + by + cz + d = 0_, formatted as an object literal having keys: `Tree.LEFT`, `Tree.RIGHT`, `Tree.BOTTOM`, `Tree.TOP`, `Tree.NEAR` and `Tree.FAR`, e.g., access the near plane coefficients as:
    ```js
-   let bounds = bounds();
-   let near = bounds[Tree.NEAR];// near.a, near.b, near.c and near.d
+   let bounds = bounds()
+   let near = bounds[Tree.NEAR] // near.a, near.b, near.c and near.d
    ```
 
 # Drawing stuff
