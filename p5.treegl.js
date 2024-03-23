@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.1',
+    VERSION: '0.9.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -813,22 +813,26 @@ var Tree = (function (ext) {
     this._matrices = matrices;
   }
 
-  p5.prototype._swapArgs = function (arg2, arg3) {
+  p5.prototype._swapArgs = function (...args) {
     let matrices = Tree.NONE;
     let uiConfig = undefined;
-    if (typeof arg2 === 'number') {
-      matrices = arg2;
-      uiConfig = typeof arg3 === 'object' ? arg3 : undefined;
-    } else if (typeof arg2 === 'object') {
-      uiConfig = arg2;
-      matrices = typeof arg3 === 'number' ? arg3 : Tree.NONE;
-    }
-    return { matrices, uiConfig };
+    let key = undefined;
+    args.forEach(arg => {
+      if (typeof arg === 'number') {
+        matrices = arg;
+      } else if (typeof arg === 'object') {
+        uiConfig = arg;
+      } else if (typeof arg === 'string') {
+        key = arg;
+      }
+    });
+    return { matrices, uiConfig, key };
   }
 
-  p5.prototype.readShader = function (fragFilename, arg2 = {}, arg3 = {}) {
+  p5.prototype.readShader = function (fragFilename, ...args) {
     const shader = new p5.Shader();
-    const { matrices, uiConfig } = this._swapArgs(arg2, arg3);
+    const { matrices, uiConfig, key } = this._swapArgs(...args);
+    shader.key = key;
     shader._pMatrix = (matrices & Tree.pmvMatrix) === Tree.pmvMatrix || (matrices & Tree.pMatrix) === Tree.pMatrix;
     this.loadStrings(fragFilename, (result) => {
       const source = result.join('\n');
@@ -843,9 +847,10 @@ var Tree = (function (ext) {
     return shader;
   }
 
-  p5.prototype.makeShader = function (source, arg2 = {}, arg3 = {}) {
+  p5.prototype.makeShader = function (source, ...args) {
     const shader = new p5.Shader();
-    const { matrices, uiConfig } = this._swapArgs(arg2, arg3);
+    const { matrices, uiConfig, key } = this._swapArgs(...args);
+    shader.key = key;
     shader._pMatrix = (matrices & Tree.pmvMatrix) === Tree.pmvMatrix || (matrices & Tree.pMatrix) === Tree.pMatrix;
     this._coupledWith = 'the fragment shader provided as param in makeShader()';
     const target = this._parseFragmentShader(source);
@@ -1140,9 +1145,9 @@ void main() {
     return target || context;
   }
 
-  p5.prototype.applyEffects = function (layer, effects, arg2, arg3) {
+  p5.prototype.applyEffects = function (layer, effects, ...args) {
     if (!(layer instanceof p5.Framebuffer)) {
-      console.log('The layer paarm should be a p5.Framebuffer in applyEffects(layer, effects).');
+      console.log('The layer param should be a p5.Framebuffer in applyEffects(layer, effects).');
       return layer;
     }
     if (!Array.isArray(effects)) {
@@ -1150,29 +1155,71 @@ void main() {
       return layer;
     }
     let blender = layer;
-    let uniformsParam = typeof arg2 === 'object' && !Array.isArray(arg2) ? arg2 : (typeof arg3 === 'object' && !Array.isArray(arg3) ? arg3 : {});
-    let flip = typeof arg2 === 'boolean' ? arg2 : (typeof arg3 === 'boolean' ? arg3 : true);
+    let uniformsMapping = {};
+    let flip = true;
+    args.forEach(arg => {
+      if (typeof arg === 'object' && !Array.isArray(arg)) {
+        uniformsMapping = arg;
+      } else if (typeof arg === 'boolean') {
+        flip = arg;
+      }
+    });
     effects.forEach((effect, index) => {
-      if (typeof effect !== 'object' || Array.isArray(effect) || typeof effect.key !== 'string' || !(effect.shader instanceof p5.Shader)) {
-        console.log(`Invalid effect '${effect.key || 'unknown'}', skipping.`);
+      if (!(effect instanceof p5.Shader)) {
+        console.log(`Skipping effect '${index}' due to missed shader type.`);
         return;
       }
-      if (!(effect.target instanceof p5.Framebuffer)) {
-        effect.target = this.createFramebuffer();
-        console.log(`Framebuffer bound to '${effect.key}'; access with 'effects[${index}].target', e.g., for cleanup.`);
+      if (!(effect.blender instanceof p5.Framebuffer)) {
+        effect.blender = this.createFramebuffer();
+        console.log(`New frame buffer blender property set for ${effect.key ? `shader '${effect.key}'` : `effects[${index}] shader`}.`);
       }
-      const fnOrObject = uniformsParam[effect.key];
       let uniforms = {};
-      if (typeof fnOrObject === 'function') {
-        uniforms = fnOrObject(blender);
-      } else {
-        uniforms = fnOrObject || {};
-        !effect.shader._blender && console.log(`uniform sampler2D blender variable missed for '${effect.key}' shader.`);
+      if (effect.key) {
+        uniforms = uniformsMapping[effect.key] || {};
+        delete effect._uniformsWarn;
       }
+      else {
+        if (!effect._uniformsWarn) {
+          console.log(`Set effects[${index}].key to emit custom uniforms for effects[${index}] shader.`);
+          effect._uniformsWarn = true;
+        }
+      }
+      !effect._blender && console.log(`Skipping effect '${index}' due to '${effect.key}' shader missed uniform sampler2D blender variable.`);
       uniforms.blender = blender;
-      blender = this.applyShader(effect.shader, { target: effect.target, scene: () => this.overlay(flip), uniforms });
+      blender = this.applyShader(effect, { target: effect.blender, scene: () => this.overlay(flip), uniforms });
     });
     return blender;
+  }
+
+  p5.prototype.createBlender = function (effects, options) {
+    if (!Array.isArray(effects) || typeof options !== 'object') {
+      console.log('Incorrect params in createBlender(effects, options). Nothing done');
+      return;
+    }
+    effects.forEach((effect, index) => {
+      if (!(effect instanceof p5.Shader)) {
+        console.log(`Skipping blender creation for effect at index ${index} due to missing shader type.`);
+        return;
+      }
+      effect.blender = this.createFramebuffer(options);
+      console.log(`New frame buffer blender property set for ${effect.key ? `shader '${effect.key}'` : `effects[${index}] shader`}.`);
+    });
+  }
+
+  p5.prototype.removeBlender = function (effects) {
+    if (!Array.isArray(effects)) {
+      console.log('Incorrect params in removeBlender(effects). Nothing done');
+      return;
+    }
+    effects.forEach((effect, index) => {
+      if (!(effect instanceof p5.Shader)) {
+        console.log(`Skipping blender removal for effect at index ${index} due to missing shader type.`);
+        return;
+      }
+      effect.blender?.remove();
+      effect.blender = undefined;
+      console.log(`Blender property removed for ${effect.key ? `shader '${effect.key}'` : `effects[${index}] shader`}.`);
+    });
   }
 
   p5.prototype.texOffset = function (image) {
