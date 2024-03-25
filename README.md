@@ -175,7 +175,8 @@ let effects[] // user space array of shaders
 function setup() {
   createCanvas(600, 400, WEBGL)
   layer = createFramebuffer()
-  // instantiate shaders with keys for later uniform settings and add them to effects
+  // instantiate shaders with keys for later
+  // uniform settings and add them to effects
   effects.push(makeShader(noise_shader_string, 'noise'))
   effects.push(makeShader(bloom_shader_string, 'bloom'))
 }
