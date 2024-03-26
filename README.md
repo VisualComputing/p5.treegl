@@ -365,7 +365,7 @@ This section comprises a collection of handy functions designed to facilitate co
 
 # Drawing stuff
 
-This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, crosses, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes.
+This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes.
 
 1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
