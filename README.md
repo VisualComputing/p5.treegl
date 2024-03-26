@@ -37,15 +37,15 @@ Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-o
 
 ## Setup
 
-The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either GLSL ES 1.00 or GLSL ES 3.00— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to generate the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with p5.Elements from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
+The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either GLSL ES 1.00 or GLSL ES 3.00— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to generate the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
 
 1. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `loadShader`, this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects).
 2. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `createShader`, this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects).
 
 **Vertex Shader Generation Observations**
 
-- The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` (which is the default), to determine how vertices are projected onto NDC.
-- The fragment shader's `varyings` are parsed to determine which vertex attributes are interpolated to the fragment shader, following these naming conventions:
+- The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC.
+- The fragment shader's `varyings` variables are parsed to determine which and how vertex attributes should be interpolated from the vertex shader, following these naming conventions:
 
    | varying name | space       |
    |--------------|-------------|
