@@ -4,22 +4,23 @@ High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) 
 
 - [Shaders](#shaders)
   - [Setup](#setup)
+  - [Bind matrices](#bind-matrices)
   - [uniformsUI](#uniformsui)
   - [Apply shader](#apply-shader)
   - [Post-effects](#post-effects)
   - [Macros](#macros)
-- [Basic matrices](#basic-matrices)
-- [Matrix queries](#matrix-queries)
-- [Bind matrices](#bind-matrices)
 - [Space transformations](#space-transformations)
-- [Heads Up Display](#heads-up-display)
-- [Frustum queries](#frustum-queries)
+  - [Matrix operations](#matrix-operations)
+  - [Matrix queries](#matrix-queries)
+  - [Frustum queries](#frustum-queries)
+  - [Coordinate Space conversions](#coordinate-space-conversions)
+  - [Heads Up Display](#heads-up-display)
 - [Utilities](#utilities)
 - [Drawing stuff](#drawing-stuff)
 - [Installation](#installation)
 - [vs-code \& vs-codium \& gitpod hacking instructions](#vs-code--vs-codium--gitpod-hacking-instructions)
 
-Observe that *all* matrix operations in `treegl` are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive), e.g., [invMatrix](#basic-matrices):
+In `p5.treegl`, all matrix operations are [immutable](https://developer.mozilla.org/en-US/docs/Glossary/Primitive). For example, `invMatrix` does not modify its parameter but returns a new matrix:
 
 ```js
 let matrix = new p5.Matrix()
@@ -28,84 +29,104 @@ let iMatrix = invMatrix(matrix)
 // iMatrix !== matrix
 ```
 
-Note that the functions in the [shaders](#shaders) and [basic matrices](#basic-matrices) sections are available only to `p5`; those of the [matrix queries](#matrix-queries), [bind matrices](#bind-matrices), [space transformations](#space-transformations), [Heads Up Display](#heads-up-display), [utilities](#utilities) and [drawing stuff](#drawing-stuff) sections are available to `p5`, and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; and, those of the [frustum queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Note that functions in the [Shaders](#shaders) and [Basic Matrices](#basic-matrices) sections are available only to `p5`; those in the [Matrix Queries](#matrix-queries), [Bind Matrices](#bind-matrices), [Space Transformations](#space-transformations), [Heads Up Display](#heads-up-display), [Utilities](#utilities), and [Drawing Stuff](#drawing-stuff) sections are accessible to both `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; functions in the [Frustum Queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
+`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), binding matrices in [`Bind matrices`](#bind-matrices), managing shader uniforms through [`uniformsUI`](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), and setting common uniform variables using several [`Macros`](#macros).
+
 ## Setup
 
-<!-- Section needs to be restructured (moving parseVertexShader to the end) -->
+The `readShader` and `makeShader` functions in `p5.treegl` both create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader). They parse a fragment shader and use the `matrices` parameter to dynamically generate the corresponding vertex shader. These functions also build a [uniformsUI](#uniformsui) from the shader's uniform variables for interactive control and bind the shader to a `key`, enabling its use as a [Post-effect](#post-effects) if a `key` is provided.
 
-1. `parseVertexShader([{[precision = Tree.highp], [matrices = Tree.NONE], [varyings = Tree.NONE], [version = WEBGL2]}])`: This function interprets the `precision`, `matrices`, `varyings`, and `version` parameters to construct a vertex shader, which it outputs as a string. For instance:
-   - Invoking `parseVertexShader()` with no arguments will output (and also log onto the console) the string below:
-     ```glsl
-     #version 300 es
-     precision highp float;
-     in vec3 aPosition;
-     void main() {
-       gl_Position = vec4(aPosition, 1.0);
-     }
-     ```
-   - Whereas invoking `parseVertexShader(version: WEBGL)` generates the following:
-     ```glsl
-     precision highp float;
-     attribute vec3 aPosition;
-     void main() {
-       gl_Position = vec4(aPosition, 1.0);
-     }
-     ```
-2. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig)`: This function, akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), reads a fragment shader from a file path specified as a string. It invokes `parseVertexShader` to generate a corresponding vertex shader, and creates a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. Additionally, it invokes `parseUniformsUI` using `uniformsUIConfig` to construct the `uniformsUI` for interactive uniform manipulation.
-3. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig)`: Similar to [createShader](https://p5js.org/reference/#/p5/createShader), this function generates a fragment shader from a string source. It invokes `parseVertexShader` to generate the corresponding vertex shader, and returns a [p5.Shader](https://p5js.org/reference/#/p5.Shader) instance. The `parseUniformsUI` function is also called with `uniformsUIConfig` to set up the `uniformsUI` for the shader, enabling interactive adjustments of shader uniforms.
+1. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `loadShader`, this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds `uniformsUI` using `uniformsUIConfig` and binds the shader to a `key` for potential use as a [Post-effect](#post-effects).
+2. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `createShader`, this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up `uniformsUI` with `uniformsUIConfig` and, if a `key` is provided, binds the shader for post-effect application.
 
-**Observations**
+**Vertex Shader Generation Observations**
 
-1. The `precision` parameter sets the precision for floating-point calculations in the vertex shader, selectable as `Tree.lowp`, `Tree.mediump`, or `Tree.highp`, in alignment with [OpenGL's precision qualifiers](https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precision_qualifiers).
-2. The `matrices` parameter specifies which [uniform matrices](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) the vertex shader will utilize, with options including `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, `Tree.nMatrix`, or `Tree.NONE` for excluding matrix uniforms. For example, executing `parseVertexShader({ matrices: Tree.pMatrix | Tree.mvMatrix })` generates the following code (and logs it to the console):
-   ```glsl
-   #version 300 es
-   precision highp float;
-   in vec3 aPosition;
-   uniform mat4 uProjectionMatrix;
-   uniform mat4 uModelViewMatrix;
-   void main() {
-     gl_Position = uProjectionMatrix * uModelViewMatrix *vec4(aPosition, 1.0);
-   }
-   ```
-   Matrix uniform variables are automatically emitted by the [p5 API](https://p5js.org/reference/), for instance, when utilizing commands like [camera](https://p5js.org/reference/#/p5/camera) or [translate](https://p5js.org/reference/#/p5/translate). It's important to align with the matrix uniform variables naming conventions as outlined [here](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md#shader-parameters) when crafting your fragment shader.
-3. The `varyings` parameter defines which [vertex attributes](https://visualcomputing.github.io/docs/shaders/programming_paradigm/) are interpolated across to the fragment shader, from options like `Tree.color4`, `Tree.texcoords2` (for [texture coordinates](https://visualcomputing.github.io/docs/shaders/texturing/)), `Tree.position2`, `Tree.position3`, `Tree.position4` (with `position2` and `position3` defined in local space, and `position4` in eye space), `Tree.normal3` (in eye space), or `Tree.NONE` for excluding varyings. For instance, calling `parseVertexShader({ varyings: Tree.color4 | Tree.texcoords2 })` results in:
-   ```glsl
-   #version 300 es
-   precision highp float;
-   in vec3 aPosition;
-   in vec4 aVertexColor;
-   in vec2 aTexCoord;
-   out vec4 color4;
-   out vec2 texcoords2;
-   void main() {
-     color4 = aVertexColor;
-     texcoords2 = aTexCoord;
-     gl_Position = vec4(aPosition, 1.0);
-   }
-   ```
-   Remember to adhere to the `varying` naming conventions established in the vertex shader, as it must match the naming used in your custom fragment shader.
-4. For effective parsing of varying variables in fragment shaders with `readShader(fragFilename, matrices = Tree.NONE)` and `makeShader(fragSrc, matrices = Tree.NONE)`, adherence to the naming convention outlined by `parseVertexShader` is essential:
-   | Fragment shader<br> varying variable | `parseVertexShader`<br> bit | Space |
-   | ------------------------------------ | --------------------------- | ----- |
-   | color4                               | Tree.color4                 | n.a.  |
-   | texcoords2                           | Tree.texcoords2             | n.a.  |
-   | position2                            | Tree.position2              | local |
-   | position3                            | Tree.position3              | local |
-   | position4                            | Tree.position4              | eye   |
-   | normal3                              | Tree.normal3                | eye   |
-   | n.a.                                 | Tree.NONE                   | n.a.  |
+- The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, `Tree.nMatrix`, and `Tree.NONE`, to determine how vertices are projected onto NDC.
+- The fragment shader's `varyings` are analyzed to determine which vertex attributes are interpolated to the fragment shader, following these strict naming conventions:
 
-Feel free to explore the capabilities of the `parseVertexShader` function detailed earlier by adjusting the `precision`, `matrices`, and `varyings` parameters to identify the outputs that best align with your needs.
+   | varying name | space       |
+   |--------------|-------------|
+   | color4       | color       |
+   | texcoords2   | texture     |
+   | position2    | local space |
+   | position3    | local space |
+   | position4    | eye space   |
+   | normal3      | eye space   |
+
+**Examples:**
+
+- **Example 1:** No `varyings` and `matrices` set to `Tree.NONE` using WEBGL2 GLSL ES 3.00:
+
+  ```glsl
+  #version 300 es
+  precision highp float;
+  in vec3 aPosition;
+  void main() {
+    gl_Position = vec4(aPosition, 1.0);
+  }
+  ```
+
+- **Example 2:** Similar to Example 1 but with WEBGL GLSL ES 1.00:
+
+  ```glsl
+  precision highp float;
+  attribute vec3 aPosition;
+  void main() {
+    gl_Position = vec4(aPosition, 1.0);
+  }
+  ```
+
+- **Example 3:** `readShader` with `Tree.pmvMatrix`, demonstrating how `normal3` and `position4` varyings are processed in the given fragment shader using WEBGL2:
+
+  ```glsl
+  #version 300 es
+  precision highp float;
+  in vec3 normal3;
+  in vec4 position4;
+  // ...
+  ```
+
+  Generates the following vertex shader:
+
+  ```glsl
+  #version 300 es
+  precision highp float;
+  in vec3 aPosition;
+  in vec3 aNormal;
+  uniform mat3 uNormalMatrix;
+  uniform mat4 uModelViewMatrix;
+  uniform mat4 uModelViewProjectionMatrix;
+  out vec3 normal3;
+  out vec4 position4;
+  void main() {
+    normal3 = normalize(uNormalMatrix * aNormal);
+    position4 = uModelViewMatrix * vec4(aPosition, 1.0);
+    gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
+  }
+  ```
+
+These examples showcase the capability of `p5.treegl` in transforming fragment shaders into vertex shaders, illustrating the library's flexibility and power in shader management.
+
+## Bind matrices
+
+By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as `uProjectionMatrix`, `uViewMatrix`, etc., developers can leverage enhanced visual effects and transformations in their shaders.
+
+1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
+
+```js
+// Bind additional eMatrix and mMatrix to the current renderer
+// should be called after setAttributes
+bindMatrices(Tree.eMatrix | Tree.mMatrix)
+```
 
 ## uniformsUI
 
 Through parsing comments within `glsl` `shader` code, `treegl` builds a `shader.uniformsUI` object that maps uniform variable names to [p5.Element](https://p5js.org/reference/#/p5.Element) instances for interactively adjusting their values.
 
-The library supports [sliders](https://p5js.org/reference/#/p5/createSlider) for `int` and `float` types, [color pickers](https://p5js.org/reference/#/p5/createColorPicker) for `vec4` types, and [checkboxes](https://p5js.org/reference/#/p5/createCheckbox) for `bool` types, as showcased in the following examples:
+`p5.treegl` supports [sliders](https://p5js.org/reference/#/p5/createSlider) for `int` and `float` types, [color pickers](https://p5js.org/reference/#/p5/createColorPicker) for `vec4` types, and [checkboxes](https://p5js.org/reference/#/p5/createCheckbox) for `bool` types, as showcased in the following examples:
 
 * **Sliders**: Create a slider by annotating a uniform `float` or `int` declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
 
@@ -146,7 +167,7 @@ These functions manipulate the `uniformsUI`:
 
 ## Apply shader
 
-<!-- INTRO MISSED: PURPOSE VS SHADER VANILLA STUFF -->
+The `applyShader` function in `p5.treegl` applies a shader to a specified `scene` and rendering `target`, passing custom uniform values.
 
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can also be called between [beginHUD and endHUD](#heads-up-display) to specify the scene geometry in screen space.
@@ -156,13 +177,13 @@ These functions manipulate the `uniformsUI`:
 Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as _bloom_, _motion blur_, _ambient occlusion_, and _color grading_, into a rendered scene. In `treegl` these `effects` are managed through a user-space array of shaders, offering flexibility to dynamically alter the rendering order or modify storage as needed. For example, effects can easily be reordered with a simple swap operation: `[effects[0], effects[1]] = [effects[1], effects[0]]`. Effects are sequentially applied to a source `layer` with `applyEffects(layer, effects, [uniforms], [flip])`. Example usage:
 
 ```glsl
-// noise shader
+// noise_shader
 uniform sampler2D blender; // <- shared layer should be named 'blender'
 uniform float time;
 ```
 
 ```glsl
-// bloom shader
+// bloom_shader
 uniform sampler2D blender; // <- shared layer should be named 'blender'
 uniform sampler2D depth;
 ```
@@ -177,8 +198,8 @@ function setup() {
   layer = createFramebuffer()
   // instantiate shaders with keys for later
   // uniform settings and add them to effects
-  effects.push(makeShader(noise_shader_string, 'noise'))
-  effects.push(makeShader(bloom_shader_string, 'bloom'))
+  effects.push(makeShader(noise_shader, 'noise'))
+  effects.push(makeShader(bloom_shader, 'bloom'))
 }
 ```
 
@@ -224,7 +245,9 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 3. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 4. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
-# Basic matrices
+# Space transformations
+
+## Matrix operations
 
 1. `iMatrix()`: Returns the identity matrix.
 2. `tMatrix(matrix)`: Returns the tranpose of `matrix`.
@@ -233,7 +256,7 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 
 **Observation:** All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 
-# Matrix queries
+## Matrix queries
 
 1. `pMatrix()`: Returns the current projection matrix.
 2. `mvMatrix([{[vMatrix], [mMatrix]}])`: Returns the modelview matrix.
@@ -251,19 +274,19 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 1. All returned matrices are instances of [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js).
 2. The `pMatrix`, `vMatrix`, `pvMatrix`, `eMatrix`, `mMatrix` and `mvMatrix` default values are those [defined by the renderer](#matrix-queries) at the moment the query is issued.
 
-# Bind matrices
+## Frustum queries
 
-1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
+1. `lPlane()`: Returns the left clipping plane.
+2. `rPlane()`: Returns the right clipping plane.
+3. `bPlane()`: Returns the bottom clipping plane.
+4. `tPlane()`: Returns the top clipping plane.
+5. `nPlane()`: Returns the near clipping plane.
+6. `fPlane()`: Returns the far clipping plane.
+7. `fov()`: Returns the vertical field-of-view (fov) in radians.
+8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
+9. `isOrtho()`: Returns the camera projection type: `true` for orthographic and `false` for perspective.
 
-```js
-// Bind additional eMatrix and mMatrix to the current renderer
-// should be called after setAttributes
-bindMatrices(Tree.eMatrix | Tree.mMatrix)
-```
-
-By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as `uProjectionMatrix`, `uViewMatrix`, etc., developers can leverage enhanced visual effects and transformations in their shaders.
-
-# Space transformations
+## Coordinate Space conversions
 
 1. `treeLocation(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
 2. `treeDisplacement(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
@@ -320,22 +343,10 @@ function draw() {
 5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
 6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree._k` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree._i` (i.e., `[-1, 0, 0]`) and `Tree._j` (i.e., `[0, -1, 0]`).
 
-# Heads Up Display
+## Heads Up Display
 
 1. `beginHUD()`: Begins [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `endHUD`.
 2. `endHUD()`: Ends [Heads Up Display](https://en.wikipedia.org/wiki/Head-up_display), so that geometry specified between `beginHUD()` and `endHUD()` is defined in window space. Should always be used in conjunction with `beginHUD`.
-
-# Frustum queries
-
-1. `lPlane()`: Returns the left clipping plane.
-2. `rPlane()`: Returns the right clipping plane.
-3. `bPlane()`: Returns the bottom clipping plane.
-4. `tPlane()`: Returns the top clipping plane.
-5. `nPlane()`: Returns the near clipping plane.
-6. `fPlane()`: Returns the far clipping plane.
-7. `fov()`: Returns the vertical field-of-view (fov) in radians.
-8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
-9. `isOrtho()`: Returns the camera projection type: `true` for orthographic and `false` for perspective.
 
 # Utilities
 
