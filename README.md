@@ -1,6 +1,6 @@
 # p5.treegl
 
-High-level space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library which eases shader development.
+Shader development and space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library.
 
 - [Shaders](#shaders)
   - [Setup](#setup)
@@ -29,23 +29,23 @@ let iMatrix = invMatrix(matrix)
 // iMatrix !== matrix
 ```
 
-Note that functions in the [Shaders](#shaders) and [Basic Matrices](#basic-matrices) sections are available only to `p5`; those in the [Matrix Queries](#matrix-queries), [Bind Matrices](#bind-matrices), [Space Transformations](#space-transformations), [Heads Up Display](#heads-up-display), [Utilities](#utilities), and [Drawing Stuff](#drawing-stuff) sections are accessible to both `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; functions in the [Frustum Queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-operations) sections are available only to `p5`; those in the [Matrix Queries](#matrix-queries), [Bind Matrices](#bind-matrices), [Space Transformations](#space-transformations), [Heads Up Display](#heads-up-display), [Utilities](#utilities), and [Drawing Stuff](#drawing-stuff) sections are accessible to both `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; functions in the [Frustum Queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 # Shaders
 
-`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), binding matrices in [`Bind matrices`](#bind-matrices), managing shader uniforms through [`uniformsUI`](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), and setting common uniform variables using several [`Macros`](#macros).
+`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), binding matrices in [`Bind matrices`](#bind-matrices), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), and setting common uniform variables using several [`Macros`](#macros).
 
 ## Setup
 
-The `readShader` and `makeShader` functions in `p5.treegl` both create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader). They parse a fragment shader and use the `matrices` parameter to dynamically generate the corresponding vertex shader. These functions also build a [uniformsUI](#uniformsui) from the shader's uniform variables for interactive control and bind the shader to a `key`, enabling its use as a [Post-effect](#post-effects) if a `key` is provided.
+The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either GLSL ES 1.00 or GLSL ES 3.00— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to generate the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with p5.Elements from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
 
-1. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `loadShader`, this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds `uniformsUI` using `uniformsUIConfig` and binds the shader to a `key` for potential use as a [Post-effect](#post-effects).
-2. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `createShader`, this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up `uniformsUI` with `uniformsUIConfig` and, if a `key` is provided, binds the shader for post-effect application.
+1. `readShader(fragFilename, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `loadShader`, this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects).
+2. `makeShader(fragSrc, matrices = Tree.NONE, uniformsUIConfig, key)`: Akin to `createShader`, this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects).
 
 **Vertex Shader Generation Observations**
 
-- The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, `Tree.nMatrix`, and `Tree.NONE`, to determine how vertices are projected onto NDC.
-- The fragment shader's `varyings` are analyzed to determine which vertex attributes are interpolated to the fragment shader, following these strict naming conventions:
+- The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` (which is the default), to determine how vertices are projected onto NDC.
+- The fragment shader's `varyings` are parsed to determine which vertex attributes are interpolated to the fragment shader, following these naming conventions:
 
    | varying name | space       |
    |--------------|-------------|
@@ -58,7 +58,7 @@ The `readShader` and `makeShader` functions in `p5.treegl` both create and retur
 
 **Examples:**
 
-- **Example 1:** No `varyings` and `matrices` set to `Tree.NONE` using WEBGL2 GLSL ES 3.00:
+- **Example 1:** No `varyings` defined in fragment shader and `matrices` set to `Tree.NONE` using WEBGL2 GLSL ES 3.00:
 
   ```glsl
   #version 300 es
@@ -79,9 +79,10 @@ The `readShader` and `makeShader` functions in `p5.treegl` both create and retur
   }
   ```
 
-- **Example 3:** `readShader` with `Tree.pmvMatrix`, demonstrating how `normal3` and `position4` varyings are processed in the given fragment shader using WEBGL2:
+- **Example 3:** `readShader` (or `makeShader`) with `matrices` set to `Tree.pmvMatrix`, and WEBGL2 fragment shader defining `normal3` and `position4` varyings:
 
   ```glsl
+  // excerpt of fragment shader
   #version 300 es
   precision highp float;
   in vec3 normal3;
@@ -107,8 +108,6 @@ The `readShader` and `makeShader` functions in `p5.treegl` both create and retur
     gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
   }
   ```
-
-These examples showcase the capability of `p5.treegl` in transforming fragment shaders into vertex shaders, illustrating the library's flexibility and power in shader management.
 
 ## Bind matrices
 
@@ -247,6 +246,8 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 
 # Space transformations
 
+This section delves into matrix manipulations and queries which are essential for 3D rendering. It includes functions for matrix operations like creation, inversion, and multiplication in the [Matrix operations](#matrix-operations) subsection, and offers methods to retrieve transformation matrices and perform space conversions in [Matrix queries](#matrix-queries), [Frustum queries](#frustum-queries), and [Coordinate Space conversions](#coordinate-space-conversions), facilitating detailed control over 3D scene transformations.
+
 ## Matrix operations
 
 1. `iMatrix()`: Returns the identity matrix.
@@ -350,6 +351,8 @@ function draw() {
 
 # Utilities
 
+This section comprises a collection of handy functions designed to facilitate common tasks in 3D graphics, such as pixel ratio calculations, mouse picking and visibility determination.
+
 1. `pixelRatio(location)`: Returns the world to pixel ratio units at given world location, i.e., a line of `n * pixelRatio(location)` world units will be projected with a length of `n` pixels on screen.
 2. `mousePicking({ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: same as `return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape, eMatrix: eMatrix, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })` (see below).
 3. `pointerPicking(pointerX, pointerY, { [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: Returns `true` if `pointerX`, `pointerY` lies within the screen space circle centered at (`x`, `y`) and having `size` diameter. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`), having `size` as its bounding sphere diameter. Use `Tree.SQUARE` to use a squared shape instead of a circled one.
@@ -361,6 +364,8 @@ function draw() {
    ```
 
 # Drawing stuff
+
+This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, crosses, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes.
 
 1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
