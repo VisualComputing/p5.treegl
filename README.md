@@ -37,7 +37,7 @@ Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-o
 
 ## Setup
 
-The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either GLSL ES 1.00 or GLSL ES 3.00— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to generate the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
+The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either GLSL ES 1.00 or GLSL ES 3.00— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to infer the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
 
 1. `readShader(fragFilename, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
 2. `makeShader(fragSrc, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [createShader](https://p5js.org/reference/#/p5/createShader), this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
@@ -58,9 +58,10 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
 
 **Examples:**
 
-- **Example 1:** No `varyings` defined in fragment shader and `matrices` set to `Tree.NONE` using WEBGL2 GLSL ES 3.00:
+- **Example 1:** `readShader('shader.frag')` (or `makeShader`) `WEBGL2` (`GLSL ES 3.00`) `shader.frag`, with no `varyings` and `highp` `precision`:
 
   ```glsl
+  // inferred vertex shader
   #version 300 es
   precision highp float;
   in vec3 aPosition;
@@ -69,9 +70,10 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
   }
   ```
 
-- **Example 2:** Similar to Example 1 but with WEBGL GLSL ES 1.00:
+- **Example 2:** Similar to **Example 1** but with `WEBGL` (`GLSL ES 1.00`):
 
   ```glsl
+  // inferred vertex shader
   precision highp float;
   attribute vec3 aPosition;
   void main() {
@@ -79,22 +81,23 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
   }
   ```
 
-- **Example 3:** `readShader` (or `makeShader`) with `matrices` set to `Tree.pmvMatrix`, and WEBGL2 fragment shader defining `normal3` and `position4` varyings:
+- **Example 3:** `readShader('shader.frag', Tree.pmvMatrix)` (or `makeShader`) `WEBGL2` `shader.frag` defining `normal3` and `position4` varyings, and `mediump` `precision`:
 
   ```glsl
-  // excerpt of fragment shader
+  // shader.frag excerpt
   #version 300 es
-  precision highp float;
+  precision mediump float;
   in vec3 normal3;
   in vec4 position4;
   // ...
   ```
 
-  Generates the following vertex shader:
+  infers the following vertex shader:
 
   ```glsl
+  // inferred vertex shader
   #version 300 es
-  precision highp float;
+  precision mediump float;
   in vec3 aPosition;
   in vec3 aNormal;
   uniform mat3 uNormalMatrix;
@@ -215,9 +218,9 @@ function draw() {
   }
   const target = applyEffects(layer, effects, uniforms);
   // display target using screen space coords
-  beginHUD();
-  image(target, 0, 0);
-  endHUD();
+  beginHUD()
+  image(target, 0, 0)
+  endHUD()
 }
 ```
 
