@@ -114,7 +114,7 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
 
 ## Bind matrices
 
-By specifying additional matrices alongside those automatically emitted by [p5.js](https://p5js.org/), such as `uProjectionMatrix`, `uViewMatrix`, etc., developers can leverage enhanced visual effects and transformations in their shaders.
+By specifying additional matrices alongside those already emitted automatically by [p5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md), such as `uProjectionMatrix` and `uViewMatrix`, developers can leverage enhanced transformations in their shaders.
 
 1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
 
