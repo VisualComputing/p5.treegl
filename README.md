@@ -1,14 +1,14 @@
 # p5.treegl
 
 Shader development and space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library.
-
+gl)
 - [Shaders](#shaders)
   - [Setup](#setup)
-  - [Bind matrices](#bind-matrices)
   - [uniformsUI](#uniformsui)
   - [Apply shader](#apply-shader)
   - [Post-effects](#post-effects)
   - [Macros](#macros)
+  - [Bind matrices](#bind-matrices)
 - [Space transformations](#space-transformations)
   - [Matrix operations](#matrix-operations)
   - [Matrix queries](#matrix-queries)
@@ -111,18 +111,6 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
     gl_Position = uModelViewProjectionMatrix * vec4(aPosition, 1.0);
   }
   ```
-
-## Bind matrices
-
-By specifying additional matrices alongside those already emitted automatically by [p5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md), such as `uProjectionMatrix` and `uViewMatrix`, developers can leverage enhanced transformations in their shaders.
-
-1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
-
-```js
-// Bind additional eMatrix and mMatrix to the current renderer
-// should be called after setAttributes
-bindMatrices(Tree.eMatrix | Tree.mMatrix)
-```
 
 ## uniformsUI
 
@@ -246,6 +234,18 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 2. `mousePosition()` which is the same as: `return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]`.
 3. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 4. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+
+## Bind matrices
+
+By specifying additional matrices alongside those already emitted automatically by [p5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md), such as `uProjectionMatrix` and `uViewMatrix`, developers can leverage enhanced transformations in their shaders.
+
+1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
+
+```js
+// Bind additional eMatrix and mMatrix to the current renderer
+// should be called after setAttributes
+bindMatrices(Tree.eMatrix | Tree.mMatrix)
+```
 
 # Space transformations
 
