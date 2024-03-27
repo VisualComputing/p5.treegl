@@ -209,16 +209,15 @@ function setup() {
 // p5 draw
 function draw() {
   layer.begin()
-  // i. render scene into layer
+  // render scene into layer
   layer.end()
-  // ii. render target by applying effects to layer
-  // emit uniforms to shaders (besides uniformsUI)
-  let uniforms = {
+  // render target by applying effects to layer
+  let uniforms = { // emit uniforms to shaders (besides uniformsUI)
     bloom: { depth: layer.depth }, // <- use bloom key
     noise: { time: millis() / 1000 } // <- use noise key
   }
   const target = applyEffects(layer, effects, uniforms);
-  // iii. display target using screen space coords
+  // display target using screen space coords
   beginHUD()
   image(target, 0, 0)
   endHUD()
