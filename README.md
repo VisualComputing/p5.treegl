@@ -1,7 +1,7 @@
 # p5.treegl
 
 Shader development and space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library.
-gl)
+
 - [Shaders](#shaders)
   - [Setup](#setup)
   - [uniformsUI](#uniformsui)
