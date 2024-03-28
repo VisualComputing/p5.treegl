@@ -13,7 +13,7 @@ Shader development and space transformations [WEBGL](https://p5js.org/reference/
   - [Matrix operations](#matrix-operations)
   - [Matrix queries](#matrix-queries)
   - [Frustum queries](#frustum-queries)
-  - [Coordinate Space conversions](#coordinate-space-conversions)
+  - [Coordinate space conversions](#coordinate-space-conversions)
   - [Heads Up Display](#heads-up-display)
 - [Utilities](#utilities)
 - [Drawing stuff](#drawing-stuff)
@@ -290,7 +290,7 @@ This section delves into matrix manipulations and queries which are essential fo
 8. `hfov()`: Returns the horizontal field-of-view (hfov) in radians.
 9. `isOrtho()`: Returns the camera projection type: `true` for orthographic and `false` for perspective.
 
-## Coordinate Space conversions
+## Coordinate space conversions
 
 1. `treeLocation(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
 2. `treeDisplacement(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
