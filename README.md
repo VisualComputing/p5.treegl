@@ -164,7 +164,7 @@ The `applyShader` function applies a `shader` to a given `scene` and `target`, i
 
 ## Post-effects
 
-Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as _bloom_, _motion blur_, _ambient occlusion_, and _color grading_, into a rendered scene. A user-space array of such `effects` are sequentially applied to a source `layer` with `applyEffects(layer, effects, [uniforms], [flip])`. Example usage:
+Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as _bloom_, _motion blur_, _ambient occlusion_, and _color grading_, into a rendered scene. A user-space array of such `effects` may be sequentially applied to a source `layer` with `applyEffects(layer, effects, [uniforms], [flip])`. Example usage:
 
 ```glsl
 // noise_shader
