@@ -37,7 +37,7 @@ Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-o
 
 ## Setup
 
-The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shader —specified in either `GLSL ES 1.00` or `GLSL ES 3.00`— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to infer the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
+The `readShader` and `makeShader` functions take a fragment shader —specified in either `GLSL ES 1.00` or `GLSL ES 3.00`— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to infer the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
 
 1. `readShader(fragFilename, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
 2. `makeShader(fragSrc, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [createShader](https://p5js.org/reference/#/p5/createShader), this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
@@ -114,9 +114,9 @@ The `readShader` and `makeShader` functions in `p5.treegl` take a fragment shade
 
 ## uniformsUI
 
-Through parsing comments within `glsl` `shader` code, `treegl` builds a `shader.uniformsUI` object that maps uniform variable names to [p5.Element](https://p5js.org/reference/#/p5.Element) instances for interactively adjusting their values.
+By parsing comments within `glsl` `shader` code, a `shader.uniformsUI` object is built, mapping uniform variable names to [p5.Element](https://p5js.org/reference/#/p5.Element) instances for interactively adjusting their values.
 
-`p5.treegl` supports [sliders](https://p5js.org/reference/#/p5/createSlider) for `int` and `float` types, [color pickers](https://p5js.org/reference/#/p5/createColorPicker) for `vec4` types, and [checkboxes](https://p5js.org/reference/#/p5/createCheckbox) for `bool` types, as showcased in the following examples:
+Supported elements include [sliders](https://p5js.org/reference/#/p5/createSlider) for `int` and `float` types, [color pickers](https://p5js.org/reference/#/p5/createColorPicker) for `vec4` types, and [checkboxes](https://p5js.org/reference/#/p5/createCheckbox) for `bool` types, as highlighted in the following examples:
 
 * **Sliders**: Create a slider by annotating a uniform `float` or `int` declaration in your shader code. The comment should specify the minimum value, maximum value, default value, and step value.
 
@@ -157,7 +157,7 @@ These functions manipulate the `uniformsUI`:
 
 ## Apply shader
 
-In `p5.treegl`, the `applyShader` function applies a `shader` to a given `scene` and `target`, invoking `setUniformsUI(shader)` and enabling the passing of custom uniform values not specified in [uniformsUI](#uniformsui).
+The `applyShader` function applies a `shader` to a given `scene` and `target`, invoking `setUniformsUI(shader)` and enabling the passing of custom uniform values not specified in [uniformsUI](#uniformsui).
 
 1. `applyShader(shader, [{ [target], [uniforms], [scene], [options] }])` applies `shader` to the specified `target` (which can be the current context, a [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) or a [p5.Graphics](https://p5js.org/reference/#/p5.Graphics)), emits the `shader` `uniformsUI` (calling `shader.setUniformsUI()`) and the `uniforms` object (formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`), renders geometry by executing `scene(options)` (defaults to an overlaying `quad` if not specified), and returns the `target` for method chaining.
 2. `overlay(flip)`: A default rendering method used by `applyShader`, which covers the screen with a [quad](https://p5js.org/reference/#/p5/quad). It can also be called between [beginHUD and endHUD](#heads-up-display) to specify the scene geometry in screen space.
