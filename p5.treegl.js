@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.3',
+    VERSION: '0.9.4',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -997,15 +997,16 @@ void main() {
       if (!match) return;
       const [_, type, name, comment] = match;
       if (type === 'vec4') {
-        const trimmedComment = comment.trim().replace(/['"]/g, ''); // Remove quotes if present
-        if (!trimmedComment) {
+        const words = comment.trim().replace(/['"]/g, '').split(/\s+/);// get first word from comment for color
+        const color = words[0];
+        if (!color) {
           uniformsUI[name] = this.createColorPicker('white').hide();
           console.log(`Created default color picker for '${name}' with white color.`);
-        } else if (!trimmedComment.includes(',') && /^[a-zA-Z]+$/.test(trimmedComment)) {
-          uniformsUI[name] = this.createColorPicker(trimmedComment).hide();
-          console.log(`Created color picker for '${name}' with color: ${trimmedComment}`);
+        } else if (/^[a-zA-Z]+$/.test(color)) {
+          uniformsUI[name] = this.createColorPicker(color).hide();
+          console.log(`Created color picker for '${name}' with color: ${color}`);
         } else {
-          console.debug(`Failed to create color picker for '${name}': Unsupported color format '${trimmedComment}'.`);
+          console.debug(`Failed to create color picker for '${name}': Unsupported color format '${color}'.`);
         }
       } else if (type === 'float' || type === 'int') {
         const params = comment.split(',').map(param => parseFloat(param.trim()));
@@ -1016,9 +1017,8 @@ void main() {
           console.debug(`Failed to parse slider for '${name}': Expected format 'min, max, [value], [step]' but got '${comment}'`);
         }
       } else if (type === 'bool') {
-        const trimmedComment = comment.trim().toLowerCase().replace(/['"]/g, '');
-        const falsyValues = ['0', 'false', 'null', 'undefined', ''];
-        const defaultValue = !falsyValues.includes(trimmedComment);
+        const words = comment.trim().toLowerCase().replace(/['"]/g, '').split(/\s+/);// get first word from comment for bool
+        const defaultValue = words.length > 0 && !['0', 'false', 'null', 'undefined', ''].includes(words[0]);
         const checkboxWrapper = this.createCheckbox(name, defaultValue).hide();
         console.log(`Created checkbox for '${name}' with default value: ${defaultValue}`);
         uniformsUI[name] = checkboxWrapper;
