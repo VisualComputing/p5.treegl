@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.2',
+    VERSION: '0.9.3',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -870,28 +870,32 @@ var Tree = (function (ext) {
     let varyings = Tree.NONE; // initialize varyings
     const precisionRegex = /precision\s+(highp|mediump|lowp)\s+float;/; // Regex for precision and varyings
     const varyingKeyword = version === 2 ? 'in' : 'varying';
-    const varyingRegex = new RegExp(`${varyingKeyword}\\s+(vec[234])\\s+(\\w+);`, 'g');
+    // Ensure the line is not a comment before matching the varying declaration
+    const varyingRegex = new RegExp(`^(?!\\s*\\/\\/).*?\\s*${varyingKeyword}\\s+(\\w+)\\s+(\\w+);`, 'gm');
     const precisionMatch = source.match(precisionRegex);
-    if (precisionMatch) {
-      precision = Tree[precisionMatch[1]];
-    }
+    precisionMatch && (precision = Tree[precisionMatch[1]]); // Set the precision if there's a match
+    // Mapping of valid varying names to their expected types
+    const validVaryings = {
+      'color4': 'vec4',
+      'texcoords2': 'vec2',
+      'normal3': 'vec3',
+      'position2': 'vec2',
+      'position3': 'vec3',
+      'position4': 'vec4'
+    };
     let match;
     while ((match = varyingRegex.exec(source)) !== null) {
-      const varyingType = match[1];
-      const varyingName = match[2];
-      const expectedTypeNumber = varyingName[varyingName.length - 1];
-      if (!['color4', 'texcoords2', 'normal3', 'position2', 'position3', 'position4'].includes(varyingName)) {
-        throw new Error(`Unsupported varying found: ${varyingName}`);
+      const varyingType = match[1]; // get the varying type
+      const varyingName = match[2]; // get the varying name
+      if (validVaryings[varyingName] !== varyingType) {
+        throw new Error(`Unsupported or incorrectly named varying found: ${varyingName} of type ${varyingType}`);
       }
-      if (!varyingType.endsWith(expectedTypeNumber)) {
-        throw new Error(`Unsupported varying type for ${varyingName}: expected vec${expectedTypeNumber}, found ${varyingType}`);
-      }
-      varyings |= Tree[varyingName];
+      varyings |= Tree[varyingName]; // set the varyings flag
     }
-    const blenderRegex = /^\s*uniform\s+sampler2D\s+blender\s*;.*?(\/\/.*)?$/gm;
+    const blenderRegex = /^\s*uniform\s+sampler2D\s+blender\s*;.*?(\/\/.*)?$/gm; // Regex for detecting blender uniform
     const blenderMatch = source.match(blenderRegex);
-    const blender = blenderMatch != null;
-    return { version, precision, varyings, blender };
+    const blender = blenderMatch != null; // set the blender flag
+    return { version, precision, varyings, blender }; // return the shader info
   }
 
   p5.prototype.parseVertexShader = function ({
@@ -1111,9 +1115,9 @@ void main() {
   }
 
   /**
-   * Applies a shader (`effect`) to a specified rendering `target`, sets shader `uniforms`,
-   * and optionally executes a `scene` function with provided `options`. If no `scene` is specified,
-   * a default overlaying quad is rendered. The function facilitates method chaining by returning the `target`.
+   * Applies a shader to a specified rendering `target`, sets shader `uniforms`, and optionally
+   * executes a `scene` function with provided `options`. If no `scene` is specified, a default
+   * overlaying quad is rendered. The function facilitates method chaining by returning the `target`.
    * @param {p5.Shader} shader - The shader to be applied.
    * @param {Object} config - Configuration object containing:
    *   @param {p5.Graphics|p5.Framebuffer} [config.target=this] - The target to which the shader is applied. 
