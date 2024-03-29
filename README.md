@@ -47,14 +47,14 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
 - The `matrices` parameter uses the following bit mask fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC.
 - The fragment shader's `varyings` variables are parsed to determine which and how vertex attributes should be interpolated from the vertex shader, following these naming conventions:
 
-   | varying name | space       |
-   |--------------|-------------|
-   | color4       | color       |
-   | texcoords2   | texture     |
-   | position2    | local space |
-   | position3    | local space |
-   | position4    | eye space   |
-   | normal3      | eye space   |
+   | type | name       | space   |
+   |------|------------|---------|
+   | vec4 | color4     | color   |
+   | vec2 | texcoords2 | texture |
+   | vec2 | position2  | local   |
+   | vec3 | position3  | local   |
+   | vec4 | position4  | eye     |
+   | vec3 | normal3    | eye     |
 
 **Examples:**
 
