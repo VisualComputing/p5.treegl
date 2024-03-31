@@ -33,7 +33,9 @@ Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-o
 
 # Shaders
 
-`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), binding matrices in [`Bind matrices`](#bind-matrices), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), and setting common uniform variables using several [`Macros`](#macros).
+`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), setting common uniform variables using several [`Macros`](#macros), and binding matrices in [`Bind matrices`](#bind-matrices).
+
+Look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), [post-effects](https://nakednous.github.io/posts/post_effects/), and [gpu-based photomosaic](https://nakednous.github.io/posts/photomosaic/) examples.
 
 ## Setup
 
@@ -42,7 +44,7 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
 1. `readShader(fragFilename, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
 2. `makeShader(fragSrc, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [createShader](https://p5js.org/reference/#/p5/createShader), this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
 
-**Vertex Shader Generation Observations**
+**Vertex shader generation observations**
 
 - The `matrices` parameter uses the following mask bit fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC, according to the following rules (where `p` is set to `vec4(aPosition, 1.0)`):
    | Mask bit fields                   | `gl_Position`                              |
@@ -259,6 +261,8 @@ bindMatrices(Tree.eMatrix | Tree.mMatrix)
 
 This section delves into matrix manipulations and queries which are essential for 3D rendering. It includes functions for matrix operations like creation, inversion, and multiplication in the [Matrix operations](#matrix-operations) subsection, and offers methods to retrieve transformation matrices and perform space conversions in [Matrix queries](#matrix-queries), [Frustum queries](#frustum-queries), and [Coordinate Space conversions](#coordinate-space-conversions), facilitating detailed control over 3D scene transformations.
 
+Look at the [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
+
 ## Matrix operations
 
 1. `iMatrix()`: Returns the identity matrix.
@@ -376,7 +380,7 @@ This section comprises a collection of handy functions designed to facilitate co
 
 # Drawing stuff
 
-This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes.
+This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes. have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
 
 1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
