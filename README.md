@@ -44,16 +44,16 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
 
 **Vertex Shader Generation Observations**
 
-- The `matrices` parameter uses the following mask bit fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC according to the following convention (where `position` is set to `vec4(aPosition, 1.0)`):
-   | Mask bit fields                   | gl_Position                                       |
-   |-----------------------------------|---------------------------------------------------|
-   | `Tree.NONE`                       | `position`                                        |
-   | `Tree.vMatrix`                    | `uViewMatrix * position`                          |
-   | `Tree.pMatrix`                    | `uProjectionMatrix * position`                    |
-   | `Tree.mvMatrix`                   | `uModelViewMatrix * position`                     |
-   | `Tree.vMatrix` \| `Tree.pMatrix`  | `uProjectionMatrix * uViewMatrix * position`      |
-   | `Tree.mvMatrix` \| `Tree.pMatrix` | `uProjectionMatrix * uModelViewMatrix * position` |
-   | `Tree.pmvMatrix`                  | `uModelViewProjectionMatrix * position`           |
+- The `matrices` parameter uses the following mask bit fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC according to the following convention (where `p` is set to `vec4(aPosition, 1.0)`):
+   | Mask bit fields                   | `gl_Position`                              |
+   |-----------------------------------|--------------------------------------------|
+   | `Tree.NONE`                       | `p`                                        |
+   | `Tree.vMatrix`                    | `uViewMatrix * p`                          |
+   | `Tree.pMatrix`                    | `uProjectionMatrix * p`                    |
+   | `Tree.mvMatrix`                   | `uModelViewMatrix * p`                     |
+   | `Tree.vMatrix` \| `Tree.pMatrix`  | `uProjectionMatrix * uViewMatrix * p`      |
+   | `Tree.mvMatrix` \| `Tree.pMatrix` | `uProjectionMatrix * uModelViewMatrix * p` |
+   | `Tree.pmvMatrix`                  | `uModelViewProjectionMatrix * p`           |
 - The fragment shader's `varyings` variables are parsed to determine which and how vertex attributes should be interpolated from the vertex shader, following these naming conventions:
    | type | name       | space   |
    |------|------------|---------|
