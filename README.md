@@ -44,7 +44,7 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
 
 **Vertex Shader Generation Observations**
 
-- The `matrices` parameter uses the following mask bit fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC according to the following convention (where `p` is set to `vec4(aPosition, 1.0)`):
+- The `matrices` parameter uses the following mask bit fields `Tree.vMatrix`, `Tree.pMatrix`, `Tree.mvMatrix`, `Tree.pmvMatrix`, and `Tree.NONE` which is the default, to determine how vertices are projected onto NDC, according to the following rules (where `p` is set to `vec4(aPosition, 1.0)`):
    | Mask bit fields                   | `gl_Position`                              |
    |-----------------------------------|--------------------------------------------|
    | `Tree.NONE`                       | `p`                                        |
