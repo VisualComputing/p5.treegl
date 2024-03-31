@@ -55,14 +55,14 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
    | `Tree.mvMatrix` \| `Tree.pMatrix` | `uProjectionMatrix * uModelViewMatrix * p` |
    | `Tree.pmvMatrix`                  | `uModelViewProjectionMatrix * p`           |
 - The fragment shader's `varyings` variables are parsed to determine which and how vertex attributes should be interpolated from the vertex shader, following these naming conventions:
-   | type | name       | space   |
-   |------|------------|---------|
-   | vec4 | color4     | color   |
-   | vec2 | texcoords2 | texture |
-   | vec2 | position2  | local   |
-   | vec3 | position3  | local   |
-   | vec4 | position4  | eye     |
-   | vec3 | normal3    | eye     |
+   | type | name           | space   |
+   |------|----------------|---------|
+   | `vec4` | `color4`     | color   |
+   | `vec2` | `texcoords2` | texture |
+   | `vec2` | `position2`  | local   |
+   | `vec3` | `position3`  | local   |
+   | `vec4` | `position4`  | eye     |
+   | `vec3` | `normal3`    | eye     |
 
 **Examples:**
 
