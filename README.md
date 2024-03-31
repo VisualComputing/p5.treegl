@@ -35,7 +35,7 @@ Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-o
 
 `p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), setting common uniform variables using several [`Macros`](#macros), and binding matrices in [`Bind matrices`](#bind-matrices).
 
-Look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), [post-effects](https://nakednous.github.io/posts/post_effects/), and [gpu-based photomosaic](https://nakednous.github.io/posts/photomosaic/) examples.
+Have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), [post-effects](https://nakednous.github.io/posts/post_effects/), and [gpu-based photomosaic](https://nakednous.github.io/posts/photomosaic/) examples.
 
 ## Setup
 
@@ -261,7 +261,7 @@ bindMatrices(Tree.eMatrix | Tree.mMatrix)
 
 This section delves into matrix manipulations and queries which are essential for 3D rendering. It includes functions for matrix operations like creation, inversion, and multiplication in the [Matrix operations](#matrix-operations) subsection, and offers methods to retrieve transformation matrices and perform space conversions in [Matrix queries](#matrix-queries), [Frustum queries](#frustum-queries), and [Coordinate Space conversions](#coordinate-space-conversions), facilitating detailed control over 3D scene transformations.
 
-Look at the [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
+Have a look at the [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
 
 ## Matrix operations
 
@@ -380,7 +380,7 @@ This section comprises a collection of handy functions designed to facilitate co
 
 # Drawing stuff
 
-This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes. have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
+This section includes a range of functions designed for visualizing various graphical elements in 3D space, such as axes, grids, bullseyes, and view frustums. These tools are essential for debugging, illustrating spatial relationships, and enhancing the visual comprehension of 3D scenes. Have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), and [post-effects](https://nakednous.github.io/posts/post_effects/) examples.
 
 1. `axes([{ [size = 100], [bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z] }])`: Draws axes with given `size` in world units, and bitwise mask that may be composed of `Tree.X`, `Tree._X`, `Tree.Y`, `Tree._Y`, `Tree.Z`, `Tree._Z` and `Tree.LABELS` `bits`.
 2. `grid([{ [size = 100], [subdivisions = 10], [style = Tree.DOTS] }])`: Draws grid with given `size` in world units, `subdivisions` and `dotted` (`Tree.DOTS`) or solid (`Tree.SOLID`) lines.
