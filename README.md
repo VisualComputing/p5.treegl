@@ -416,11 +416,7 @@ instead.
 
 # [vs-code](https://code.visualstudio.com/) & [vs-codium](https://vscodium.com/) & [gitpod](https://www.gitpod.io/) hacking instructions
 
-To run and hack the testing [examples](https://github.com/VisualComputing/p5.treegl/tree/main/examples):
-
-1. Clone the repo (`git clone https://github.com/VisualComputing/p5.treegl`) and open it with your favorite editor.
-2. Install the [p5-vscode extension](https://marketplace.visualstudio.com/items?itemName=samplavigne.p5-vscode).
-3. Head over `examples/*/index.html` and press your editor `Go Live` button.
+Clone the repo (`git clone https://github.com/VisualComputing/p5.treegl`) and open it with your favorite editor.
 
 Don't forget to check these [p5.js](https://p5js.org/) references:
 
