@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.4',
+    VERSION: '0.9.5',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -433,6 +433,7 @@ var Tree = (function (ext) {
     this.uMVMatrix = new p5.Matrix();
     let z = Number.MAX_VALUE;
     this._curCamera.ortho(0, this.width, -this.height, 0, -z, z);
+    // this._curCamera.ortho(0, this.width, 0, -this.height, -z, z); // <- flipped
     this._hud = true;
   }
 
@@ -926,23 +927,29 @@ for details.` : ''}
     const position3 = (varyings & Tree.position3) !== 0;
     const position4 = (varyings & Tree.position4) !== 0;
     const v = (matrices & Tree.vMatrix) !== 0;
+    const m = (matrices & Tree.mMatrix) !== 0;
     const pmv = (matrices & Tree.pmvMatrix) !== 0;
     const p = (matrices & Tree.pMatrix) !== 0;
     const mv = (matrices & Tree.mvMatrix) !== 0 || position4;
     const n = (matrices & Tree.nMatrix) !== 0 || normal3;
     const target = `gl_Position =${pmv ? ' uModelViewProjectionMatrix * ' :
-      (p && v ? ' uProjectionMatrix * uViewMatrix * ' :
-        (p && mv ? ' uProjectionMatrix * uModelViewMatrix * ' :
-          (p ? ' uProjectionMatrix * ' :
-            (v ? ' uViewMatrix * ' :
-              (mv ? ' uModelViewMatrix * ' : ' ')))))}vec4(aPosition, 1.0)`;
+      (p && mv ? ' uProjectionMatrix * uModelViewMatrix * ' :
+        (p && v && m ? ' uProjectionMatrix * uViewMatrix * uModelMatrix * ' :
+          (p && v ? ' uProjectionMatrix * uViewMatrix * ' :
+            (p && m ? ' uProjectionMatrix * uModelMatrix * ' :
+              (mv ? ' uModelViewMatrix * ' :
+                (v && m ? ' uViewMatrix * uModelMatrix * ' :
+                  (p ? ' uProjectionMatrix * ' :
+                    (v ? ' uViewMatrix * ' :
+                      (m ? ' uModelMatrix * ' : ' ')))))))))}aPosition`;
     const vertexShader = `
 precision ${precision === Tree.highp ? 'highp' : (precision === Tree.mediump ? 'mediump' : 'lowp')} float;
-${attribute} vec3 aPosition;
+${attribute} vec4 aPosition;
 ${color4 ? `${attribute} vec4 aVertexColor;` : ''}
 ${texcoords2 ? `${attribute} vec2 aTexCoord;` : ''}
 ${normal3 ? `${attribute} vec3 aNormal;` : ''}
 ${v ? 'uniform mat4 uViewMatrix;' : ''}
+${m ? 'uniform mat4 uModelMatrix;' : ''}
 ${p ? 'uniform mat4 uProjectionMatrix;' : ''}
 ${n ? 'uniform mat3 uNormalMatrix;' : ''}
 ${mv ? 'uniform mat4 uModelViewMatrix;' : ''}
@@ -957,9 +964,9 @@ void main() {
   ${color4 ? 'color4 = aVertexColor;' : ''}
   ${texcoords2 ? 'texcoords2 = aTexCoord;' : ''}
   ${normal3 ? 'normal3 = normalize(uNormalMatrix * aNormal);' : ''}
-  ${position2 ? 'position2 = vec4(aPosition, 1.0).xy;' : ''}
-  ${position3 ? 'position3 = vec4(aPosition, 1.0).xyz;' : ''}
-  ${position4 ? 'position4 = uModelViewMatrix * vec4(aPosition, 1.0);' : ''}
+  ${position2 ? 'position2 = aPosition.xy;' : ''}
+  ${position3 ? 'position3 = aPosition.xyz;' : ''}
+  ${position4 ? 'position4 = uModelViewMatrix * aPosition;' : ''}
   ${target};
 }`;
     let result = version.toString().includes('2') ? directive + advice + vertexShader : advice + vertexShader;
@@ -1131,6 +1138,7 @@ void main() {
   p5.prototype.applyShader = function (shader, { target, uniforms, scene, options = {} } = {}) {
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
+    context === this ? context.push() : context._rendererState = context.push();
     context.shader(shader);
     shader.setUniformsUI(); // also possible: this.setUniformsUI(shader);
     for (const key in uniforms) {
@@ -1145,6 +1153,7 @@ void main() {
       context.overlay(options.flip);
       shader._pMatrix && this.endHUD();
     }
+    context === this ? context.pop() : context.pop(context._rendererState);
     target instanceof p5.Framebuffer && target.end();
     return target || context;
   }

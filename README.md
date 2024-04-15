@@ -2,6 +2,8 @@
 
 Shader development and space transformations [WEBGL](https://p5js.org/reference/#/p5/WEBGL) [p5.js](https://p5js.org/) library.
 
+![A non-Euclidean geometry cube with faces showcasing teapot, bunny, and Buddha models.](p5.treegl.png)
+
 - [Shaders](#shaders)
   - [Setup](#setup)
   - [uniformsUI](#uniformsui)
