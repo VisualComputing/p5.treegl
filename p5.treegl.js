@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.5',
+    VERSION: '0.9.6',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1550,30 +1550,34 @@ void main() {
    * @param  {Number}  bits bitwise mask that may be composed of Tree.X, Tree._X,
    *                        Tree.Y, Tree._Y, Tree.Z, Tree._Z and Tree.LABELS bits.
    */
-  p5.RendererGL.prototype.axes = function ({ size = 100, bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z } = {}) {
+  p5.RendererGL.prototype.axes = function ({
+    size = 100,
+    colors = ['Red', 'Lime', 'DodgerBlue'],
+    bits = Tree.LABELS | Tree.X | Tree.Y | Tree.Z
+  } = {}) {
     this._rendererState = this.push();
     if ((bits & Tree.LABELS) !== 0) {
       const charWidth = size / 40.0;
       const charHeight = size / 30.0;
       const charShift = 1.04 * size;
       // The X
-      this.stroke(200, 0, 0);
+      this.stroke(colors[0 % colors.length]);
       this.line(charShift, charWidth, -charHeight, charShift, -charWidth, charHeight);
       this.line(charShift, -charWidth, -charHeight, charShift, charWidth, charHeight);
       // The Y
-      this.stroke(0, 200, 0);
+      this.stroke(colors[1 % colors.length]);
       this.line(charWidth, charShift, charHeight, 0.0, charShift, 0.0);
       this.line(0.0, charShift, 0.0, -charWidth, charShift, charHeight);
       this.line(-charWidth, charShift, charHeight, 0.0, charShift, 0.0);
       this.line(0.0, charShift, 0.0, 0.0, charShift, -charHeight);
       // The Z
-      this.stroke(0, 100, 200);
+      this.stroke(colors[2 % colors.length]);
       this.line(-charWidth, -charHeight, charShift, charWidth, -charHeight, charShift);
       this.line(charWidth, -charHeight, charShift, -charWidth, charHeight, charShift);
       this.line(-charWidth, charHeight, charShift, charWidth, charHeight, charShift);
     }
     // X Axis
-    this.stroke(200, 0, 0);
+    this.stroke(colors[0 % colors.length]);
     if ((bits & Tree.X) !== 0) {
       this.line(0, 0, 0, size, 0, 0);
     }
@@ -1581,7 +1585,7 @@ void main() {
       this.line(0, 0, 0, -size, 0, 0);
     }
     // Y Axis
-    this.stroke(0, 200, 0);
+    this.stroke(colors[1 % colors.length]);
     if ((bits & Tree.Y) !== 0) {
       this.line(0, 0, 0, 0, size, 0);
     }
@@ -1589,7 +1593,7 @@ void main() {
       this.line(0, 0, 0, 0, -size, 0);
     }
     // Z Axis
-    this.stroke(0, 100, 200);
+    this.stroke(colors[2 % colors.length]);
     if ((bits & Tree.Z) !== 0) {
       this.line(0, 0, 0, 0, 0, size);
     }
