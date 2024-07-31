@@ -310,8 +310,8 @@ Have a look at the [blur with focal point](https://nakednous.github.io/posts/blu
 
 ## Coordinate space conversions
 
-1. `treeLocation(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
-2. `treeDisplacement(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
+1. `parsePosition(vector = Tree.ORIGIN, [{[from = Tree.EYE], [to = Tree.WORLD], [pMatrix], [vMatrix], [eMatrix], [pvMatrix], [pvInvMatrix]}])`: transforms locations (points) from matrix `from` to matrix `to`. 
+2. `parseDirection(vector = Tree._k, [{[from = Tree.EYE], [to = Tree.WORLD], [vMatrix], [eMatrix], [pMatrix]}])`: transforms displacements (vectors) from matrix `from` to matrix `to`.
 
 Pass matrix params when you *cached* those matrices (see the [previous section](#matrix-queries)), either to speedup computations, e.g.,
 
@@ -323,11 +323,11 @@ function draw() {
   // note that this matrix rarely change within the iteration
   pvInv = pvInvMatrix()
   // ...
-  // speedup treeLocation
-  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
-  treeLocation(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
-  // ... many more treeLocation calls....
-  // ... all the above treeLocation calls used the (only computed once) cached pvInv matrix
+  // speedup parsePosition
+  parsePosition(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
+  parsePosition(vector, { from: Tree.WORLD, to: Tree.SCREEN, pvInvMatrix: pvInv })
+  // ... many more parsePosition calls....
+  // ... all the above parsePosition calls used the (only computed once) cached pvInv matrix
 }
 ```
 
@@ -344,13 +344,13 @@ function draw() {
   // continue drawing your tree...
   // let's draw a bulls eye at the model origin screen projection
   push()
-  let screenProjection = treeLocation(Tree.ORIGIN, { from: model, to: Tree.SCREEN })
+  let screenProjection = parsePosition(Tree.ORIGIN, { from: model, to: Tree.SCREEN })
   // which is the same as:
-  // let screenProjection = treeLocation(createVector(0, 0, 0), { from: model, to: Tree.SCREEN });
+  // let screenProjection = parsePosition(createVector(0, 0, 0), { from: model, to: Tree.SCREEN });
   // or,
-  // let screenProjection = treeLocation([0, 0, 0], { from: model, to: Tree.SCREEN });
+  // let screenProjection = parsePosition([0, 0, 0], { from: model, to: Tree.SCREEN });
   // or, more simply:
-  // let screenProjection = treeLocation({ from: model, to: Tree.SCREEN });
+  // let screenProjection = parsePosition({ from: model, to: Tree.SCREEN });
   bullsEye({ x: screenProjection.x, y: screenProjection.y })
   pop()
 }
@@ -361,8 +361,8 @@ function draw() {
 1. Returned transformed vectors are instances of [p5.Vector](https://p5js.org/reference/#/p5.Vector).
 2. `from` and `to` may also be specified as either: `Tree.WORLD`, `Tree.EYE`, `Tree.SCREEN`, `Tree.NDC` or `Tree.MODEL`.
 3. When no matrix params (`eMatrix`, `pMatrix`,...) are passed the renderer [current values](#matrix-queries) are used instead.
-4. The default `treeLocation` call (i.e., `treeLocation(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
-5. Note that the default `treeDisplacement` call (i.e., `treeDisplacement(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
+4. The default `parsePosition` call (i.e., `parsePosition(Tree.ORIGIN, {from: Tree.EYE, to: Tree.WORLD)`) returns the [camera world position](https://learnopengl.com/Getting-started/Camera).
+5. Note that the default `parseDirection` call (i.e., `parseDirection(Tree._k, {from: Tree.EYE, to: Tree.WORLD)`) returns the normalized [camera viewing direction](https://learnopengl.com/Getting-started/Camera).
 6. Other useful vector constants, different than `Tree.ORIGIN` (i.e., `[0, 0, 0]`) and `Tree._k` (i.e., `[0, 0, -1]`), are: `Tree.i` (i.e., `[1, 0, 0]`), `Tree.j` (i.e., `[0, 1, 0]`), `Tree.k` (i.e., `[0, 0, 1]`), `Tree._i` (i.e., `[-1, 0, 0]`) and `Tree._j` (i.e., `[0, -1, 0]`).
 
 ## Heads Up Display
