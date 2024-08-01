@@ -75,7 +75,7 @@ The `readShader`, `makeShader`, and `parseShader` functions take a fragment shad
 
 **Examples:**
 
-- **Example 1:** `parseShader('fragSrc')` `WEBGL2` (`GLSL ES 3.00`) `shader.frag`, with no `varyings` and `highp` `precision`:
+- **Example 1:** `parseShader('fragSrc')` `WEBGL2` (`GLSL ES 3.00`) `fragSrc`, with no `varyings` and `highp` `precision`:
 
   ```glsl
   // inferred vertex shader
@@ -98,7 +98,7 @@ The `readShader`, `makeShader`, and `parseShader` functions take a fragment shad
   }
   ```
 
-- **Example 3:** `parseShader('fragSrc', Tree.pmvMatrix)` `WEBGL2` `shader.frag` defining `normal3` and `position4` varyings, and `mediump` `precision`:
+- **Example 3:** `parseShader('fragSrc', Tree.pmvMatrix)` `WEBGL2` `fragSrc` defining `normal3` and `position4` varyings, and `mediump` `precision`:
 
   ```glsl
   // shader.frag excerpt
