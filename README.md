@@ -41,10 +41,11 @@ Have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blu
 
 ## Setup
 
-The `readShader` and `makeShader` functions take a fragment shader —specified in either `GLSL ES 1.00` or `GLSL ES 3.00`— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to infer the corresponding vertex shader which is then logged to the console. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects).
+The `readShader`, `makeShader`, and `parseShader` functions take a fragment shader —specified in either `GLSL ES 1.00` or `GLSL ES 3.00`— to create and return a [`p5.Shader`](https://p5js.org/reference/#/p5.Shader) object. They parse the fragment shader and use the `matrices` param to infer the corresponding vertex shader, which is then logged to the console if no vertex shader source is provided. These functions also create a [uniformsUI](#uniformsui) user interface with [p5.Elements](https://p5js.org/reference/#/p5.Element) from the fragment shader's uniform variables' comments, and if a `key` is provided, bind the shader to it, enabling its use as a [Post-effect](#post-effects). Note that the parameters of these functions may be specified in any order.
 
-1. `readShader(fragFilename, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), this function reads a fragment shader from a file, generates and logs a vertex shader to the console, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
-2. `makeShader(fragSrc, [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [createShader](https://p5js.org/reference/#/p5/createShader), this function takes a fragment shader source string, generates and logs a vertex shader, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this keyfor potential use as a [Post-effect](#post-effects). Note that the last three parameters of this function are optional and can be specified in any order.
+1. `readShader(fragFilename, [vertFilename], [matrices = Tree.NONE], [uniformsUIConfig], [key], [successCallback], [failureCallback])`: Akin to [loadShader](https://p5js.org/reference/#/p5/loadShader), this function reads a fragment shader (and optionally a vertex shader) from a file, generates and logs a vertex shader if none is provided, and returns a `p5.Shader` instance. It builds a `uniformsUI` user interface using `uniformsUIConfig` and, if a `key` is given, it binds the shader to this `key` for potential use as a [Post-effect](#post-effects). Note that the last five parameters of this function are optional and can be specified in any order.
+2. `makeShader(fragStr, [vertStr], [matrices = Tree.NONE], [uniformsUIConfig], [key])`: Akin to [createShader](https://p5js.org/reference/#/p5/createShader), this function takes a fragment shader source string (and optionally a vertex shader source string), generates and logs a vertex shader if none is provided, and returns a `p5.Shader`. It also sets up a `uniformsUI` user interface with `uniformsUIConfig` and, if a `key` is provided, binds the shader to this key for potential use as a [Post-effect](#post-effects). Note that the last four parameters of this function are optional and can be specified in any order.
+3. `parseShader(fragSrc, [vertSrc], [matrices = Tree.NONE], [uniformsUIConfig], [key], [successCallback], [failureCallback])`: A high-level dispatcher function that takes parameters in the form of those for `readShader` or `makeShader` and determines which function to call based on the input parameters to set up a `p5.Shader` instance accordingly.
 
 **Vertex shader generation observations**
 
@@ -74,7 +75,7 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
 
 **Examples:**
 
-- **Example 1:** `readShader('shader.frag')` (or `makeShader`) `WEBGL2` (`GLSL ES 3.00`) `shader.frag`, with no `varyings` and `highp` `precision`:
+- **Example 1:** `parseShader('fragSrc')` `WEBGL2` (`GLSL ES 3.00`) `shader.frag`, with no `varyings` and `highp` `precision`:
 
   ```glsl
   // inferred vertex shader
@@ -97,7 +98,7 @@ The `readShader` and `makeShader` functions take a fragment shader —specified 
   }
   ```
 
-- **Example 3:** `readShader('shader.frag', Tree.pmvMatrix)` (or `makeShader`) `WEBGL2` `shader.frag` defining `normal3` and `position4` varyings, and `mediump` `precision`:
+- **Example 3:** `parseShader('fragSrc', Tree.pmvMatrix)` `WEBGL2` `shader.frag` defining `normal3` and `position4` varyings, and `mediump` `precision`:
 
   ```glsl
   // shader.frag excerpt
