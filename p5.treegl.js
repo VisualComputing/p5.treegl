@@ -2,8 +2,7 @@
 
 // TODO's
 // blog apps demos docs. 
-// i. p5-v2; ii. only WEBGL (?); iii. instance mode tests (drawing)
-// iv. throw new Error(`mandatory param missed`)
+// i. p5-v2; ii. only WEBGL (?); iii. instance mode tests
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -1255,8 +1254,8 @@ void main() {
   }
 
   p5.prototype.applyEffects = function (...args) {
-    let layer = null;
-    let effects = [];
+    let layer;
+    let effects;
     let uniformsMapping = {};
     let flip = true;
     args.forEach(arg => {
@@ -1314,7 +1313,7 @@ void main() {
   }
 
   p5.prototype.createBlender = function (...args) {
-    let effects = [];
+    let effects;
     let options = {};
     args.forEach(arg => {
       if (Array.isArray(arg)) {
@@ -1677,7 +1676,7 @@ void main() {
     return this._renderer.parseGeometry(fn, ...args);
   };
 
-  // TODO test with local functions & lightning models together!
+  // TODO more testing
   p5.RendererGL.prototype.parseGeometry = function (fn, ...args) {
     this.beginGeometry();
     fn(...args);
