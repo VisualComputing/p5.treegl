@@ -3,6 +3,7 @@
 // TODO's
 // blog apps demos docs. 
 // i. p5-v2; ii. only WEBGL (?); iii. instance mode tests (drawing)
+// iv. throw new Error(`mandatory param missed`)
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -11,7 +12,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.7',
+    VERSION: '0.9.8',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -98,7 +99,7 @@ var Tree = (function (ext) {
   return ext;
 })(Tree || {});
 
-// TODO: remove once npm works
+// TODO: remove once npm lib mode is implemented
 window.Tree = Tree;
 
 (function () {
@@ -895,7 +896,7 @@ window.Tree = Tree;
     const shader = new p5.Shader();
     shader.key = key;
     shader._pMatrix = (matrices & Tree.pmvMatrix) === Tree.pmvMatrix || (matrices & Tree.pMatrix) === Tree.pMatrix;
-    let fragSource, vertSource, fragFilename, vertFilename;
+    let fragSource, vertSource, fragFilename;
     const onLoad = () => {
       shader._fragSrc = fragSource;
       if (!vertSource) {
@@ -916,7 +917,6 @@ window.Tree = Tree;
           const source = result.join('\n');
           if (checkForVertexShader(source)) {
             vertSource = source;
-            vertFilename = filename;
           } else {
             fragSource = source;
             fragFilename = filename;
@@ -1047,7 +1047,16 @@ void main() {
     return result;
   }
 
-  p5.prototype.parseUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, color } = {}) {
+  p5.prototype.parseUniformsUI = function (...args) {
+    let shader, config = {};
+    args.forEach(arg => {
+      if (arg instanceof p5.Shader) {
+        shader = arg;
+      } else if (typeof arg === 'object') {
+        config = arg;
+      }
+    });
+    const { x = 0, y = 0, offset = 0, width = 120, color } = config;
     if (shader.uniformsUI) {
       console.log('Overwriting uniformsUI for this shader.');
       this.hideUniformsUI(shader);
@@ -1104,7 +1113,17 @@ void main() {
     return uniformsUI;
   }
 
-  p5.prototype.configUniformsUI = function (shader, { x = 0, y = 0, offset = 0, width = 120, color/*, bg_color,*/ } = {}) {
+  p5.prototype.configUniformsUI = function (...args) {
+    let shader;
+    let config = {};
+    args.forEach(arg => {
+      if (arg instanceof p5.Shader) {
+        shader = arg;
+      } else if (typeof arg === 'object') {
+        config = arg;
+      }
+    });
+    let { x = 0, y = 0, offset = 0, width = 120, color/*, bg_color,*/ } = config;
     const elementHeight = {
       slider: 35,
       checkbox: 30,
@@ -1203,7 +1222,16 @@ void main() {
    *   @param {Object} [config.options] - Optional object to pass additional parameters to the `scene` function.
    * @returns {p5.Graphics|p5.Framebuffer} - The rendering target for method chaining.
    */
-  p5.prototype.applyShader = function (shader, { target, uniforms, scene, options = {} } = {}) {
+  p5.prototype.applyShader = function (...args) {
+    let shader, config = {};
+    args.forEach(arg => {
+      if (arg instanceof p5.Shader) {
+        shader = arg;
+      } else if (typeof arg === 'object') {
+        config = arg;
+      }
+    });
+    const { target, uniforms = {}, scene, options = {} } = config;
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
     context === this ? context.push() : context._rendererState = context.push();
@@ -1226,7 +1254,22 @@ void main() {
     return target || context;
   }
 
-  p5.prototype.applyEffects = function (layer, effects, ...args) {
+  p5.prototype.applyEffects = function (...args) {
+    let layer = null;
+    let effects = [];
+    let uniformsMapping = {};
+    let flip = true;
+    args.forEach(arg => {
+      if (arg instanceof p5.Framebuffer) {
+        layer = arg;
+      } else if (Array.isArray(arg) && arg.every(e => e instanceof p5.Shader)) {
+        effects = arg;
+      } else if (typeof arg === 'object' && !Array.isArray(arg)) {
+        uniformsMapping = arg;
+      } else if (typeof arg === 'boolean') {
+        flip = arg;
+      }
+    });
     if (!(layer instanceof p5.Framebuffer)) {
       console.log('The layer param should be a p5.Framebuffer in applyEffects(layer, effects).');
       return layer;
@@ -1236,20 +1279,19 @@ void main() {
       return layer;
     }
     let blender = layer;
-    let uniformsMapping = {};
-    let flip = true;
-    args.forEach(arg => {
-      if (typeof arg === 'object' && !Array.isArray(arg)) {
-        uniformsMapping = arg;
-      } else if (typeof arg === 'boolean') {
-        flip = arg;
-      }
-    });
+    // TODO: a duplicate effect produces: WebGL warning: drawElementsInstance
+    // decide whether to include the avoid duplicates using appliedEffects set fix below
+    const appliedEffects = new Set();
     effects.forEach((effect, index) => {
       if (!(effect instanceof p5.Shader)) {
         console.log(`Skipping effect '${index}' due to missed shader type.`);
         return;
       }
+      if (appliedEffects.has(effect)) {
+        console.log(`Skipping duplicated effect '${index}'.`);
+        return;
+      }
+      appliedEffects.add(effect);
       if (!(effect.blender instanceof p5.Framebuffer)) {
         effect.blender = this.createFramebuffer();
         console.log(`New frame buffer blender property set for ${effect.key ? `shader '${effect.key}'` : `effects[${index}] shader`}.`);
@@ -1258,8 +1300,7 @@ void main() {
       if (effect.key) {
         uniforms = uniformsMapping[effect.key] || {};
         delete effect._uniformsWarn;
-      }
-      else {
+      } else {
         if (!effect._uniformsWarn) {
           console.log(`Set effects[${index}].key to emit custom uniforms for effects[${index}] shader.`);
           effect._uniformsWarn = true;
@@ -1272,9 +1313,18 @@ void main() {
     return blender;
   }
 
-  p5.prototype.createBlender = function (effects, options) {
-    if (!Array.isArray(effects) || typeof options !== 'object') {
-      console.log('Incorrect params in createBlender(effects, options). Nothing done');
+  p5.prototype.createBlender = function (...args) {
+    let effects = [];
+    let options = {};
+    args.forEach(arg => {
+      if (Array.isArray(arg)) {
+        effects = arg;
+      } else if (typeof arg === 'object') {
+        options = arg;
+      }
+    });
+    if (!Array.isArray(effects) || effects.length === 0) {
+      console.log('Incorrect or missing effects array in createBlender(effects, options). Nothing done');
       return;
     }
     effects.forEach((effect, index) => {
@@ -1522,10 +1572,21 @@ void main() {
    * Tree.TOP, Tree.NEAR or Tree.FAR. The distance is negative if the point lies
    * in the planes's bounding halfspace, and positive otherwise.
    */
-  p5.RendererGL.prototype.distanceToBound = function (point, key, bounds = this.bounds()) {
-    if (Array.isArray(point)) {
-      point = new p5.Vector(point[0] ?? 0, point[1] ?? 0, point[2] ?? 0);
-    }
+  p5.RendererGL.prototype.distanceToBound = function (...args) {
+    let point, key, bounds = this.bounds();
+    args.forEach(arg => {
+      if (arg instanceof p5.Vector) {
+        point = arg;
+      } else if (Array.isArray(arg)) {
+        point = new p5.Vector(arg[0] ?? 0, arg[1] ?? 0, arg[2] ?? 0);
+        // string check is need since iterating over obj props (e.g., *visibility())
+        // return strings not numbers (e.g., as with Tree.NEAR)
+      } else if (typeof arg === 'string' || typeof arg === 'number') {
+        key = arg;
+      } else if (typeof arg === 'object' && arg !== null && !Array.isArray(arg)) {
+        bounds = arg;
+      }
+    });
     return p5.Vector.dot(point, new p5.Vector(bounds[key].a, bounds[key].b, bounds[key].c)) - bounds[key].d;
   }
 
