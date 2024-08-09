@@ -10,7 +10,6 @@ Shader development and space transformations [WEBGL](https://p5js.org/reference/
   - [Apply shader](#apply-shader)
   - [Post-effects](#post-effects)
   - [Macros](#macros)
-  - [Bind matrices](#bind-matrices)
 - [Space transformations](#space-transformations)
   - [Matrix operations](#matrix-operations)
   - [Matrix queries](#matrix-queries)
@@ -31,13 +30,13 @@ let iMatrix = invMatrix(matrix)
 // iMatrix !== matrix
 ```
 
-Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-operations) sections are available only to `p5`; those in the [Matrix Queries](#matrix-queries), [Bind Matrices](#bind-matrices), [Space Transformations](#space-transformations), [Heads Up Display](#heads-up-display), [Utilities](#utilities), and [Drawing Stuff](#drawing-stuff) sections are accessible to both `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; functions in the [Frustum Queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
+Note that functions in the [Shaders](#shaders) and [Matrix operations](#matrix-operations) sections are available only to `p5`; those in the [Matrix Queries](#matrix-queries), [Space Transformations](#space-transformations), [Heads Up Display](#heads-up-display), [Utilities](#utilities), and [Drawing Stuff](#drawing-stuff) sections are accessible to both `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances; functions in the [Frustum Queries](#frustum-queries) section are available to `p5`, [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer), and [p5.Matrix](https://github.com/processing/p5.js/blob/main/src/webgl/p5.Matrix.js) instances.
 
 Parameters for `p5.treegl` functions can be provided in any order, unless specified otherwise.
 
 # Shaders
 
-`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), setting common uniform variables using several [`Macros`](#macros), and binding matrices in [`Bind matrices`](#bind-matrices).
+`p5.treegl` simplifies the creation and application of shaders in `WEBGL`. It covers the essentials from setting up shaders with [`Setup`](#setup), managing shader uniforms through a [uniforms user interface](#uniformsui), applying shaders using [`Apply shader`](#apply-shader), enhancing visuals with [`Post-effects`](#post-effects), and setting common uniform variables using several [`Macros`](#macros).
 
 Have a look at the [toon shading](https://nakednous.github.io/posts/toon/), [blur with focal point](https://nakednous.github.io/posts/blur/), [post-effects](https://nakednous.github.io/posts/post_effects/), and [gpu-based photomosaic](https://nakednous.github.io/posts/photomosaic/) examples.
 
@@ -254,18 +253,6 @@ Retrieve image offset, mouse position, pointer position and screen resolution wh
 3. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances. Note that `pointerX` should always be the first parameter and `pointerY` the second.
 4. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
-## Bind matrices
-
-By specifying additional matrices alongside those already emitted automatically by [p5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/webgl_mode_architecture.md), such as `uProjectionMatrix` and `uViewMatrix`, developers can leverage enhanced transformations in their shaders.
-
-1. `bindMatrices(matrices = Tree.NONE)`: Binds additional matrices to the current renderer specified by the `matrices` bit mask, thereby enabling the following matrix uniforms to be emitted to the shader: `Tree.eMatrix` (emits `uEyeMatrix`), `Tree.mMatrix` (emits `uModelMatrix`), `Tree.pvMatrix` (emits `uProjectionViewMatrix`), and `Tree.pvInvMatrix` (emits `uProjectionViewInverseMatrix`). For example:
-
-```js
-// Bind additional eMatrix and mMatrix to the current renderer
-// should be called after setAttributes
-bindMatrices(Tree.eMatrix | Tree.mMatrix)
-```
-
 # Space transformations
 
 This section delves into matrix manipulations and queries which are essential for 3D rendering. It includes functions for matrix operations like creation, inversion, and multiplication in the [Matrix operations](#matrix-operations) subsection, and offers methods to retrieve transformation matrices and perform space conversions in [Matrix queries](#matrix-queries), [Frustum queries](#frustum-queries), and [Coordinate Space conversions](#coordinate-space-conversions), facilitating detailed control over 3D scene transformations.
@@ -379,7 +366,7 @@ This section comprises a collection of handy functions designed to facilitate co
 
 1. `pixelRatio(location)`: Returns the world to pixel ratio units at given world location, i.e., a line of `n * pixelRatio(location)` world units will be projected with a length of `n` pixels on screen.
 2. `mousePicking({ [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: same as `return this.pointerPicking(this.mouseX, this.mouseY, { mMatrix: mMatrix, x: x, y: y, size: size, shape: shape, eMatrix: eMatrix, pMatrix: pMatrix, vMatrix: vMatrix, pvMatrix: pvMatrix })` (see below).
-3. `pointerPicking(pointerX, pointerY, { [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: Returns `true` if `pointerX`, `pointerY` lies within the screen space circle centered at (`x`, `y`) and having `size` diameter. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`), having `size` as its bounding sphere diameter. Use `Tree.SQUARE` to use a squared shape instead of a circled one. Note that `pointerX` should always be the first parameter and `pointerY` the second.
+3. `pointerPicking(pointerX, pointerY, { [mMatrix = this.mMatrix()], [x], [y], [size = 50], [shape = Tree.CIRCLE], [eMatrix], [pMatrix], [vMatrix], [pvMatrix] })`: Returns `true` if `pointerX`, `pointerY` lies within the screen space circle centered at (`x`, `y`) and having `size` diameter. Pass `mMatrix` to compute (`x`, `y`) as the screen space projection of the local space origin (defined by `mMatrix`), having `size` as its bounding sphere diameter. Use `Tree.SQUARE` to use a squared shape instead of a circled one. Note that `pointerX` should always be specified before `pointerY`.
 4. `visibility`: Returns object visibility, either as `Tree.VISIBLE`, `Tree.INVISIBLE`, or `Tree.SEMIVISIBLE`. Object may be either a _point_: `visibility({ center, [bounds = this.bounds([{[eMatrix = this.eMatrix()], [vMatrix = this.vMatrix()]}])]})`, a _ball_: `visibility({ center, radius, [bounds = this.bounds()]})` or an _axis-aligned box_: `visibility({ corner1, corner2, [bounds = this.bounds()]})`.
 5. `bounds()`: Returns the [general form](http://www.songho.ca/math/plane/plane.html) of the current frustum six plane equations, i.e., _ax + by + cz + d = 0_, formatted as an object literal having keys: `Tree.LEFT`, `Tree.RIGHT`, `Tree.BOTTOM`, `Tree.TOP`, `Tree.NEAR` and `Tree.FAR`, e.g., access the near plane coefficients as:
    ```js

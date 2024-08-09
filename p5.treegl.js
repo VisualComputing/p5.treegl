@@ -2,7 +2,7 @@
 
 // TODO's
 // blog apps demos docs. 
-// i. p5-v2; ii. only WEBGL (?); iii. instance mode tests
+// i. p5-v2; ii. only WEBGL (?); iii. instance mode tests; iv. ndc vfc is broken; v. mvMatrix testing
 // See:
 // https://github.com/processing/p5.js/blob/main/contributor_docs/creating_libraries.md
 // https://github.com/processing/p5.js/blob/main/src/core/README.md
@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.9.8',
+    VERSION: '0.10.0',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -65,13 +65,13 @@ var Tree = (function (ext) {
   const mediump = 1;
   const highp = 2;
   // Matrices
-  const vMatrix = 1 << 0;
-  const pMatrix = 1 << 1;
-  const mvMatrix = 1 << 2;
-  const pmvMatrix = 1 << 3;
-  const nMatrix = 1 << 4;
-  const eMatrix = 1 << 5; // only tree
-  const mMatrix = 1 << 6; // only tree
+  const pMatrix = 1 << 0;
+  const mMatrix = 1 << 1;
+  const vMatrix = 1 << 2;
+  const mvMatrix = 1 << 3;
+  const pmvMatrix = 1 << 4;
+  const nMatrix = 1 << 5;
+  const eMatrix = 1 << 6; // only tree
   const pvMatrix = 1 << 7; // only tree
   const pvInvMatrix = 1 << 8; // only tree
   // Varyings
@@ -91,8 +91,8 @@ var Tree = (function (ext) {
     WORLD, EYE, NDC, SCREEN, MODEL,
     ORIGIN, i, j, k, _i, _j, _k,
     lowp, mediump, highp,
-    vMatrix, pMatrix, mvMatrix, pmvMatrix, nMatrix,
-    eMatrix, mMatrix, pvMatrix, pvInvMatrix, // only tree
+    pMatrix, mMatrix, vMatrix, mvMatrix, pmvMatrix, nMatrix,
+    eMatrix, pvMatrix, pvInvMatrix, // only tree
     color4, texcoords2, normal3, position2, position3, position4
   });
   return ext;
@@ -185,6 +185,14 @@ window.Tree = Tree;
     return this.uPMatrix.copy();
   }
 
+  p5.prototype.mMatrix = function (...args) {
+    return this._renderer.mMatrix(...args);
+  }
+
+  p5.RendererGL.prototype.mMatrix = function () {
+    return this.uModelMatrix.copy();
+  }
+
   p5.prototype.mvMatrix = function (...args) {
     return this._renderer.mvMatrix(...args);
   }
@@ -193,23 +201,12 @@ window.Tree = Tree;
   // otherwise it returns a copy of the current mvMatrix
   p5.RendererGL.prototype.mvMatrix = function (
     {
-      vMatrix,
-      mMatrix
+      vMatrix = this._curCamera.cameraMatrix,
+      mMatrix = this.uModelMatrix
     } = {}) {
-    return mMatrix ? (vMatrix ?? this.vMatrix()).copy().apply(mMatrix) : this.uMVMatrix.copy();
-  }
-
-  p5.prototype.mMatrix = function (...args) {
-    return this._renderer.mMatrix(...args);
-  }
-
-  // defaults: eMatrix: this.eMatrix, mvMatrix: this.mvMatrix
-  p5.RendererGL.prototype.mMatrix = function (
-    {
-      eMatrix = this.eMatrix(),
-      mvMatrix = this.mvMatrix()
-    } = {}) {
-    return eMatrix.copy().apply(mvMatrix);
+    return vMatrix.copy().apply(mMatrix); // same as: (mMatrix.copy()).mult(vMatrix);
+    // TODO (upstream) gives different results: return this.uMVMatrix.copy()
+    // previous: return mMatrix ? (vMatrix ?? this.vMatrix()).copy().apply(mMatrix) : this.uMVMatrix.copy();
   }
 
   p5.prototype.nMatrix = function (...args) {
@@ -426,13 +423,15 @@ window.Tree = Tree;
   }
 
   p5.RendererGL.prototype.beginHUD = function () {
-    this.mv = this.mvMatrix();
+    this.m = this.mMatrix();
+    this.v = this.vMatrix();
     this.p = this.pMatrix();
     this._rendererState = this.push();
     let gl = this.drawingContext;
     gl.flush();
     gl.disable(gl.DEPTH_TEST);
-    this.uMVMatrix = new p5.Matrix();
+    this.uModelMatrix = new p5.Matrix();
+    this.uViewMatrix = new p5.Matrix();
     let z = Number.MAX_VALUE;
     this._curCamera.ortho(0, this.width, -this.height, 0, -z, z);
     // this._curCamera.ortho(0, this.width, 0, -this.height, -z, z); // <- flipped
@@ -451,7 +450,8 @@ window.Tree = Tree;
     gl.enable(gl.DEPTH_TEST);
     this.pop(this._rendererState);
     this.uPMatrix.set(this.p);
-    this.uMVMatrix.set(this.mv);
+    this.uModelMatrix.set(this.m);
+    this.uViewMatrix.set(this.v);
     this._hud = false;
   }
 
@@ -807,29 +807,6 @@ window.Tree = Tree;
   }
 
   // 3. Shader utilities
-
-  const __setMatrixUniforms = p5.Shader.prototype._setMatrixUniforms;
-
-  p5.Shader.prototype._setMatrixUniforms = function (...args) {
-    __setMatrixUniforms.apply(this, ...args);
-    const matrices = this._renderer._matrices;
-    if (matrices) {
-      // this.uniforms.uNormalMatrix condition taken from upstream _setMatrixUniforms
-      (!this.uniforms.uNormalMatrix && (matrices & Tree.nMatrix) !== 0) && this.setUniform('uNormalMatrix', this._renderer.nMatrix().mat3);
-      ((matrices & Tree.eMatrix) !== 0) && this.setUniform('uEyeMatrix', this._renderer.eMatrix().mat4);
-      ((matrices & Tree.mMatrix) !== 0) && this.setUniform('uModelMatrix', this._renderer.mMatrix().mat4);
-      ((matrices & Tree.pvMatrix) !== 0) && this.setUniform('uProjectionViewMatrix', this._renderer.pvMatrix().mat4);
-      ((matrices & Tree.pvInvMatrix) !== 0) && this.setUniform('uProjectionViewInverseMatrix', this._renderer.pvInvMatrix().mat4);
-    }
-  }
-
-  p5.prototype.bindMatrices = function (...args) {
-    this._renderer.bindMatrices(...args);
-  }
-
-  p5.RendererGL.prototype.bindMatrices = function (matrices = Tree.NONE) {
-    this._matrices = matrices;
-  }
 
   p5.prototype.parseShader = function (...args) {
     const makeCondition = args.some(arg => typeof arg === 'string' && (arg.includes('\n') || arg.includes('\r')));
@@ -1609,23 +1586,22 @@ void main() {
 
   /**
    * Returns true if pointer is close enough to pointerX, pointerY screen position.
-   * @param  {p5.Matrix} mMatrix model space matrix origin to compute (x, y) from.
    * @param  {Number}    x screen x coordinate. Default is width / 2.
    * @param  {Number}    y screen y coordinate. Default is height / 2.
+   * @param  {p5.Matrix} mMatrix model space matrix origin to compute (x, y) from.
    * @param  {Number}    size bullseye diameter. Default is 50.
    * @param  {Number}    shape either Tree.CIRCLE, Tree.SQUARE or Tree.PROJECTION. Default is Tree.CIRCLE.
    */
-  p5.RendererGL.prototype.pointerPicking = function (pointerX, pointerY, {
-    mMatrix = this.mMatrix(),
-    x,
-    y,
-    size = 50,
-    shape = Tree.CIRCLE,
-    eMatrix,
-    pMatrix,
-    vMatrix,
-    pvMatrix
-  } = {}) {
+  p5.RendererGL.prototype.pointerPicking = function (...args) {
+    let pointerX, pointerY, config = {};
+    args.forEach(arg => {
+      if (typeof arg === 'number') {
+        pointerX === undefined ? pointerX = arg : pointerY = arg;
+      } else if (typeof arg === 'object') {
+        config = arg;
+      }
+    });
+    let { mMatrix = this.mMatrix(), x, y, size = 50, shape = Tree.CIRCLE, eMatrix, pMatrix, vMatrix, pvMatrix } = config;
     if (!(x && y)) {
       let screenPosition = this.parsePosition({ from: mMatrix, to: Tree.SCREEN, pMatrix, vMatrix, pvMatrix });
       x = screenPosition.x;
@@ -1634,9 +1610,9 @@ void main() {
     }
     // TODO implement webgl picking here using a switch statement: Tree.CIRCLE, Tree.SQUARE, Tree.PROJECTION
     let radius = size / 2;
-    return shape === Tree.CIRCLE ?
-      Math.sqrt(Math.pow((x - pointerX), 2.0) + Math.pow((y - pointerY), 2.0)) < radius :
-      ((Math.abs(pointerX - x) < radius) && (Math.abs(pointerY - y) < radius));
+    return shape === Tree.CIRCLE
+      ? Math.sqrt(Math.pow((x - pointerX), 2.0) + Math.pow((y - pointerY), 2.0)) < radius
+      : ((Math.abs(pointerX - x) < radius) && (Math.abs(pointerY - y) < radius));
   }
 
   // 5. Drawing stuff
@@ -1946,7 +1922,8 @@ void main() {
     }
     // save state
     this._rendererState = this.push();
-    this.uMVMatrix = new p5.Matrix();
+    this.uModelMatrix = new p5.Matrix();
+    this.uViewMatrix = new p5.Matrix();
     // transform from world space to this eye
     this.applyMatrix(...(vMatrix).mat4);
     // transform from eye space to world space
