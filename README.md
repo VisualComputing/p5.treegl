@@ -222,7 +222,7 @@ function draw() {
     bloom: { depth: layer.depth }, // <- use bloom key
     noise: { time: millis() / 1000 } // <- use noise key
   }
-  const target = applyEffects(layer, effects, uniforms);
+  const target = applyEffects(layer, effects, uniforms)
   // display target using screen space coords
   beginHUD()
   image(target, 0, 0)
@@ -272,7 +272,7 @@ Have a look at the [blur with focal point](https://nakednous.github.io/posts/blu
 
 1. `pMatrix()`: Returns the current projection matrix.
 2. `mvMatrix([{[vMatrix], [mMatrix]}])`: Returns the modelview matrix.
-3. `mMatrix([{[eMatrix], [mvMatrix]}])`: Returns the model matrix. This matrix defines a local space transformation according to [translate](https://p5js.org/reference/#/p5/translate), [rotate](https://p5js.org/reference/#/p5/rotate) and [scale](https://p5js.org/reference/#/p5/scale) commands. Refer also to [push](https://p5js.org/reference/#/p5/push) and [pop](https://p5js.org/reference/#/p5/pop).
+3. `mMatrix()`: Returns the model matrix. This matrix defines a local space transformation according to [translate](https://p5js.org/reference/#/p5/translate), [rotate](https://p5js.org/reference/#/p5/rotate) and [scale](https://p5js.org/reference/#/p5/scale) commands. Refer also to [push](https://p5js.org/reference/#/p5/push) and [pop](https://p5js.org/reference/#/p5/pop).
 4. `eMatrix()`: Returns the current eye matrix (the inverse of `vMatrix()`). In addition to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances, this method is also available to [p5.Camera](https://p5js.org/reference/#/p5.Camera) objects.
 5. `vMatrix()`: Returns the view matrix (the inverse of `eMatrix()`). In addition to `p5` and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances, this method is also available to [p5.Camera](https://p5js.org/reference/#/p5.Camera) objects.
 6. `pvMatrix([{[pMatrix], [vMatrix]}])`: Returns the projection times view matrix.
