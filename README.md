@@ -249,9 +249,9 @@ function keyPressed() {
 Retrieve image offset, mouse position, pointer position and screen resolution which are common `uniform vec2` variables
 
 1. `texOffset(image)` which is the same as: `return [1 / image.width, 1 / image.height]`.
-2. `mousePosition()` which is the same as: `return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()]`.
-3. `pointerPosition(pointerX, pointerY)` which is the same as: `return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances. Note that `pointerX` should always be the first parameter and `pointerY` the second.
-4. `resolution()` which is the same as: `return [this.width * this.pixelDensity(), this.height * this.pixelDensity()]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
+2. `mousePosition([flip = true])` which is the same as: `return [this.pixelDensity() * this.mouseX, this.pixelDensity() * (flip ? this.height - this.mouseY : this.mouseY)]`.
+3. `pointerPosition(pointerX, pointerY, [flip = true])` which is the same as: `return [this.pixelDensity() * pointerX, this.pixelDensity() * (flip ? this.height - pointerY : pointerY)]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances. Note that `pointerX` should always be the first parameter and `pointerY` the second.
+4. `resolution()` which is the same as: `return [this.pixelDensity() * this.width, this.pixelDensity() * this.height]`. Available to both, the `p5` object and [p5.RendererGL](https://p5js.org/reference/#/p5.Renderer) instances.
 
 # Space transformations
 

@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.10.0',
+    VERSION: '0.10.1',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -416,6 +416,15 @@ window.Tree = Tree;
 
   // 2. Space transformations
 
+  // vertical flip based on (screenX, screenY):
+  /*
+  beginHUD();
+  translate(screenX, screenY); // move origin to (screenX, screenY)
+  scale(1, -1); // Flip vertically
+  image(fbo, 0, 0, fboWidth, fboHeight); // draw fbo at the new origin
+  endHUD();
+  */
+
   p5.prototype.beginHUD = function (...args) {
     if (this._renderer instanceof p5.RendererGL) {
       this._renderer.beginHUD(...args);
@@ -591,7 +600,7 @@ window.Tree = Tree;
       point = new p5.Vector(0, 0, 0.5),
       pMatrix,
       vMatrix,
-      pvMatrix = this.pvMatrix({ pMatrix: pMatrix, vMatrix: vMatrix })
+      pvMatrix = this.pvMatrix({ pMatrix, vMatrix })
     } = {}) {
     let target = pvMatrix._mult4([point.x, point.y, point.z, 1]);
     if (target[3] == 0) {
@@ -1333,24 +1342,35 @@ void main() {
     return [1 / image.width, 1 / image.height];
   }
 
-  p5.prototype.mousePosition = function () {
-    return [this.mouseX * this.pixelDensity(), (this.height - this.mouseY) * this.pixelDensity()];
+  p5.prototype.mousePosition = function (flip = true) {
+    return [this.pixelDensity() * this.mouseX, this.pixelDensity() * (flip ? this.height - this.mouseY : this.mouseY)];
   }
 
   p5.prototype.pointerPosition = function (...args) {
     return this._renderer.pointerPosition(...args);
   }
 
-  p5.RendererGL.prototype.pointerPosition = function (pointerX, pointerY) {
-    return [pointerX * this.pixelDensity(), (this.height - pointerY) * this.pixelDensity()];
-  }
+  p5.RendererGL.prototype.pointerPosition = function (...args) {
+    let pointerX, pointerY, flip = true;
+    args.forEach(arg =>
+      typeof arg === 'number'
+        ? pointerX === undefined ? pointerX = arg : pointerY = arg
+        : typeof arg === 'boolean' && (flip = arg)
+    );
+    /*
+    // TODO: if below hack were cleaner mousePosition can be removed
+    pointerX = pointerX ?? window.mouseX;
+    pointerY = pointerY ?? window.mouseY;
+    // */
+    return [this.pixelDensity() * pointerX, this.pixelDensity() * (flip ? this.height - pointerY : pointerY)];
+  };
 
   p5.prototype.resolution = function (...args) {
     return this._renderer.resolution(...args);
   }
 
   p5.RendererGL.prototype.resolution = function () {
-    return [this.width * this.pixelDensity(), this.height * this.pixelDensity()];
+    return [this.pixelDensity() * this.width, this.pixelDensity() * this.height];
   }
 
   // 4. Utility functions
@@ -1382,7 +1402,7 @@ void main() {
    * @param  {p5.Vector | Array} corner2 box corner2, use it with corner1.
    * @param  {p5.Vector | Array} center sphere (or point) center.
    * @param  {Number}            radius sphere radius.
-   * @param  {Array}             bounds frustum equations 6x4 matrix.
+   * @param  {Object}            bounds frustum equations 6x4 matrix.
    */
   p5.RendererGL.prototype.visibility = function ({
     corner1,
@@ -1939,7 +1959,9 @@ void main() {
     const l = pMatrix.lPlane();
     const r = pMatrix.rPlane();
     // TODO hack: fixes frustum() drawing
-    // camera projections should be called as:
+    // i. prioritizes pgs over fbos currently. It should be the other way around.
+    // (test with ball and box visibility)
+    // ii. camera projections should be called as:
     //   pg.ortho(lPlane.value(), rPlane.value(), bPlane.value(), tPlane.value(), nPlane.value(), fPlane.value());
     // pg.frustum(lPlane.value(), rPlane.value(), tPlane.value(), bPlane.value(), nPlane.value(), fPlane.value());
     const t = pMatrix.isOrtho() ? -pMatrix.tPlane() : pMatrix.tPlane();
