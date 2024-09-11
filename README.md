@@ -182,17 +182,17 @@ The `applyShader` function applies a `shader` to a given `scene` and `target`, i
 
 ## Post-effects
 
-Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as _bloom_, _motion blur_, _ambient occlusion_, and _color grading_, into a rendered scene. A user-space array of `effects` may be sequentially applied to a source `layer` with `applyEffects(layer, effects, [uniforms], [flip])`. Example usage:
+Post-effects[^1] play a key role in dynamic visual rendering, allowing for the interactive blending of various shader effects such as _bloom_, _motion blur_, _ambient occlusion_, and _color grading_, into a rendered scene. A user-space array of `effects` may be sequentially applied to a `source` with `applyEffects(source, effects, [uniforms], [flip])`. Example usage:
 
 ```glsl
 // noise_shader
-uniform sampler2D blender; // <- shared layer should be named 'blender'
+uniform sampler2D blender; // <- shared source should be named 'blender'
 uniform float time;
 ```
 
 ```glsl
 // bloom_shader
-uniform sampler2D blender; // <- shared layer should be named 'blender'
+uniform sampler2D blender; // <- shared source should be named 'blender'
 uniform sampler2D depth;
 ```
 
@@ -238,7 +238,7 @@ function keyPressed() {
 }
 ```
 
-1. `applyEffects(layer, effects, [uniforms = {}], [flip = true])`: Sequentially applies all effects (in the order they were added) to the source [p5.Framebuffer](https://p5js.org/reference/#/p5.Framebuffer) `layer`. The `uniforms` param map shader `keys` to their respective uniform values, formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`, provided that a `sampler2D uniform blender` variable is declared in each shader effect as a common layer. The `flip` boolean indicates whether the final image should be vertically flipped. This method processes each effect, applying its shader with the corresponding uniforms (with `applyShader`), and returns the final processed layer, now modified by all effects.
+1. `applyEffects(source, effects, [uniforms = {}], [flip = true])`: Sequentially applies all effects (in the order they were added) to the source, which can be a [p5.Framebuffer](https://p5js.org/reference/p5/p5.Framebuffer), [p5.Image](https://p5js.org/reference/p5/p5.Image/), or [p5.MediaElement](https://p5js.org/reference/p5/p5.MediaElement/). The `uniforms` param maps shader `keys` to their respective uniform values, formatted as `{ uniform_1_name: value_1, ..., uniform_n_name: value_n }`, provided that a `sampler2D uniform blender` variable is declared in each shader effect as a common fbo layer. The `flip` boolean indicates whether the final image should be vertically flipped. This method processes each effect, applying its shader with the corresponding uniforms (using `applyShader`), and returns the final processed source, now modified by all effects.
 2. `createBlender(effects, [options={}])`: [Creates](https://p5js.org/reference/#/p5/createFramebuffer) and attaches an fbo layer with specified `options` to each shader in the `effects` array. If `createBlender` is not called, `applyEffects` automatically generates a blender layer for each shader, utilizing default options.
 3. `removeBlender(effects)`: Removes the individual fbo layers associated with each shader in the `effects` array, freeing up resources by invoking [remove](https://p5js.org/reference/#/p5.Framebuffer/remove).
 

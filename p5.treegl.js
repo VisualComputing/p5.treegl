@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.10.1',
+    VERSION: '0.10.2',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1193,6 +1193,10 @@ void main() {
     }
   }
 
+  // TODO decide what uniforms applyShader and applyEffect should emit (particularly flip stuff )
+  // Define also uniform and function names (should be the same) to those of uniforms,
+  // resolution may be refactored (as uniform with this name is already taken by p5)
+
   /**
    * Applies a shader to a specified rendering `target`, sets shader `uniforms`, and optionally
    * executes a `scene` function with provided `options`. If no `scene` is specified, a default
@@ -1217,6 +1221,8 @@ void main() {
       }
     });
     const { target, uniforms = {}, scene, options = {} } = config;
+    // TODO decide whether to emit this:
+    //uniforms.uMouse = this.mousePosition(options.flip); // TODO needs fine-tuning
     target instanceof p5.Framebuffer && target.begin();
     const context = target instanceof p5.Graphics ? target : this;
     context === this ? context.push() : context._rendererState = context.push();
@@ -1240,13 +1246,13 @@ void main() {
   }
 
   p5.prototype.applyEffects = function (...args) {
-    let layer;
+    let source;
     let effects;
     let uniformsMapping = {};
     let flip = true;
     args.forEach(arg => {
-      if (arg instanceof p5.Framebuffer) {
-        layer = arg;
+      if (arg instanceof p5.Framebuffer || arg instanceof p5.Image || arg instanceof p5.MediaElement) {
+        source = arg;
       } else if (Array.isArray(arg) && arg.every(e => e instanceof p5.Shader)) {
         effects = arg;
       } else if (typeof arg === 'object' && !Array.isArray(arg)) {
@@ -1255,17 +1261,15 @@ void main() {
         flip = arg;
       }
     });
-    if (!(layer instanceof p5.Framebuffer)) {
-      console.log('The layer param should be a p5.Framebuffer in applyEffects(layer, effects).');
-      return layer;
+    if (!(source instanceof p5.Framebuffer || source instanceof p5.Image || source instanceof p5.MediaElement)) {
+      console.log('The source param should be either a p5.Framebuffer, p5.Image, or p5.MediaElement in applyEffects(source, effects).');
+      return source;
     }
     if (!Array.isArray(effects)) {
-      console.log('The effects param should be an array in applyEffects(layer, effects).');
-      return layer;
+      console.log('The effects param should be an array in applyEffects(source, effects).');
+      return source;
     }
-    let blender = layer;
-    // TODO: a duplicate effect produces: WebGL warning: drawElementsInstance
-    // decide whether to include the avoid duplicates using appliedEffects set fix below
+    let blender = source;
     const appliedEffects = new Set();
     effects.forEach((effect, index) => {
       if (!(effect instanceof p5.Shader)) {
@@ -1293,6 +1297,9 @@ void main() {
       }
       !effect._blender && console.log(`Skipping effect '${index}' due to '${effect.key}' shader missed uniform sampler2D blender variable.`);
       uniforms.blender = blender;
+      // TODO decide whether to emit these:
+      // (source instanceof p5.Image || source instanceof p5.MediaElement) &&
+      // (uniforms.uOffset = this.texOffset(source), uniforms.uResolution = this.resolution());
       blender = this.applyShader(effect, { target: effect.blender, scene: () => this.overlay(flip), uniforms });
     });
     return blender;
