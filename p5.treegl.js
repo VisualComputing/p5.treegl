@@ -11,7 +11,7 @@
 var Tree = (function (ext) {
   const INFO = {
     LIBRARY: 'p5.treegl',
-    VERSION: '0.10.2',
+    VERSION: '0.10.3',
     HOMEPAGE: 'https://github.com/VisualComputing/p5.treegl'
   };
   Object.freeze(INFO);
@@ -1251,7 +1251,7 @@ void main() {
     let uniformsMapping = {};
     let flip = true;
     args.forEach(arg => {
-      if (arg instanceof p5.Framebuffer || arg instanceof p5.Image || arg instanceof p5.MediaElement) {
+      if (arg instanceof p5.Framebuffer || arg instanceof p5.Graphics || arg instanceof p5.Image || arg instanceof p5.MediaElement) {
         source = arg;
       } else if (Array.isArray(arg) && arg.every(e => e instanceof p5.Shader)) {
         effects = arg;
@@ -1261,8 +1261,8 @@ void main() {
         flip = arg;
       }
     });
-    if (!(source instanceof p5.Framebuffer || source instanceof p5.Image || source instanceof p5.MediaElement)) {
-      console.log('The source param should be either a p5.Framebuffer, p5.Image, or p5.MediaElement in applyEffects(source, effects).');
+    if (!(source instanceof p5.Framebuffer || source instanceof p5.Graphics || source instanceof p5.Image || source instanceof p5.MediaElement)) {
+      console.log('The source param should be either a p5.Framebuffer, p5.Graphics, p5.Image, or p5.MediaElement in applyEffects(source, effects).');
       return source;
     }
     if (!Array.isArray(effects)) {
